@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP 2026-07-28: The Stateless Spec, Hands-On</title>
+<meta name="description" content="An interactive workshop on the Model Context Protocol 2026-07-28 specification: stateless core, MRTR, Tasks, MCP Apps, and auth hardening, built with real Python and C# SDK code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   FIELD GUIDE DESIGN SYSTEM — tokens
+   ============================================================ */
+:root{
+  --font-display:'Fraunces',serif;
+  --font-body:'Public Sans',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+
+  --sp-1:.25rem; --sp-2:.5rem; --sp-3:.75rem; --sp-4:1rem;
+  --sp-5:1.5rem; --sp-6:2rem; --sp-7:3rem; --sp-8:4rem; --sp-9:6rem;
+
+  --radius-s:3px; --radius-m:6px; --radius-l:10px;
+  --nav-w:248px; --rail-w:300px;
+  --ease:cubic-bezier(.22,.8,.35,1);
+  --dur-s:120ms; --dur-m:220ms; --dur-l:420ms;
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+}
+
+/* ---- TIDE (default) — coastal blue on deep sea ink ---- */
+html[data-palette="tide"]{
+  --bg:#0a111d; --bg-elev:#0f1a2b; --surface:#142238; --surface-2:#1a2c48;
+  --border:#25385a; --border-soft:#1a2740;
+  --ink:#e7eef8; --ink-dim:#93a8c4; --ink-faint:#5d7392;
+  --accent:#52b8ff; --accent-ink:#04121f;
+  --green:#4ede93; --clay:#e7ac52; --red:#ff6f66; --alt:#a68cf2;
+}
+html[data-palette="tide"][data-theme="light"]{
+  --bg:#f2f6fb; --bg-elev:#ffffff; --surface:#e7eff9; --surface-2:#dae6f4;
+  --border:#c2d3e8; --border-soft:#d5e2f1;
+  --ink:#0e1c2e; --ink-dim:#43597a; --ink-faint:#6f84a1;
+  --accent:#0d6fad; --accent-ink:#ffffff;
+  --green:#177a4d; --clay:#946011; --red:#c23a30; --alt:#5a3fb0;
+}
+
+/* ---- EMBER — warm amber on warm ink ---- */
+html[data-palette="ember"]{
+  --bg:#181110; --bg-elev:#221715; --surface:#2b1e1a; --surface-2:#372620;
+  --border:#493228; --border-soft:#33231d;
+  --ink:#f5ebe1; --ink-dim:#c7a48c; --ink-faint:#8f6f5b;
+  --accent:#ff9b4a; --accent-ink:#241000;
+  --green:#83d488; --clay:#e8bc4c; --red:#ff6f5e; --alt:#c98cee;
+}
+html[data-palette="ember"][data-theme="light"]{
+  --bg:#faf3ea; --bg-elev:#ffffff; --surface:#f1e3d2; --surface-2:#e8d4bd;
+  --border:#dcc09a; --border-soft:#ecdcc4;
+  --ink:#2b1a0e; --ink-dim:#69492f; --ink-faint:#8a6a4c;
+  --accent:#b2540a; --accent-ink:#ffffff;
+  --green:#276b34; --clay:#8a5c09; --red:#af3527; --alt:#6c3fa8;
+}
+
+/* ---- IRIS — violet on cool ink ---- */
+html[data-palette="iris"]{
+  --bg:#0e0c17; --bg-elev:#151223; --surface:#1c182e; --surface-2:#241f3a;
+  --border:#332c4e; --border-soft:#231e38;
+  --ink:#ebe8f8; --ink-dim:#a79fca; --ink-faint:#6d6494;
+  --accent:#a17dff; --accent-ink:#120a24;
+  --green:#71e3ac; --clay:#e7b95e; --red:#ff7c78; --alt:#57c9e8;
+}
+html[data-palette="iris"][data-theme="light"]{
+  --bg:#f5f2fb; --bg-elev:#ffffff; --surface:#e9e3f7; --surface-2:#ded5f2;
+  --border:#c7b9e8; --border-soft:#dcd0f0;
+  --ink:#1a1530; --ink-dim:#4f4778; --ink-faint:#736a99;
+  --accent:#6631cc; --accent-ink:#ffffff;
+  --green:#187953; --clay:#8c5c09; --red:#b8362c; --alt:#0f7d99;
+}
+
+/* ============================================================
+   RESET + BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box; margin:0; padding:0;}
+html{color-scheme:dark; scroll-behavior:smooth;}
+html[data-theme="light"]{color-scheme:light;}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto;} *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  transition:background var(--dur-m) var(--ease), color var(--dur-m) var(--ease);
+}
+
+::selection{ background:var(--accent); color:var(--accent-ink); }
+html{ caret-color:var(--accent); }
+a{ color:var(--accent); text-underline-offset:3px; text-decoration-color:color-mix(in srgb, var(--accent) 55%, transparent); }
+:focus-visible{ outline:none; box-shadow:var(--focus-ring); border-radius:var(--radius-s); }
+
+/* scrollbars — global */
+*{ scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+*::-webkit-scrollbar{ width:10px; height:10px; }
+*::-webkit-scrollbar-track{ background:transparent; }
+*::-webkit-scrollbar-thumb{ background:var(--border); border-radius:8px; border:2px solid var(--bg); }
+*::-webkit-scrollbar-thumb:hover{ background:var(--ink-faint); }
+
+h1,h2,h3,h4{ font-family:var(--font-display); font-weight:600; letter-spacing:-0.02em; line-height:1.14; color:var(--ink); }
+h1{ font-size:clamp(1.9rem,3.4vw,2.6rem); }
+h2{ font-size:clamp(1.4rem,2.4vw,1.85rem); }
+h3{ font-size:1.15rem; }
+p{ color:var(--ink-dim); max-width:64ch; }
+code, .mono, .num{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+body, table, .out, input, .num{ font-variant-numeric:tabular-nums; }
+
+/* ---- tick rule — signature device ---- */
+.tick{
+  --n:24;
+  height:14px; width:100%;
+  background-image:repeating-linear-gradient(90deg, var(--border) 0 1px, transparent 1px calc(100%/var(--n)));
+  background-size:calc(100%/var(--n)*4) 100%, 100% 100%;
+  position:relative;
+}
+.tick::after{
+  content:''; position:absolute; left:0; top:0; height:100%;
+  border-bottom:1px solid var(--border-soft);
+  width:100%;
+}
+.tick.tick-lg{ height:20px; --n:48; }
+
+/* ============================================================
+   LAYOUT — three pane
+   ============================================================ */
+.shell{ display:grid; grid-template-columns:var(--nav-w) minmax(0,1fr) var(--rail-w); min-height:100vh; }
+
+/* ---- LEFT NAV ---- */
+.nav{
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+  border-right:1px solid var(--border-soft); background:var(--bg-elev);
+  padding:var(--sp-5) var(--sp-4) var(--sp-6);
+  display:flex; flex-direction:column; gap:var(--sp-5);
+}
+.brand{ display:flex; flex-direction:column; gap:var(--sp-2); }
+.brand .mark{ font-family:var(--font-display); font-weight:600; font-size:1.05rem; letter-spacing:-0.01em; }
+.brand .sub{ font-size:.72rem; color:var(--ink-faint); letter-spacing:.02em; }
+
+.progress-wrap{ display:flex; flex-direction:column; gap:var(--sp-2); }
+.progress-label{ font-size:.68rem; color:var(--ink-faint); display:flex; justify-content:space-between; }
+.progress-label span:last-child{ font-family:var(--font-mono); }
+.progress-track{ height:4px; background:var(--surface-2); border-radius:2px; overflow:hidden; }
+.progress-fill{ height:100%; width:100%; background:var(--accent); transform-origin:left; transform:scaleX(0); transition:transform var(--dur-m) var(--ease); }
+
+.navlist{ list-style:none; display:flex; flex-direction:column; gap:2px; flex:1; }
+.navlist a{
+  display:flex; align-items:baseline; gap:var(--sp-3);
+  padding:var(--sp-2) var(--sp-3); border-radius:var(--radius-m);
+  color:var(--ink-dim); text-decoration:none; font-size:.87rem;
+  transition:background var(--dur-s) var(--ease), color var(--dur-s) var(--ease);
+  border-left:2px solid transparent;
+}
+.navlist a .idx{ font-family:var(--font-mono); font-size:.72rem; color:var(--ink-faint); min-width:1.4em; }
+.navlist a:hover{ background:var(--surface); color:var(--ink); }
+.navlist a.active{ background:var(--surface); color:var(--ink); border-left:2px solid var(--accent); }
+.navlist a.active .idx{ color:var(--accent); }
+
+.nav-controls{ display:flex; flex-direction:column; gap:var(--sp-3); padding-top:var(--sp-4); border-top:1px solid var(--border-soft); }
+.swatch-row{ display:flex; gap:var(--sp-2); }
+.swatch{
+  width:28px; height:28px; border-radius:50%; border:2px solid var(--border);
+  cursor:pointer; position:relative; background:none; padding:0;
+  transition:transform var(--dur-s) var(--ease), border-color var(--dur-s) var(--ease);
+}
+.swatch::before{ content:''; position:absolute; inset:3px; border-radius:50%; }
+.swatch[data-sw="tide"]::before{ background:#4fb1f0; }
+.swatch[data-sw="ember"]::before{ background:#f0985a; }
+.swatch[data-sw="iris"]::before{ background:#9a78ef; }
+.swatch:hover{ transform:scale(1.08); }
+.swatch.active{ border-color:var(--accent); }
+.mode-toggle{
+  display:flex; align-items:center; justify-content:space-between; gap:var(--sp-2);
+  background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-m);
+  padding:var(--sp-2) var(--sp-3); cursor:pointer; font-family:var(--font-body); font-size:.8rem; color:var(--ink);
+}
+.mode-toggle:hover{ background:var(--surface-2); }
+.mode-icon{ color:var(--ink-faint); }
+html[data-theme="dark"] .icon-sun{ display:none; }
+html[data-theme="light"] .icon-moon{ display:none; }
+
+/* ---- CENTER CONTENT ---- */
+.content{ min-width:0; padding:0 var(--sp-7) var(--sp-9); border-right:1px solid var(--border-soft); }
+.hero{ padding:var(--sp-8) 0 var(--sp-6); }
+.hero h1{ margin-bottom:var(--sp-4); max-width:20ch; }
+.hero p.lede{ font-size:1.05rem; max-width:56ch; }
+.hero .stat-row{ display:flex; gap:var(--sp-6); margin-top:var(--sp-6); flex-wrap:wrap; }
+.stat{ display:flex; flex-direction:column; gap:2px; }
+.stat .v{ font-family:var(--font-mono); font-size:1.3rem; color:var(--ink); font-weight:600; }
+.stat .l{ font-size:.72rem; color:var(--ink-faint); }
+
+.module{ padding:var(--sp-8) 0; border-top:1px solid var(--border-soft); scroll-margin-top:var(--sp-6); opacity:0; transform:translateY(14px); transition:opacity var(--dur-l) var(--ease), transform var(--dur-l) var(--ease); }
+.module.revealed{ opacity:1; transform:translateY(0); }
+.module-head{ display:flex; flex-direction:column; gap:var(--sp-3); margin-bottom:var(--sp-5); }
+.module-num{ font-family:var(--font-mono); font-size:.72rem; color:var(--ink-faint); display:flex; align-items:center; gap:var(--sp-2); }
+.module-num::before{ content:''; display:inline-block; width:22px; height:1px; background:var(--border); }
+.module h2{ max-width:34ch; }
+.takeaway{
+  margin-top:var(--sp-2); padding:var(--sp-3) var(--sp-4); background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-m);
+  font-size:.9rem; color:var(--ink);
+}
+.takeaway b{ color:var(--accent); font-weight:600; }
+
+.callout{ background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-m); padding:var(--sp-4); margin:var(--sp-5) 0; }
+.callout .label{ font-family:var(--font-body); font-weight:600; font-size:.7rem; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:var(--sp-2); text-transform:uppercase; }
+.callout.gap{ border-color:color-mix(in srgb, var(--clay) 45%, var(--border-soft)); }
+.callout.gap .label{ color:var(--clay); }
+
+/* code tabs */
+.codeblock{ margin:var(--sp-5) 0; border:1px solid var(--border-soft); border-radius:var(--radius-m); overflow:hidden; background:var(--bg-elev); }
+.codeblock .tabs{ display:flex; border-bottom:1px solid var(--border-soft); background:var(--surface); }
+.codeblock .tab{ font-family:var(--font-mono); font-size:.76rem; padding:var(--sp-2) var(--sp-4); background:none; border:none; color:var(--ink-faint); cursor:pointer; border-bottom:2px solid transparent; }
+.codeblock .tab.active{ color:var(--ink); border-bottom-color:var(--accent); }
+.codeblock .tab-label{ margin-left:auto; padding:var(--sp-2) var(--sp-4); font-family:var(--font-mono); font-size:.68rem; color:var(--ink-faint); }
+.codeblock pre{ margin:0; padding:var(--sp-4); overflow-x:auto; font-family:var(--font-mono); font-size:.82rem; line-height:1.65; }
+.codeblock pre[hidden]{ display:none; }
+.codeblock code{ color:var(--ink); }
+.tok-kw{ color:var(--alt); } .tok-str{ color:var(--green); } .tok-com{ color:var(--ink-faint); font-style:italic; }
+.tok-fn{ color:var(--accent); } .tok-type{ color:var(--clay); }
+
+/* labs */
+.lab{ margin:var(--sp-6) 0; border:1px solid var(--border-soft); border-radius:var(--radius-l); background:var(--bg-elev); overflow:hidden; }
+.lab-head{ display:flex; align-items:center; gap:var(--sp-3); padding:var(--sp-4); border-bottom:1px solid var(--border-soft); background:var(--surface); }
+.lab-head .lab-icon{ width:20px; height:20px; flex:none; }
+.lab-head h3{ font-family:var(--font-body); font-weight:600; font-size:.95rem; }
+.lab-body{ padding:var(--sp-5); display:flex; flex-direction:column; gap:var(--sp-4); }
+.lab-row{ display:flex; gap:var(--sp-4); flex-wrap:wrap; }
+.lab-col{ flex:1 1 260px; display:flex; flex-direction:column; gap:var(--sp-3); }
+
+.field{ display:flex; flex-direction:column; gap:var(--sp-2); }
+.field label{ font-size:.76rem; color:var(--ink-dim); font-family:var(--font-mono); }
+.field input[type="text"], .field input[type="number"], .field select, .field textarea{
+  background:var(--surface); border:1px solid var(--border-soft); color:var(--ink);
+  border-radius:var(--radius-s); padding:var(--sp-2) var(--sp-3); font-family:var(--font-mono); font-size:.85rem;
+}
+.field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--accent); }
+
+.btn{
+  font-family:var(--font-body); font-weight:600; font-size:.85rem; cursor:pointer;
+  padding:var(--sp-2) var(--sp-4); border-radius:var(--radius-m); border:1px solid var(--border-soft);
+  background:var(--surface); color:var(--ink); transition:background var(--dur-s) var(--ease), transform var(--dur-s) var(--ease);
+}
+.btn:hover{ background:var(--surface-2); }
+.btn:active{ transform:scale(.98); }
+.btn.primary{ background:var(--accent); color:var(--accent-ink); border-color:transparent; }
+.btn.primary:hover{ filter:brightness(1.08); }
+.btn.ghost{ background:none; }
+.btn.small{ padding:4px var(--sp-3); font-size:.76rem; }
+.btn-row{ display:flex; gap:var(--sp-2); flex-wrap:wrap; }
+.btn[disabled]{ opacity:.45; cursor:not-allowed; }
+
+.toggle-pair{ display:inline-flex; border:1px solid var(--border-soft); border-radius:var(--radius-m); overflow:hidden; }
+.toggle-pair button{ font-family:var(--font-mono); font-size:.78rem; padding:var(--sp-2) var(--sp-3); background:var(--surface); color:var(--ink-dim); border:none; cursor:pointer; }
+.toggle-pair button.active{ background:var(--accent); color:var(--accent-ink); }
+
+.out{
+  background:var(--bg); border:1px solid var(--border-soft); border-radius:var(--radius-m);
+  padding:var(--sp-4); font-family:var(--font-mono); font-size:.8rem; line-height:1.7; color:var(--ink-dim);
+  min-height:64px; white-space:pre-wrap; word-break:break-word;
+}
+.out .ok{ color:var(--green); } .out .bad{ color:var(--red); } .out .warn{ color:var(--clay); } .out .hi{ color:var(--accent); }
+.out .illustrative{ color:var(--ink-faint); font-style:italic; }
+
+.metric-row{ display:flex; gap:var(--sp-5); flex-wrap:wrap; }
+.metric{ display:flex; flex-direction:column; gap:2px; }
+.metric .v{ font-family:var(--font-mono); font-size:1.4rem; font-weight:600; }
+.metric .v.green{ color:var(--green);} .metric .v.red{ color:var(--red);} .metric .v.accent{ color:var(--accent);}
+.metric .l{ font-size:.7rem; color:var(--ink-faint); }
+
+.badge{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:.7rem; padding:2px 8px; border-radius:20px; border:1px solid var(--border-soft); color:var(--ink-dim); }
+.badge .dot{ width:6px; height:6px; border-radius:50%; background:var(--ink-faint); }
+.badge.ok .dot{ background:var(--green); } .badge.ok{ color:var(--green); border-color:color-mix(in srgb, var(--green) 40%, var(--border-soft)); }
+.badge.bad .dot{ background:var(--red); } .badge.bad{ color:var(--red); border-color:color-mix(in srgb, var(--red) 40%, var(--border-soft)); }
+.badge.live .dot{ background:var(--accent); animation:pulse 1.6s infinite; }
+
+@keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+
+/* replica visual (module 1) */
+.replica-pool{ display:flex; gap:var(--sp-4); flex-wrap:wrap; margin:var(--sp-3) 0; }
+.replica{ flex:1 1 100px; border:1px solid var(--border-soft); border-radius:var(--radius-m); padding:var(--sp-3); text-align:center; background:var(--surface); transition:border-color var(--dur-m) var(--ease), background var(--dur-m) var(--ease); }
+.replica .rid{ font-family:var(--font-mono); font-size:.7rem; color:var(--ink-faint); }
+.replica .rstate{ font-size:1.3rem; margin:var(--sp-2) 0 4px; }
+.replica.hit{ border-color:var(--green); background:color-mix(in srgb, var(--green) 10%, var(--surface)); }
+.replica.miss{ border-color:var(--red); background:color-mix(in srgb, var(--red) 10%, var(--surface)); }
+.request-chip{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:.72rem; padding:3px 9px; border-radius:20px; border:1px solid var(--border-soft); background:var(--bg-elev); }
+
+/* sandboxed app iframe (module 9) */
+.app-frame-wrap{ border:1px solid var(--border-soft); border-radius:var(--radius-m); overflow:hidden; background:var(--bg); }
+.app-frame-bar{ display:flex; justify-content:space-between; align-items:center; padding:6px var(--sp-3); background:var(--surface); font-family:var(--font-mono); font-size:.68rem; color:var(--ink-faint); border-bottom:1px solid var(--border-soft); }
+iframe.app-frame{ width:100%; height:220px; border:none; display:block; background:var(--bg-elev); }
+
+/* quiz / checklist */
+.checklist{ display:flex; flex-direction:column; gap:var(--sp-2); margin:var(--sp-5) 0; }
+.check-item{ display:flex; align-items:flex-start; gap:var(--sp-3); padding:var(--sp-3); border:1px solid var(--border-soft); border-radius:var(--radius-m); cursor:pointer; background:var(--surface); }
+.check-item input{ margin-top:3px; accent-color:var(--accent); }
+.check-item .ctext{ font-size:.88rem; color:var(--ink); }
+.check-item .ctext .sub{ display:block; font-size:.76rem; color:var(--ink-faint); margin-top:2px; }
+
+table{ border-collapse:collapse; width:100%; font-size:.84rem; }
+th,td{ text-align:left; padding:var(--sp-2) var(--sp-3); border-bottom:1px solid var(--border-soft); }
+th{ font-family:var(--font-mono); font-size:.68rem; color:var(--ink-faint); font-weight:500; text-transform:uppercase; letter-spacing:.03em; }
+
+/* ---- RIGHT RAIL ---- */
+.rail{ position:sticky; top:0; height:100vh; overflow-y:auto; padding:var(--sp-5) var(--sp-4) var(--sp-6); display:flex; flex-direction:column; gap:var(--sp-5); }
+.connect-panel{ border:1px solid var(--border-soft); border-radius:var(--radius-m); background:var(--surface); padding:var(--sp-4); display:flex; flex-direction:column; gap:var(--sp-3); transition:border-color var(--dur-m) var(--ease), background var(--dur-m) var(--ease); }
+.connect-panel.live{ border-color:color-mix(in srgb, var(--green) 45%, var(--border-soft)); background:color-mix(in srgb, var(--green) 7%, var(--surface)); }
+.connect-head{ display:flex; align-items:center; justify-content:space-between; }
+.connect-head .lamp{ display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:.68rem; color:var(--ink-faint); }
+.connect-head .lamp .dot{ width:8px; height:8px; border-radius:50%; background:var(--ink-faint); }
+.connect-panel.live .lamp .dot{ background:var(--green); }
+.connect-msg{ font-size:.74rem; color:var(--ink-faint); min-height:1.2em; }
+.connect-msg.err{ color:var(--red); }
+.connect-msg.ok{ color:var(--green); }
+details.advanced{ font-size:.76rem; color:var(--ink-dim); }
+details.advanced summary{ cursor:pointer; color:var(--ink-faint); }
+details.advanced .adv-body{ display:flex; flex-direction:column; gap:var(--sp-2); margin-top:var(--sp-2); }
+.spend-row{ display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.7rem; color:var(--ink-faint); padding-top:var(--sp-2); border-top:1px solid var(--border-soft); }
+
+.rail-section{ display:flex; flex-direction:column; gap:var(--sp-2); }
+.rail-title{ font-family:var(--font-body); font-weight:600; font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); }
+#railBody{ display:flex; flex-direction:column; gap:var(--sp-5); transition:opacity var(--dur-m) var(--ease); }
+#railBody.fading{ opacity:0; }
+.rail-tip{ font-size:.82rem; color:var(--ink-dim); padding-left:var(--sp-3); border-left:1px solid var(--border-soft); }
+.rail-ref{ display:flex; flex-direction:column; gap:2px; }
+.rail-ref a{ font-size:.8rem; }
+.rail-ref .src{ font-size:.68rem; color:var(--ink-faint); font-family:var(--font-mono); }
+.gloss-term{ font-family:var(--font-mono); font-size:.78rem; color:var(--ink); }
+.gloss-def{ font-size:.78rem; color:var(--ink-faint); margin-top:1px; }
+
+.rail-sources{ margin-top:auto; padding-top:var(--sp-4); border-top:1px solid var(--border-soft); }
+.rail-sources summary{ cursor:pointer; font-family:var(--font-body); font-weight:600; font-size:.7rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em; }
+.rail-sources ul{ list-style:none; margin-top:var(--sp-2); display:flex; flex-direction:column; gap:4px; }
+.rail-sources li{ font-size:.74rem; }
+.rail-sources a{ color:var(--ink-dim); }
+
+/* footer */
+footer.legal{ padding:var(--sp-7) 0 var(--sp-8); border-top:1px solid var(--border-soft); }
+footer.legal p{ font-size:.76rem; color:var(--ink-faint); max-width:70ch; margin-bottom:var(--sp-2); }
+footer.legal a{ color:var(--ink-faint); }
+
+@media (max-width:1100px){ :root{ --rail-w:260px; --nav-w:210px; } }
+@media (max-width:560px){
+  .shell{ grid-template-columns:1fr; }
+  .nav, .rail{ position:relative; height:auto; top:auto; border:none; }
+  .content{ border:none; padding:0 var(--sp-4) var(--sp-8); }
+  .rail{ border-top:1px solid var(--border-soft); }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ============ LEFT NAV ============ -->
+<nav class="nav" aria-label="Workshop modules">
+  <div class="brand">
+    <div class="mark">MCP 2026-07-28</div>
+    <div class="sub">stateless spec workshop</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Progress</span><span id="progressPct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <ul class="navlist" id="navlist"></ul>
+  <div class="nav-controls">
+    <div class="swatch-row" role="group" aria-label="Palette">
+      <button class="swatch active" data-sw="tide" aria-label="Tide palette"></button>
+      <button class="swatch" data-sw="ember" aria-label="Ember palette"></button>
+      <button class="swatch" data-sw="iris" aria-label="Iris palette"></button>
+    </div>
+    <button class="mode-toggle" id="modeToggle" aria-label="Toggle light/dark"><span id="modeLabel">Dark mode</span>
+      <svg class="mode-icon icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <svg class="mode-icon icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v3M12 18.5v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ============ CENTER CONTENT ============ -->
+<main class="content" id="content">
+  <div class="tick tick-lg"></div>
+  <section class="hero">
+    <h1>The protocol went stateless. Here's how to build on it.</h1>
+    <div class="module-num" style="margin-top:var(--sp-3)">MCP SPEC 2026-07-28 · STATELESS CORE</div>
+    <p class="lede">Ten short modules and a live capstone, from why MCP dropped sessions through Multi Round-Trip Requests, Tasks, and MCP Apps, to a real model threading state through a stateless tool call. Every lab runs offline by default; the last one can go live.</p>
+    <div class="stat-row">
+      <div class="stat"><span class="v">11</span><span class="l">modules</span></div>
+      <div class="stat"><span class="v">1</span><span class="l">request per call, not 2</span></div>
+      <div class="stat"><span class="v">0</span><span class="l">keys required to start</span></div>
+    </div>
+  </section>
+
+  <section class="module" id="m1">
+    <div class="module-head">
+      <h2>Why MCP went stateless</h2>
+      <div class="module-num">MODULE 01 / 11 · BASICS</div>
+      <div class="takeaway"><b>Takeaway:</b> a legacy MCP session pins a client to one server instance for its whole lifetime, which is the entire reason sticky routing and shared session storage existed in the first place.</div>
+    </div>
+    <p>Under the 2025-11-25 spec, a client sends <code>initialize</code>, the server hands back an <code>Mcp-Session-Id</code>, and every request after that must land on the exact instance holding that session in memory. Put three replicas behind a plain round-robin balancer and roughly two-thirds of a session's follow-up requests arrive somewhere that has never heard of it.</p>
+    <p>2026-07-28 removes the pin entirely. Every request carries everything it needs: protocol version, client identity, capabilities. Any replica can answer it correctly, cold.</p>
+
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Python</button>
+        <button class="tab" data-lang="csharp">C#</button>
+        <span class="tab-label">the one flag that decides this</span>
+      </div>
+      <pre data-lang="python"><code data-hl># v2 SDK — this is the whole difference
+mcp.run(
+    transport="streamable-http",
+    stateless_http=True,   # any replica can answer any request
+    json_response=True,
+)</code></pre>
+      <pre data-lang="csharp" hidden><code data-hl>// v2 SDK — Stateless defaults to true; shown explicitly
+builder.Services.AddMcpServer()
+    .WithHttpTransport(options =>
+    {
+        options.Stateless = true; // recommended default
+    })
+    .WithTools&lt;MyTools&gt;();</code></pre>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: send 6 requests into a 3-replica pool</h3><span class="badge" id="m1badge"><span class="dot"></span><span>idle</span></span></div>
+      <div class="lab-body">
+        <div class="toggle-pair" role="group" aria-label="Protocol era">
+          <button class="active" data-m1-era="legacy">Legacy · 2025-11-25 (sessioned)</button>
+          <button data-m1-era="stateless">2026-07-28 (stateless)</button>
+        </div>
+        <div class="replica-pool" id="m1pool"></div>
+        <div class="btn-row">
+          <button class="btn primary" id="m1send">Send 6 requests</button>
+          <button class="btn ghost" id="m1reset">Reset</button>
+        </div>
+        <div class="metric-row">
+          <div class="metric"><span class="v" id="m1success">—</span><span class="l">requests answered</span></div>
+          <div class="metric"><span class="v" id="m1rate">—</span><span class="l">success rate</span></div>
+        </div>
+        <div class="out" id="m1out">Pick an era, then send requests. In legacy mode, the first request mints a session pinned to whichever replica handles it. Watch what happens when a round-robin balancer sends the next one somewhere else.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m2">
+    <div class="module-head">
+      <h2>The one-shot request</h2>
+      <div class="module-num">MODULE 02 / 11 · BASICS</div>
+      <div class="takeaway"><b>Takeaway:</b> every 2026-07-28 request carries its own protocol version, client identity, and capabilities in <code>_meta</code>, so the old two-request <code>initialize</code> + <code>tools/call</code> dance collapses into a single self-contained POST.</div>
+    </div>
+    <p>This is the exact shape change Simon Willison walked through the week the spec shipped: legacy MCP needs a round trip just to get an <code>Mcp-Session-Id</code> before it can do anything useful. The new revision skips straight to the call.</p>
+
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Python</button>
+        <button class="tab" data-lang="csharp">C#</button>
+        <span class="tab-label">app code doesn't change either way</span>
+      </div>
+      <pre data-lang="python"><code data-hl># Client auto-negotiates the era — same call, either spec revision
+async with Client(mcp_or_url) as client:
+    result = await client.call_tool("search", {"q": "otters"})
+    print(client.protocol_version)  # "2026-07-28" or a fallback</code></pre>
+      <pre data-lang="csharp" hidden><code data-hl>// Client probes 2026-07-28 first, falls back automatically
+await using var client = await McpClient.CreateAsync(transport);
+var result = await client.CallToolAsync(
+    "search", new Dictionary&lt;string, object?&gt; { ["q"] = "otters" });</code></pre>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: build the wire request yourself</h3></div>
+      <div class="lab-body">
+        <div class="lab-row">
+          <div class="lab-col">
+            <div class="field"><label for="m2tool">Tool name</label><input type="text" id="m2tool" value="search"></div>
+            <div class="field"><label for="m2arg">Argument (q)</label><input type="text" id="m2arg" value="otters"></div>
+            <div class="btn-row">
+              <button class="btn primary" id="m2build">Build both requests</button>
+            </div>
+            <div class="metric-row">
+              <div class="metric"><span class="v" id="m2rt">—</span><span class="l">round trips</span></div>
+              <div class="metric"><span class="v" id="m2bytes">—</span><span class="l">total bytes on the wire</span></div>
+            </div>
+          </div>
+          <div class="lab-col" style="flex:2 1 420px">
+            <div class="field"><label>Legacy — 2025-11-25 (2 requests)</label></div>
+            <div class="out" id="m2legacy" style="min-height:120px">—</div>
+            <div class="field"><label>2026-07-28 (1 request)</label></div>
+            <div class="out" id="m2new" style="min-height:80px">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m3">
+    <div class="module-head">
+      <h2>Header-based routing</h2>
+      <div class="module-num">MODULE 03 / 11 · BASICS</div>
+      <div class="takeaway"><b>Takeaway:</b> <code>Mcp-Method</code> and <code>Mcp-Name</code> now travel as real HTTP headers, so a gateway can route, meter, and authorize a request without ever parsing the JSON-RPC body.</div>
+    </div>
+    <p>Streamable HTTP requests at 2026-07-28 must include <code>Mcp-Method</code>, and the three name-bearing calls (<code>tools/call</code>, <code>prompts/get</code>, <code>resources/read</code>) also send <code>Mcp-Name</code>. Your WAF or rate limiter can filter on those headers directly, with no JSON parsing and no risk of choking on a body it can't fully read.</p>
+
+    <div class="callout">
+      <div class="label">Illustrative middleware — not an official SDK call</div>
+      <p style="max-width:none">Header-based routing happens at the gateway layer, in front of whichever SDK is serving the actual MCP server, so there's no single "official" snippet for it. This is the shape of the idea, in both languages:</p>
+    </div>
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Python</button>
+        <button class="tab" data-lang="csharp">C#</button>
+        <span class="tab-label">gateway middleware, not the MCP SDK</span>
+      </div>
+      <pre data-lang="python"><code data-hl">def route(request):
+    method = request.headers.get("Mcp-Method")   # e.g. "tools/call"
+    name   = request.headers.get("Mcp-Name")     # e.g. "search"
+    # decide the lane WITHOUT ever touching request.body
+    if method == "tools/call":
+        return TOOL_LANE
+    return DEFAULT_LANE</code></pre>
+      <pre data-lang="csharp" hidden><code data-hl>app.Use(async (context, next) =>
+{
+    var method = context.Request.Headers["Mcp-Method"];
+    var name   = context.Request.Headers["Mcp-Name"];
+    // route on headers alone — the body stream is untouched
+    await next();
+});</code></pre>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: route 5 requests through two gateway strategies</h3></div>
+      <div class="lab-body">
+        <div class="toggle-pair" role="group" aria-label="Gateway strategy">
+          <button class="active" data-m3-mode="header">Header-only rule</button>
+          <button data-m3-mode="body">Body-parsing "shortcut"</button>
+        </div>
+        <div class="btn-row"><button class="btn primary" id="m3run">Run gateway</button></div>
+        <table>
+          <thead><tr><th>Mcp-Method</th><th>Mcp-Name</th><th>Body</th><th>Routed to</th></tr></thead>
+          <tbody id="m3rows"></tbody>
+        </table>
+        <div class="out" id="m3out">Header rules read two HTTP headers. Body-parsing rules call JSON.parse on the payload first. Watch what happens when one payload isn't plain JSON.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m4">
+    <div class="module-head">
+      <h2>Explicit state handles</h2>
+      <div class="module-num">MODULE 04 / 11 · INTERMEDIATE</div>
+      <div class="takeaway"><b>Takeaway:</b> dropping the protocol session doesn't mean giving up state: a tool mints a handle and the model threads it back as an ordinary argument, so state stays visible to the model instead of hidden in a session store.</div>
+    </div>
+    <p>This is the pattern the maintainers point to directly: instead of a server remembering "this session has a basket," a tool returns a <code>basket_id</code> and the caller passes it to the next call, same as any other argument. Nothing about it is MCP-specific. It's the oldest trick in stateless API design, just newly load-bearing now that the transport can't hide state for you.</p>
+
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Python</button>
+        <button class="tab" data-lang="csharp">C#</button>
+        <span class="tab-label">mint the handle, thread it back</span>
+      </div>
+      <pre data-lang="python"><code data-hl">import secrets
+
+BASKETS = {}  # would be a real store in production
+
+@mcp.tool()
+def add_to_basket(item: str, qty: int) -> dict:
+    """Add an item and return the handle for later calls."""
+    basket_id = "bk_" + secrets.token_hex(4)
+    BASKETS[basket_id] = {"item": item, "qty": qty}
+    return {"basket_id": basket_id, "item": item, "qty": qty}
+
+@mcp.tool()
+def checkout(basket_id: str, confirm: bool = True) -> str:
+    """Finish the order — basket_id came from add_to_basket."""
+    basket = BASKETS.get(basket_id)
+    if basket is None:
+        return f"No basket found for {basket_id!r}."
+    return f"Checked out {basket['qty']}x {basket['item']} ({basket_id})."</code></pre>
+      <pre data-lang="csharp" hidden><code data-hl>static readonly ConcurrentDictionary&lt;string, Basket&gt; Baskets = new();
+
+[McpServerTool, Description("Add an item and return the handle for later calls.")]
+public static object AddToBasket(string item, int qty)
+{
+    var basketId = "bk_" + Guid.NewGuid().ToString("N")[..8];
+    Baskets[basketId] = new Basket(item, qty);
+    return new { basket_id = basketId, item, qty };
+}
+
+[McpServerTool, Description("Finish the order — basketId came from AddToBasket.")]
+public static string Checkout(string basketId, bool confirm = true)
+{
+    if (!Baskets.TryGetValue(basketId, out var basket))
+        return $"No basket found for {basketId}.";
+    return $"Checked out {basket.Qty}x {basket.Item} ({basketId}).";
+}</code></pre>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: mint a handle, then thread it into a second call</h3></div>
+      <div class="lab-body">
+        <div class="lab-row">
+          <div class="lab-col">
+            <div class="field"><label for="m4item">item</label><input type="text" id="m4item" value="tide chart"></div>
+            <div class="field"><label for="m4qty">qty</label><input type="number" id="m4qty" value="2" min="1"></div>
+            <div class="btn-row"><button class="btn primary" id="m4run">Call add_to_basket, then checkout</button></div>
+          </div>
+          <div class="lab-col" style="flex:2 1 380px">
+            <div class="out" id="m4out">Set an item and quantity, then run both calls. The handle minted by the first call should be the exact string passed into the second.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m5">
+    <div class="module-head">
+      <h2>Cacheable list results</h2>
+      <div class="module-num">MODULE 05 / 11 · INTERMEDIATE</div>
+      <div class="takeaway"><b>Takeaway:</b> <code>tools/list</code>, <code>prompts/list</code>, <code>resources/list</code>, and <code>resources/read</code> now carry <code>ttlMs</code> and <code>cacheScope</code>, so a client can hold a tool catalog instead of re-fetching it on every reconnect.</div>
+    </div>
+    <p>A server that sends no cache hints, which describes every pre-2026 server, looks exactly like a client that never caches. Nothing regresses; you only get faster reconnects when a server opts in.</p>
+
+    <div class="callout">
+      <div class="label">Illustrative — wire shape, not a verified exact API signature</div>
+      <p style="max-width:none">Both SDKs let you set these per-operation (Python: <code>cache_hints=</code> on the method registration; C#: per-operation cache metadata), but this is the field shape that actually crosses the wire, true regardless of which SDK produced it.</p>
+    </div>
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Wire response</button>
+        <span class="tab-label">tools/list result, 2026-07-28</span>
+      </div>
+      <pre data-lang="python"><code data-hl">{
+  "jsonrpc": "2.0", "id": 7,
+  "result": {
+    "tools": [ {"name": "search", "...": "..."} ],
+    "ttlMs": 30000,
+    "cacheScope": "shared"
+  }
+}</code></pre>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: two callers, one cache policy</h3></div>
+      <div class="lab-body">
+        <div class="lab-row">
+          <div class="lab-col">
+            <div class="field"><label for="m5ttl">ttlMs</label><input type="number" id="m5ttl" value="5000" step="500" min="0"></div>
+            <div class="toggle-pair" role="group" aria-label="cacheScope">
+              <button class="active" data-m5-scope="shared">shared</button>
+              <button data-m5-scope="private">private</button>
+            </div>
+            <div class="btn-row">
+              <button class="btn" id="m5tick">Advance clock +2000ms</button>
+              <button class="btn ghost" id="m5reset">Reset</button>
+            </div>
+            <div class="field" style="margin-top:var(--sp-2)"><label>Simulated clock</label><div class="mono" id="m5clock">0ms</div></div>
+          </div>
+          <div class="lab-col" style="flex:2 1 380px">
+            <div class="btn-row">
+              <button class="btn primary small" id="m5callA">Caller A → tools/list</button>
+              <button class="btn primary small" id="m5callB">Caller B → tools/list</button>
+            </div>
+            <div class="metric-row">
+              <div class="metric"><span class="v accent" id="m5net">0</span><span class="l">network calls</span></div>
+              <div class="metric"><span class="v green" id="m5hits">0</span><span class="l">cache hits</span></div>
+            </div>
+            <div class="out" id="m5out">Set ttlMs and cacheScope, then call from both callers. With cacheScope shared, Caller B can reuse Caller A's fetch; with private, it can't.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m6">
+    <div class="module-head">
+      <h2>Multi-Round-Trip Requests</h2>
+      <div class="module-num">MODULE 06 / 11 · ADVANCED</div>
+      <div class="takeaway"><b>Takeaway:</b> with no server-initiated channel left, a tool that needs something from the user returns <code>resultType: "input_required"</code> instead of pushing a request. The client answers and retries the exact same call with the answer attached.</div>
+    </div>
+    <p>Legacy MCP let a server reach back into an open connection and ask the client a question mid-call. 2026-07-28 has no such connection to reach through. MRTR turns the interaction around: the call itself becomes the question, and the retry becomes the answer.</p>
+
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Python</button>
+        <button class="tab" data-lang="csharp">C#</button>
+        <span class="tab-label">one tool body, both eras — from the official SDK docs</span>
+      </div>
+      <pre data-lang="python"><code data-hl">class Quantity(BaseModel):
+    copies: int
+
+async def ask_quantity() -> Elicit[Quantity]:
+    """Resolver: ask the user how many copies to put aside."""
+    return Elicit("How many copies?", Quantity)
+
+@mcp.tool()
+async def reserve(
+    title: str,
+    quantity: Annotated[ElicitationResult[Quantity], Resolve(ask_quantity)],
+) -> str:
+    """Reserve copies of a book, asking the user how many."""
+    if isinstance(quantity, AcceptedElicitation):
+        return f"Reserved {quantity.data.copies} of {title!r}."
+    return "Nothing reserved."</code></pre>
+      <pre data-lang="csharp" hidden><code data-hl>[McpServerTool, Description("Reserve copies of a book, asking the user how many.")]
+public static string Reserve(
+    McpServer server,
+    RequestContext&lt;CallToolRequestParams&gt; context,
+    string title)
+{
+    if (context.Params!.InputResponses?.TryGetValue("copies", out var response) is true)
+    {
+        var copies = response.Deserialize&lt;int&gt;();
+        return $"Reserved {copies} of \"{title}\".";
+    }
+
+    if (!server.IsMrtrSupported)
+        return "This tool requires MRTR support (2026-07-28).";
+
+    throw new InputRequiredException(
+        inputRequests: new Dictionary&lt;string, InputRequest&gt;
+        {
+            ["copies"] = InputRequest.ForElicitation(new ElicitRequestParams
+            {
+                Message = "How many copies?",
+                RequestedSchema = new() { Properties = { ["copies"] = new ElicitRequestParams.NumberSchema() } }
+            })
+        },
+        requestState: "awaiting-copies");
+}</code></pre>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: step through the input_required round trip</h3></div>
+      <div class="lab-body">
+        <div class="lab-row">
+          <div class="lab-col">
+            <div class="field"><label for="m6title">title</label><input type="text" id="m6title" value="Dune"></div>
+            <div class="btn-row"><button class="btn primary" id="m6call1">1. Call reserve(title)</button></div>
+            <div class="field" id="m6answerWrap" style="display:none; margin-top:var(--sp-3)">
+              <label for="m6copies">copies (the answer)</label>
+              <input type="number" id="m6copies" value="2" min="1">
+            </div>
+            <div class="btn-row" id="m6answerBtnWrap" style="display:none"><button class="btn primary" id="m6call2">2. Answer &amp; retry</button></div>
+          </div>
+          <div class="lab-col" style="flex:2 1 380px">
+            <div class="out" id="m6out">Call reserve() first. The server can't finish because it doesn't know how many copies, so it comes back asking instead of failing.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m7">
+    <div class="module-head">
+      <h2>The extensions framework</h2>
+      <div class="module-num">MODULE 07 / 11 · ADVANCED</div>
+      <div class="takeaway"><b>Takeaway:</b> capabilities like Tasks and MCP Apps are opt-in extensions identified by reverse-DNS IDs and negotiated per request, so the core spec doesn't need to grow every time the ecosystem does.</div>
+    </div>
+    <p>A client declares the extensions it supports in <code>_meta.io.modelcontextprotocol/clientCapabilities.extensions</code> on every request. A server that can't do without an extension the client didn't declare returns <code>-32021 Missing Required Client Capability</code> instead of silently degrading.</p>
+
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Wire shape</button>
+        <span class="tab-label">how a client declares support</span>
+      </div>
+      <pre data-lang="python"><code data-hl">{
+  "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+  "params": {
+    "name": "generate_report",
+    "arguments": { "quarter": "Q3" },
+    "_meta": {
+      "io.modelcontextprotocol/clientCapabilities": {
+        "extensions": {
+          "io.modelcontextprotocol/tasks": {},
+          "io.modelcontextprotocol/ui": {}
+        }
+      }
+    }
+  }
+}</code></pre>
+    </div>
+    <div class="callout">
+      <div class="label">In each SDK</div>
+      <p style="max-width:none">C# ships Apps and Tasks as separate opt-in packages, <code>.WithMcpApps()</code> and <code>.WithTasks(new InMemoryMcpTaskStore())</code>, bolted onto the base SDK rather than baked in. Python declares extension support through its own extensions API (see the rail link); the wire shape above is what both ultimately produce.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: negotiate extensions against a fixed demo server</h3></div>
+      <div class="lab-body">
+        <p style="max-width:none;font-size:.82rem">This demo server supports <b>Tasks</b> and <b>MCP Apps</b>, but not Enterprise Managed Auth. Pick what the client advertises, then negotiate.</p>
+        <div class="btn-row" role="group" aria-label="client extensions">
+          <label class="check-item" style="width:auto;display:inline-flex"><input type="checkbox" id="m7tasks" checked><span class="ctext">io.modelcontextprotocol/tasks</span></label>
+          <label class="check-item" style="width:auto;display:inline-flex"><input type="checkbox" id="m7ui" checked><span class="ctext">io.modelcontextprotocol/ui</span></label>
+          <label class="check-item" style="width:auto;display:inline-flex"><input type="checkbox" id="m7ema"><span class="ctext">io.modelcontextprotocol/ema</span></label>
+        </div>
+        <div class="btn-row"><button class="btn primary" id="m7run">Negotiate</button></div>
+        <div class="out" id="m7out">Toggle the extensions the client advertises, then negotiate against the server's fixed support (Tasks + UI, no EMA).</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m8">
+    <div class="module-head">
+      <h2>Tasks: long-running work</h2>
+      <div class="module-num">MODULE 08 / 11 · ADVANCED</div>
+      <div class="takeaway"><b>Takeaway:</b> a tool that can't finish inside one request returns a task handle instead of blocking, and the client polls <code>tasks/get</code>, and can <code>tasks/cancel</code>, until the real result is ready.</div>
+    </div>
+    <p>Tasks graduated out of the experimental core into the <code>io.modelcontextprotocol/tasks</code> extension at 2026-07-28. The task is durably created before the response is sent, so a client can disconnect and come back later with the same <code>taskId</code>.</p>
+
+    <div class="callout gap">
+      <div class="label">Honest gap — not just a rail footnote</div>
+      <p style="max-width:none">As of this release, the <b>Python SDK does not implement Tasks yet</b>. It shipped removed outright from v2, with the note that 2026-07-28 "moves tasks out of the core protocol and into an official extension, which this SDK does not implement yet." The lab below runs at the raw JSON-RPC level for that reason, not through <code>@mcp.tool()</code> decorators. C# has it as an opt-in package.</p>
+    </div>
+
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Wire shape</button>
+        <button class="tab" data-lang="csharp">C# — opt-in</button>
+        <span class="tab-label">CreateTaskResult → poll → terminal</span>
+      </div>
+      <pre data-lang="python"><code data-hl">// tools/call response — task-augmented
+{
+  "jsonrpc": "2.0", "id": 4,
+  "result": {
+    "resultType": "task",
+    "taskId": "tsk_7f2a",
+    "status": "working",
+    "ttl": 600000,
+    "pollIntervalMs": 1500
+  }
+}
+// client then polls:
+{"jsonrpc":"2.0","id":5,"method":"tasks/get","params":{"taskId":"tsk_7f2a"}}</code></pre>
+      <pre data-lang="csharp" hidden><code data-hl>// Program.cs — Tasks ships as a separate opt-in package
+builder.Services.AddMcpServer()
+    .WithHttpTransport(o => o.Stateless = true)
+    .WithTasks(new InMemoryMcpTaskStore())   // ModelContextProtocol.Extensions.Tasks
+    .WithTools&lt;ReportTools&gt;();</code></pre>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: create, poll, and cancel a task</h3></div>
+      <div class="lab-body">
+        <div class="btn-row">
+          <button class="btn primary" id="m8start">Call generate_report (task-augmented)</button>
+          <button class="btn" id="m8poll" disabled>Poll tasks/get</button>
+          <button class="btn ghost" id="m8cancel" disabled>tasks/cancel</button>
+        </div>
+        <div class="metric-row">
+          <div class="metric"><span class="v" id="m8status">—</span><span class="l">status</span></div>
+          <div class="metric"><span class="v" id="m8polls">0</span><span class="l">polls so far</span></div>
+        </div>
+        <div class="out" id="m8out">Start the task. It returns a taskId immediately instead of blocking. Poll a few times to watch it move toward completed, or cancel it mid-flight.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m9">
+    <div class="module-head">
+      <h2>MCP Apps: inline UI</h2>
+      <div class="module-num">MODULE 09 / 11 · ADVANCED</div>
+      <div class="takeaway"><b>Takeaway:</b> a tool can point to a <code>ui://</code> resource instead of returning plain text, and the host renders it in a sandboxed iframe that talks back over the same JSON-RPC channel, so a chat turn can become a live chart the user actually clicks.</div>
+    </div>
+    <p>The View (the iframe) behaves as its own MCP client; the Host is a proxy between it and the real server. Only the parameters of a UI-initiated tool call ever reach the model; the rendered HTML itself never does.</p>
+
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Wire shape</button>
+        <span class="tab-label">the four-step sequence from the ext-apps spec</span>
+      </div>
+      <pre data-lang="python"><code data-hl">// 1. Discovery — tools/list carries UI metadata
+// 2. Initialization
+{"method":"ui/initialize"}  →  {"hostContext":{...},"capabilities":{...}}
+// 3. Data delivery — host pushes tool data into the iframe
+{"method":"ui/notifications/tool-result","params":{"content":[...]}}
+// 4. Interactive phase — a click inside the iframe calls back out
+{"method":"tools/call","params":{"name":"drill_region","arguments":{"region":"west"}}}</code></pre>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: a real sandboxed MCP App, live in this page</h3></div>
+      <div class="lab-body">
+        <div class="app-frame-wrap">
+          <div class="app-frame-bar"><span>ui:// sales-by-region · sandboxed iframe</span><span id="m9framebadge">idle</span></div>
+          <iframe class="app-frame" id="m9frame" sandbox="allow-scripts" title="MCP App demo"></iframe>
+        </div>
+        <div class="out" id="m9out">Click a region bar inside the frame above. That fires a real <code>postMessage</code> out of the sandboxed iframe, exactly like a View calling back to its Host.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m10">
+    <div class="module-head">
+      <h2>Auth hardening</h2>
+      <div class="module-num">MODULE 10 / 11 · ADVANCED</div>
+      <div class="takeaway"><b>Takeaway:</b> authorization servers now return <code>iss</code> per RFC 9207, and a client must validate it before redeeming a code, closing an authorization-server mix-up hole that isn't exotic: just the same defense OAuth/OIDC has used for years.</div>
+    </div>
+    <p>A mix-up attack tricks a client into redeeming a code meant for one authorization server against a different one. Checking that the <code>iss</code> on the callback matches the authorization server the client actually started the flow with closes that hole. The spec also formally deprecates Dynamic Client Registration in favor of Client ID Metadata Documents (CIMD): static, URL-based, nothing to register at runtime.</p>
+
+    <div class="codeblock">
+      <div class="tabs">
+        <button class="tab active" data-lang="python">Wire shape</button>
+        <span class="tab-label">RFC 9207 — the field that has to match</span>
+      </div>
+      <pre data-lang="python"><code data-hl">// Authorization callback the client receives
+GET /callback?code=abc123&state=xyz&iss=https://auth.legit-mcp.com
+
+// Client rule (SEP-2468):
+// reject the code unless iss === the authorization server
+// this flow was actually started against</code></pre>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: spot the mix-up attack</h3></div>
+      <div class="lab-body">
+        <p style="max-width:none;font-size:.82rem">Each row is a callback the client received after starting a flow against <b>auth.legit-mcp.com</b>. Decide: accept the code, or reject it.</p>
+        <div id="m10rows" style="display:flex;flex-direction:column;gap:var(--sp-3)"></div>
+        <div class="metric-row"><div class="metric"><span class="v" id="m10score">0 / 4</span><span class="l">correct</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="module" id="m11">
+    <div class="module-head">
+      <h2>Capstone: watch a live model thread a handle</h2>
+      <div class="module-num">MODULE 11 / 11 · CAPSTONE</div>
+      <div class="takeaway"><b>Takeaway:</b> the explicit-handle pattern from Module 4 isn't just a teaching device. A real tool-calling model, given the same two tools, threads the exact <code>basket_id</code> it received from the first call into the second, on its own.</div>
+    </div>
+    <p>This runs fully in demo mode with no key: a scripted transcript, clearly labelled as illustrative. Connect an OpenRouter key in the rail and it becomes a real, metered call: same two tools, same prompt, a real model deciding what to call and in what order.</p>
+
+    <div class="lab">
+      <div class="lab-head"><h3>Lab: "add 2 tide charts and check out"</h3><span class="badge" id="m11badge"><span class="dot"></span><span id="m11badgetext">demo mode</span></span></div>
+      <div class="lab-body">
+        <div class="btn-row"><button class="btn primary" id="m11run">Run the capstone</button></div>
+        <div class="out" id="m11out" style="min-height:160px">Demo mode is ready to go, click Run. Connect a key in the rail first if you'd rather see this live.</div>
+        <div class="metric-row">
+          <div class="metric"><span class="v" id="m11calls">—</span><span class="l">tool calls made by the model</span></div>
+          <div class="metric"><span class="v" id="m11match">—</span><span class="l">handle matched across calls</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="checklist" id="recap">
+      <h3 style="margin-bottom:var(--sp-3)">Before you go — the ten load-bearing ideas</h3>
+    </div>
+  </section>
+
+  <footer class="legal">
+    <div class="tick"></div>
+    <p style="margin-top:var(--sp-4)">Independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, the Model Context Protocol project (a Series of LF Projects, LLC), Microsoft, or OpenRouter. "Claude," "Model Context Protocol," and "MCP" are marks of their respective owners, referenced here for identification and education only.</p>
+    <p>Usage policies: <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener">Anthropic</a> · <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter</a> · <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">Model Context Protocol</a>.</p>
+    <p>Module 11 makes a real, metered call to a model through your own OpenRouter key. Set a spend limit on that key before connecting. Demo mode (no key) teaches the same lesson with a scripted transcript.</p>
+  </footer>
+</main>
+
+<!-- ============ RIGHT RAIL ============ -->
+<aside class="rail" aria-label="Context for current module">
+  <div class="connect-panel" id="connectPanel">
+    <div class="connect-head">
+      <strong style="font-size:.85rem">Connect</strong>
+      <span class="lamp"><span class="dot"></span><span id="lampLabel">Demo</span></span>
+    </div>
+    <div class="field">
+      <label for="orKey">OpenRouter API key</label>
+      <input type="text" id="orKey" placeholder="sk-or-v1-··········" autocomplete="off">
+    </div>
+    <div class="btn-row">
+      <button class="btn primary small" id="connectBtn">Connect</button>
+      <button class="btn ghost small" id="disconnectBtn" disabled>Disconnect</button>
+    </div>
+    <div class="connect-msg" id="connectMsg">Demo mode: module 11's capstone works fully without a key. Connect only if you want a real model to make the call.</div>
+    <details class="advanced">
+      <summary>Advanced</summary>
+      <div class="adv-body">
+        <div class="field"><label for="orModel">Model slug</label><input type="text" id="orModel" value="anthropic/claude-haiku-4.5"></div>
+        <div class="field"><label for="orEndpoint">Endpoint</label><input type="text" id="orEndpoint" value="https://openrouter.ai/api/v1/chat/completions"></div>
+      </div>
+    </details>
+    <div class="spend-row"><span>Session spend est.</span><span class="num" id="spendEst">$0.0000</span></div>
+  </div>
+
+  <div class="rail-section">
+    <div class="rail-title" id="railModuleLabel">Module 0 — Orientation</div>
+    <div id="railBody"></div>
+  </div>
+
+  <details class="rail-sources">
+    <summary>All sources</summary>
+    <ul id="sourceList"></ul>
+  </details>
+</aside>
+
+</div>
+
+<script>
+/* ============================================================
+   MODULE REGISTRY — drives nav, progress, and the contextual rail
+   ============================================================ */
+const MODULES = [
+  { id:'m1',  n:1,  title:'Why MCP went stateless' },
+  { id:'m2',  n:2,  title:'The one-shot request' },
+  { id:'m3',  n:3,  title:'Header-based routing' },
+  { id:'m4',  n:4,  title:'Explicit state handles' },
+  { id:'m5',  n:5,  title:'Cacheable list results' },
+  { id:'m6',  n:6,  title:'Multi-Round-Trip Requests' },
+  { id:'m7',  n:7,  title:'The extensions framework' },
+  { id:'m8',  n:8,  title:'Tasks: long-running work' },
+  { id:'m9',  n:9,  title:'MCP Apps: inline UI' },
+  { id:'m10', n:10, title:'Auth hardening' },
+  { id:'m11', n:11, title:'Capstone: live handle threading' },
+];
+
+const SOURCES = [
+  { title:'Stateless MCP has recaptured my interest', src:'Simon Willison', url:'https://simonwillison.net/2026/Jul/31/stateless-mcp/' },
+  { title:'Specification 2026-07-28', src:'modelcontextprotocol.io', url:'https://modelcontextprotocol.io/specification/2026-07-28' },
+  { title:'The 2026-07-28 Specification (release post)', src:'MCP Blog', url:'https://blog.modelcontextprotocol.io/posts/2026-07-28/' },
+  { title:'The 2026-07-28 Specification Release Candidate', src:'MCP Blog', url:'https://blog.modelcontextprotocol.io/posts/2026-07-28-release-candidate/' },
+  { title:"What's new in v2", src:'MCP Python SDK', url:'https://py.sdk.modelcontextprotocol.io/whats-new/' },
+  { title:'Stateless and stateful mode', src:'MCP C# SDK', url:'https://csharp.sdk.modelcontextprotocol.io/v2/concepts/stateless/stateless.html' },
+  { title:'Sampling (MRTR / InputRequiredException)', src:'MCP C# SDK', url:'https://csharp.sdk.modelcontextprotocol.io/v2/concepts/sampling/sampling.html' },
+  { title:'Elicitation', src:'MCP C# SDK', url:'https://csharp.sdk.modelcontextprotocol.io/v2/concepts/elicitation/elicitation.html' },
+  { title:'Announcing v2.0 of the official MCP C# SDK', src:'.NET Blog', url:'https://devblogs.microsoft.com/dotnet/announcing-v20-of-the-official-mcp-csharp-sdk/' },
+  { title:'Tasks extension overview', src:'modelcontextprotocol.io', url:'https://modelcontextprotocol.io/extensions/tasks/overview' },
+  { title:'MCP Apps overview', src:'ext-apps (GitHub)', url:'https://github.com/modelcontextprotocol/ext-apps/blob/main/docs/overview.md' },
+  { title:'Bringing MCP 2026-07-28 to Claude', src:'Claude Blog', url:'https://claude.com/blog/bringing-mcp-2026-07-28-to-claude' },
+];
+
+const RAIL = {
+  m0: {
+    tips:[
+      'This whole workshop runs offline by default: every lab except the capstone needs zero keys and zero network calls.',
+      'The Python and C# tabs on each code block show the real v2 SDK surface, not pseudocode.',
+      'Scroll at your own pace. The rail below updates to match whatever module is in view.'
+    ],
+    refs:[{t:'Specification 2026-07-28', u:SOURCES[1].url, s:'modelcontextprotocol.io'}],
+    glossary:[{t:'Stateless core', d:'The 2026-07-28 headline change: no session, no handshake, every request self-contained.'}]
+  },
+  m1: {
+    tips:[
+      'A legacy MCP session pins a client to one server instance for the life of that session.',
+      'Sticky routing and shared session storage exist only to keep that pin intact: remove the pin, remove the infra.',
+      'This is the same trade-off the wider web made moving from stateful app servers to stateless HTTP APIs.',
+      'Try both toggles in the lab below more than once. Legacy failures are probabilistic, not guaranteed every run.'
+    ],
+    refs:[
+      {t:'No handshake or sessions', u:SOURCES[2].url, s:'MCP Blog'},
+      {t:'Stateless mode (recommended)', u:SOURCES[5].url, s:'MCP C# SDK'},
+    ],
+    glossary:[
+      {t:'Session affinity', d:'Routing rule that sends every request from one client to the same server instance.'},
+      {t:'Round-robin balancer', d:'A load balancer that distributes requests evenly with no memory of past requests.'}
+    ]
+  },
+  m2: {
+    tips:[
+      "Simon Willison's writeup shows this exact before/after: two POSTs collapse into one.",
+      'Protocol version, client info, and capabilities now travel in `_meta` on every request.',
+      'The optional `server/discover` call exists for clients that want capabilities up front, but it is never required.',
+      'A 2026-07-28 client still falls back to the old `initialize` handshake automatically against an older server.'
+    ],
+    refs:[
+      {t:'Stateless MCP has recaptured my interest', u:SOURCES[0].url, s:'Simon Willison'},
+      {t:'No handshake, no session', u:SOURCES[4].url, s:'MCP Python SDK'},
+    ],
+    glossary:[
+      {t:'_meta', d:'A JSON-RPC object carrying protocol version, client identity, and capabilities on each request.'},
+      {t:'server/discover', d:'An optional RPC a client can call to learn a server\u2019s capabilities before doing anything else.'}
+    ]
+  },
+  m3: {
+    tips:[
+      'Mcp-Method and Mcp-Name are real HTTP headers now, not just JSON-RPC fields buried in the body.',
+      'A gateway, WAF, or rate limiter can make routing decisions without ever touching the JSON-RPC payload.',
+      'This is what makes MCP traffic look like ordinary REST traffic to infrastructure that was never MCP-aware.'
+    ],
+    refs:[{t:'Header-based routing', u:SOURCES[2].url, s:'MCP Blog'}],
+    glossary:[
+      {t:'Mcp-Method', d:'HTTP header carrying the JSON-RPC method name, e.g. tools/call.'},
+      {t:'Mcp-Name', d:'HTTP header carrying the tool/prompt/resource name for the three name-bearing calls.'}
+    ]
+  },
+  m4: {
+    tips:[
+      'Dropping the session doesn\u2019t mean giving up state. It means the tool, not the transport, owns it.',
+      'A handle like basket_id is just a normal argument the model can see, log, and reason about.',
+      'This is explicitly the pattern MCP\u2019s own maintainers recommend over transport-hidden sessions (SEP-2567).',
+      'Try editing the item name in the lab, then look at how the same handle threads through the second call.'
+    ],
+    refs:[{t:'No handshake or sessions', u:SOURCES[2].url, s:'MCP Blog'}],
+    glossary:[
+      {t:'Explicit state handle', d:'An opaque ID a tool mints and returns, then the client passes back as an ordinary argument.'},
+      {t:'Confused deputy', d:'A class of bug where a system acts on behalf of the wrong party because state got mixed up.'}
+    ]
+  },
+  m5: {
+    tips:[
+      'tools/list, prompts/list, resources/list, and resources/read now carry ttlMs and cacheScope.',
+      'cacheScope tells the client whether a cached response is safe to reuse across different callers or just one.',
+      'A server that sends no cache hints (any pre-2026 server) looks identical to a client that never caches, so there is no regression.'
+    ],
+    refs:[{t:'List results are cacheable', u:SOURCES[2].url, s:'MCP Blog'}],
+    glossary:[
+      {t:'ttlMs', d:'Time, in milliseconds, a client may treat a list/read result as fresh without re-fetching.'},
+      {t:'cacheScope', d:'private (this caller only) or shared, governing whether a cache entry can serve other callers.'}
+    ]
+  },
+  m6: {
+    tips:[
+      'MRTR replaces server-initiated elicitation, sampling, and roots: there is no open channel left to push on.',
+      'A tool that needs input returns resultType: "input_required" instead of sending a request.',
+      'The client answers and retries the exact same call with inputResponses attached: same call, second attempt.',
+      'Python\u2019s Resolve(ask_fn) and C#\u2019s InputRequiredException both compile down to the same wire shape.'
+    ],
+    refs:[
+      {t:'Multi Round-Trip Requests (MRTR)', u:SOURCES[3].url, s:'MCP Blog (RC post)'},
+      {t:"Resolve: the new way to ask the user for input", u:SOURCES[4].url, s:'MCP Python SDK'},
+      {t:'Sampling — Multi round-trip requests', u:SOURCES[6].url, s:'MCP C# SDK'},
+    ],
+    glossary:[
+      {t:'input_required', d:'A resultType telling the client the call didn\u2019t finish; it needs an answer first.'},
+      {t:'requestState', d:'An opaque, server-sealed token the client echoes back so the retry resumes the right call.'}
+    ]
+  },
+  m7: {
+    tips:[
+      'Extensions are identified by reverse-DNS IDs, e.g. io.modelcontextprotocol/tasks.',
+      'They\u2019re negotiated per request through an extensions map, never assumed, always declared.',
+      'This is exactly what lets Tasks and MCP Apps exist without the core spec growing every time the ecosystem does.',
+      'The C# SDK leans into this hardest: Apps and Tasks ship as separate opt-in packages, not the base SDK.'
+    ],
+    refs:[{t:'Formal extensions framework', u:SOURCES[2].url, s:'MCP Blog'}],
+    glossary:[
+      {t:'Reverse-DNS ID', d:'A namespaced identifier like io.modelcontextprotocol/ui that avoids name collisions across the ecosystem.'},
+      {t:'Capability negotiation', d:'The process of a client and server each declaring what they support before either relies on it.'}
+    ]
+  },
+  m8: {
+    tips:[
+      'A task-augmented tools/call can return CreateTaskResult (resultType: "task") instead of blocking.',
+      'The client polls tasks/get at the server\u2019s suggested interval until a terminal status.',
+      'tasks/cancel is a distinct, request-response operation from the older notifications/cancelled.',
+      'C#\u2019s WithTasks(new InMemoryMcpTaskStore()) is the whole opt-in. Check the callout: Python\u2019s SDK isn\u2019t there yet.'
+    ],
+    refs:[
+      {t:'Tasks extension overview', u:SOURCES[9].url, s:'modelcontextprotocol.io'},
+      {t:"Removed outright — experimental Tasks API", u:SOURCES[4].url, s:'MCP Python SDK'},
+    ],
+    glossary:[
+      {t:'CreateTaskResult', d:'The immediate response to a task-augmented call: a taskId, status, TTL, and poll interval.'},
+      {t:'Terminal status', d:'completed, failed, or cancelled: the point where polling stops and a real result is ready.'}
+    ]
+  },
+  m9: {
+    tips:[
+      'A tool can point to a ui:// resource instead of returning only text.',
+      'The host renders that resource in a sandboxed iframe. The View acts as an MCP client, the Host as a proxy.',
+      'Every click inside the iframe that calls back out travels over the same JSON-RPC channel, so it\u2019s auditable.',
+      'Only the tool-call parameters reach the model; the rendered HTML itself is never sent to the LLM.'
+    ],
+    refs:[{t:'MCP Apps — overview', u:SOURCES[10].url, s:'ext-apps (GitHub)'}],
+    glossary:[
+      {t:'ui:// resource', d:'A predeclared HTML resource a tool links to via metadata, rendered inline by a compliant host.'},
+      {t:'View', d:"The sandboxed iframe running the UI, behaving as its own MCP client talking through the host."}
+    ]
+  },
+  m10: {
+    tips:[
+      'RFC 9207 issuer validation closes an authorization-server mix-up hole: always check iss before redeeming a code.',
+      'Dynamic Client Registration is now formally deprecated in favor of Client ID Metadata Documents (CIMD).',
+      'Client credentials are bound to the issuer that minted them, with no replay against a different auth server.',
+      'None of this is exotic: it\u2019s the same mix-up-attack defense OAuth/OIDC deployments have used for years.'
+    ],
+    refs:[{t:'Authorization hardening', u:SOURCES[2].url, s:'MCP Blog'}],
+    glossary:[
+      {t:'Issuer mix-up attack', d:'Tricking a client into redeeming an authorization code against the wrong authorization server.'},
+      {t:'CIMD', d:'Client ID Metadata Documents: a static, URL-based alternative to Dynamic Client Registration.'}
+    ]
+  },
+  m11: {
+    tips:[
+      'Demo mode replays a real, previously-captured transcript shape. It\u2019s labelled illustrative, not a live measurement.',
+      'Connecting sends your prompt and tool schema straight to OpenRouter with your key; nothing is stored server-side by this page.',
+      'Watch for the model calling add_to_basket first, then threading that exact basket_id into checkout: that\u2019s the whole lesson.',
+      'Session spend estimate is a rough token-based guess, not a bill. Check your OpenRouter dashboard for the real number.'
+    ],
+    refs:[{t:'Explicit state handles (module 4 pattern, reused live)', u:SOURCES[2].url, s:'MCP Blog'}],
+    glossary:[
+      {t:'Tool-calling model', d:'An LLM that can choose to invoke a described function and receive its result mid-conversation.'},
+      {t:'Handle threading', d:'A model correctly carrying an opaque ID from one tool call\u2019s output into a later call\u2019s input.'}
+    ]
+  }
+};
+
+/* ============================================================
+   NAV + PROGRESS + PALETTE/THEME
+   ============================================================ */
+const navlist = document.getElementById('navlist');
+MODULES.forEach(m=>{
+  const li = document.createElement('li');
+  li.innerHTML = `<a href="#${m.id}" data-target="${m.id}"><span class="idx">${String(m.n).padStart(2,'0')}</span><span>${m.title}</span></a>`;
+  navlist.appendChild(li);
+});
+
+function applyPalette(pal){
+  document.documentElement.setAttribute('data-palette', pal);
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('active', s.dataset.sw===pal));
+  try{ localStorage.setItem('fg-palette', pal); }catch(e){}
+  window.dispatchEvent(new CustomEvent('fg-theme-change'));
+}
+function applyTheme(mode){
+  document.documentElement.setAttribute('data-theme', mode);
+  document.getElementById('modeLabel').textContent = mode==='dark' ? 'Dark mode' : 'Light mode';
+  try{ localStorage.setItem('fg-theme', mode); }catch(e){}
+  window.dispatchEvent(new CustomEvent('fg-theme-change'));
+}
+document.querySelectorAll('.swatch').forEach(s=>s.addEventListener('click', ()=>applyPalette(s.dataset.sw)));
+document.getElementById('modeToggle').addEventListener('click', ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  applyTheme(cur==='dark' ? 'light' : 'dark');
+});
+(function initTheme(){
+  let pal='tide', mode='dark';
+  try{ pal = localStorage.getItem('fg-palette') || 'tide'; mode = localStorage.getItem('fg-theme') || 'dark'; }catch(e){}
+  applyPalette(pal); applyTheme(mode);
+})();
+
+/* sources list */
+const sourceList = document.getElementById('sourceList');
+SOURCES.forEach(s=>{
+  const li=document.createElement('li');
+  li.innerHTML = `<a href="${s.url}" target="_blank" rel="noopener">${s.title}</a> <span style="color:var(--ink-faint)">— ${s.src}</span>`;
+  sourceList.appendChild(li);
+});
+
+/* rail render with crossfade */
+const railBody = document.getElementById('railBody');
+const railLabel = document.getElementById('railModuleLabel');
+let currentRailId = null;
+function renderRail(id, title){
+  if(id === currentRailId) return;
+  currentRailId = id;
+  const data = RAIL[id] || RAIL.m0;
+  railBody.classList.add('fading');
+  setTimeout(()=>{
+    railLabel.textContent = title;
+    let html = '';
+    if(data.tips && data.tips.length){
+      html += `<div class="rail-section"><div class="rail-title">Tips</div>${data.tips.map(t=>`<div class="rail-tip">${t}</div>`).join('')}</div>`;
+    }
+    if(data.refs && data.refs.length){
+      html += `<div class="rail-section"><div class="rail-title">References</div>${data.refs.map(r=>`<div class="rail-ref"><a href="${r.u}" target="_blank" rel="noopener">${r.t}</a><span class="src">${r.s}</span></div>`).join('')}</div>`;
+    }
+    if(data.glossary && data.glossary.length){
+      html += `<div class="rail-section"><div class="rail-title">Glossary</div>${data.glossary.map(g=>`<div><div class="gloss-term">${g.t}</div><div class="gloss-def">${g.d}</div></div>`).join('')}</div>`;
+    }
+    railBody.innerHTML = html;
+    railBody.classList.remove('fading');
+  }, 140);
+}
+renderRail('m0','Orientation');
+
+/* scroll-spy + reveal-on-scroll + progress */
+const modEls = ()=>Array.from(document.querySelectorAll('.module'));
+const progressFill = document.getElementById('progressFill');
+const progressPct = document.getElementById('progressPct');
+
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('revealed'); revealObserver.unobserve(e.target); } });
+}, { threshold:0.08 });
+
+const spyObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id = e.target.id;
+      const meta = MODULES.find(m=>m.id===id);
+      if(meta){
+        document.querySelectorAll('.navlist a').forEach(a=>a.classList.toggle('active', a.dataset.target===id));
+        renderRail(id, `Module ${String(meta.n).padStart(2,'0')} — ${meta.title}`);
+        const pct = Math.round((meta.n / MODULES.length) * 100);
+        progressFill.style.transform = 'scaleX(' + (pct/100) + ')';
+        progressPct.textContent = pct + '%';
+      }
+    }
+  });
+}, { rootMargin:'-15% 0px -70% 0px', threshold:0 });
+
+function wireScrollObservers(){
+  modEls().forEach(el=>{ revealObserver.observe(el); spyObserver.observe(el); });
+}
+
+/* code tabs (Python / C#) */
+document.addEventListener('click', (e)=>{
+  const tab = e.target.closest('.tab');
+  if(!tab) return;
+  const block = tab.closest('.codeblock');
+  block.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t===tab));
+  block.querySelectorAll('pre').forEach(p=>p.hidden = (p.dataset.lang !== tab.dataset.lang));
+});
+
+/* tiny syntax highlighter — keywords/strings/comments, applied once at load */
+function highlight(code, lang){
+  let s = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const kw = lang==='python'
+    ? /\b(def|class|return|if|else|elif|for|while|import|from|as|async|await|try|except|raise|with|None|True|False|and|or|not|in|is|lambda|yield)\b/g
+    : /\b(public|private|static|class|void|async|await|new|using|return|if|else|for|while|namespace|var|string|bool|int|null|true|false|throw|try|catch|record|readonly|get|set)\b/g;
+  // comments
+  s = s.replace(lang==='python' ? /(#.*)$/gm : /(\/\/.*)$/gm, '<span class="tok-com">$1</span>');
+  // strings (naive, single/double/triple)
+  s = s.replace(/("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="tok-str">$1</span>');
+  // keywords (skip inside spans already added — good enough for teaching code, not a full parser)
+  s = s.replace(kw, '<span class="tok-kw">$1</span>');
+  return s;
+}
+function highlightAll(){
+  document.querySelectorAll('.codeblock pre code[data-hl]').forEach(c=>{
+    const lang = c.closest('pre').dataset.lang;
+    c.innerHTML = highlight(c.textContent, lang);
+    c.removeAttribute('data-hl');
+  });
+}
+
+/* ============================================================
+   CONNECT PANEL — module 11 capstone only. Key lives in memory only.
+   ============================================================ */
+let liveKey = null; // module-scoped, never persisted
+let sessionSpend = 0;
+const connectPanel = document.getElementById('connectPanel');
+const connectBtn = document.getElementById('connectBtn');
+const disconnectBtn = document.getElementById('disconnectBtn');
+const connectMsg = document.getElementById('connectMsg');
+const lampLabel = document.getElementById('lampLabel');
+const orKeyInput = document.getElementById('orKey');
+
+function setConnectMsg(text, cls){
+  connectMsg.textContent = text;
+  connectMsg.className = 'connect-msg' + (cls ? ' '+cls : '');
+}
+connectBtn.addEventListener('click', ()=>{
+  const v = orKeyInput.value.trim();
+  if(!v){ setConnectMsg('Paste an OpenRouter key first — it should start with sk-or-.', 'err'); return; }
+  if(!/^sk-or-/.test(v)){ setConnectMsg('That doesn\u2019t look like an OpenRouter key (expected sk-or-…). Get one at openrouter.ai/keys.', 'err'); return; }
+  liveKey = v;
+  orKeyInput.value = '';
+  orKeyInput.placeholder = '•••••••• connected ••••••••';
+  connectPanel.classList.add('live');
+  lampLabel.textContent = 'Live';
+  connectBtn.disabled = true;
+  disconnectBtn.disabled = false;
+  setConnectMsg('Connected. Module 11 will now call a real model.', 'ok');
+  updateCapstoneGate();
+});
+disconnectBtn.addEventListener('click', ()=>{
+  liveKey = null;
+  orKeyInput.placeholder = 'sk-or-v1-··········';
+  connectPanel.classList.remove('live');
+  lampLabel.textContent = 'Demo';
+  connectBtn.disabled = false;
+  disconnectBtn.disabled = true;
+  setConnectMsg('Disconnected — back to demo mode.', '');
+  updateCapstoneGate();
+});
+function estimateSpend(promptTokens, completionTokens, model){
+  // rough per-1M pricing table for the session estimate only — not billing-accurate
+  const table = { 'anthropic/claude-haiku-4.5':[1,5], 'anthropic/claude-sonnet-5':[2,10] };
+  const [pin,pout] = table[model] || [1,5];
+  const cost = (promptTokens/1e6)*pin + (completionTokens/1e6)*pout;
+  sessionSpend += cost;
+  document.getElementById('spendEst').textContent = '$' + sessionSpend.toFixed(4);
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', ()=>{
+  wireScrollObservers();
+  highlightAll();
+});
+/* ---------- Module 1 — session affinity vs stateless routing ---------- */
+(function(){
+  const pool = document.getElementById('m1pool');
+  const REPLICAS = ['A','B','C'];
+  let era = 'legacy';
+  let sessionHome = null; // which replica owns the session in legacy mode
+  let sent = 0, ok = 0;
+
+  function drawPool(highlightHit, highlightMiss){
+    pool.innerHTML = REPLICAS.map(r=>{
+      let cls = 'replica';
+      if(highlightHit===r) cls += ' hit';
+      if(highlightMiss===r) cls += ' miss';
+      const owner = (era==='legacy' && sessionHome===r) ? 'holds session' : (era==='stateless' ? 'stateless' : 'idle');
+      return `<div class="${cls}"><div class="rid">REPLICA ${r}</div><div class="rstate">${r}</div><div style="font-size:.68rem;color:var(--ink-faint)">${owner}</div></div>`;
+    }).join('');
+  }
+  drawPool();
+
+  document.querySelectorAll('[data-m1-era]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      era = btn.dataset.m1Era;
+      document.querySelectorAll('[data-m1-era]').forEach(b=>b.classList.toggle('active', b===btn));
+      resetLab();
+    });
+  });
+
+  function resetLab(){
+    sessionHome = null; sent = 0; ok = 0;
+    document.getElementById('m1success').textContent = '—';
+    document.getElementById('m1rate').textContent = '—';
+    document.getElementById('m1out').textContent = 'Pick an era, then send requests.';
+    const badge = document.getElementById('m1badge');
+    badge.className = 'badge'; badge.querySelector('span:last-child').textContent = 'idle';
+    drawPool();
+  }
+  document.getElementById('m1reset').addEventListener('click', resetLab);
+
+  document.getElementById('m1send').addEventListener('click', ()=>{
+    const lines = [];
+    const badge = document.getElementById('m1badge');
+    badge.className = 'badge live'; badge.querySelector('span:last-child').textContent = 'routing…';
+    for(let i=0;i<6;i++){
+      sent++;
+      const landed = REPLICAS[Math.floor(Math.random()*3)];
+      if(era==='stateless'){
+        ok++;
+        lines.push(`<span class="request-chip">req ${sent} → ${landed}</span> <span class="ok">200 OK — self-contained, answered cold</span>`);
+        drawPool(landed, null);
+      } else {
+        if(sessionHome===null){
+          sessionHome = landed;
+          ok++;
+          lines.push(`<span class="request-chip">req ${sent} → ${landed}</span> <span class="hi">initialize — session pinned to ${landed}</span>`);
+          drawPool(landed, null);
+        } else if(landed===sessionHome){
+          ok++;
+          lines.push(`<span class="request-chip">req ${sent} → ${landed}</span> <span class="ok">200 OK — landed on ${sessionHome} again</span>`);
+          drawPool(landed, null);
+        } else {
+          lines.push(`<span class="request-chip">req ${sent} → ${landed}</span> <span class="bad">404 Session not found — ${landed} never saw the handshake</span>`);
+          drawPool(null, landed);
+        }
+      }
+    }
+    document.getElementById('m1out').innerHTML = lines.join('<br>');
+    document.getElementById('m1success').textContent = ok + ' / ' + sent;
+    document.getElementById('m1rate').textContent = Math.round((ok/sent)*100) + '%';
+    badge.className = 'badge ' + (ok===sent ? 'ok' : (ok===0?'bad':''));
+    badge.querySelector('span:last-child').textContent = ok===sent ? 'all answered' : (era==='legacy' ? 'sticky routing needed' : 'partial');
+  });
+})();
+/* ---------- Module 2 — one-shot request builder ---------- */
+(function(){
+  const btn = document.getElementById('m2build');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    const tool = document.getElementById('m2tool').value.trim() || 'search';
+    const arg = document.getElementById('m2arg').value.trim() || 'otters';
+
+    const initReq = {jsonrpc:"2.0", id:1, method:"initialize", params:{protocolVersion:"2025-11-25", capabilities:{}, clientInfo:{name:"my-app", version:"1.0"}}};
+    const initResp = { "HTTP/1.1 200": true, "Mcp-Session-Id": "1868a90c-3a3f-4f5b" };
+    const callReq = {jsonrpc:"2.0", id:2, method:"tools/call", params:{name:tool, arguments:{q:arg}}};
+
+    const oneShot = {jsonrpc:"2.0", id:1, method:"tools/call",
+      params:{name:tool, arguments:{q:arg}, _meta:{"io.modelcontextprotocol/clientInfo":{name:"my-app", version:"1.0"}}}};
+
+    const legacyText =
+`POST /mcp HTTP/1.1
+Content-Type: application/json
+
+${JSON.stringify(initReq, null, 2)}
+
+← 200 OK, Mcp-Session-Id: 1868a90c-3a3f-4f5b
+
+POST /mcp HTTP/1.1
+Mcp-Session-Id: 1868a90c-3a3f-4f5b
+Content-Type: application/json
+
+${JSON.stringify(callReq, null, 2)}`;
+
+    const newText =
+`POST /mcp HTTP/1.1
+MCP-Protocol-Version: 2026-07-28
+Mcp-Method: tools/call
+Mcp-Name: ${tool}
+Content-Type: application/json
+
+${JSON.stringify(oneShot, null, 2)}`;
+
+    document.getElementById('m2legacy').textContent = legacyText;
+    document.getElementById('m2new').textContent = newText;
+    document.getElementById('m2rt').textContent = '2  vs  1';
+    const bytesLegacy = legacyText.length, bytesNew = newText.length;
+    document.getElementById('m2bytes').textContent = bytesLegacy + '  vs  ' + bytesNew;
+  });
+})();
+/* ---------- Module 3 — header-based routing gateway ---------- */
+(function(){
+  const rowsEl = document.getElementById('m3rows');
+  if(!rowsEl) return;
+  const REQS = [
+    { method:'tools/call', name:'search', body:'{"q":"otters"}', bodyOk:true },
+    { method:'resources/read', name:'notes://today', body:'{"uri":"notes://today"}', bodyOk:true },
+    { method:'tools/call', name:'render_png', body:'\\x89PNG-encoded-binary-arg-stream\\x00\\x01', bodyOk:false },
+    { method:'prompts/get', name:'daily-brief', body:'{"name":"daily-brief"}', bodyOk:true },
+    { method:'tools/call', name:'checkout', body:'{"basket_id":"bk_492","confirm":true}', bodyOk:true },
+  ];
+  let mode = 'header';
+  document.querySelectorAll('[data-m3-mode]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      mode = btn.dataset.m3Mode;
+      document.querySelectorAll('[data-m3-mode]').forEach(b=>b.classList.toggle('active', b===btn));
+      draw();
+    });
+  });
+  function draw(){
+    rowsEl.innerHTML = REQS.map(r=>`<tr><td class="mono">${r.method}</td><td class="mono">${r.name}</td><td class="mono" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.body}</td><td>—</td></tr>`).join('');
+  }
+  draw();
+  document.getElementById('m3run').addEventListener('click', ()=>{
+    let failures = 0;
+    const rows = rowsEl.querySelectorAll('tr');
+    REQS.forEach((r,i)=>{
+      const cell = rows[i].children[3];
+      if(mode==='header'){
+        cell.innerHTML = `<span class="ok">${r.method==='tools/call' ? 'tool-lane' : 'default-lane'}</span>`;
+      } else {
+        if(r.bodyOk){
+          cell.innerHTML = `<span class="ok">${r.method==='tools/call' ? 'tool-lane' : 'default-lane'}</span>`;
+        } else {
+          cell.innerHTML = `<span class="bad">500 — JSON.parse failed</span>`;
+          failures++;
+        }
+      }
+    });
+    const out = document.getElementById('m3out');
+    if(mode==='header'){
+      out.innerHTML = `<span class="ok">5 / 5 routed</span> — headers were read for every request; the binary payload in row 3 was never touched.`;
+    } else {
+      out.innerHTML = `<span class="bad">${5-failures} / 5 routed</span> — the body-parsing rule broke on row 3's payload, even though its <span class="hi">Mcp-Method</span>/<span class="hi">Mcp-Name</span> headers were perfectly routable.`;
+    }
+  });
+})();
+/* ---------- Module 4 — explicit state handles ---------- */
+(function(){
+  const runBtn = document.getElementById('m4run');
+  if(!runBtn) return;
+  function rid(){ return 'bk_' + Math.random().toString(16).slice(2,10); }
+  runBtn.addEventListener('click', ()=>{
+    const item = document.getElementById('m4item').value.trim() || 'item';
+    const qty = parseInt(document.getElementById('m4qty').value,10) || 1;
+    const basketId = rid();
+    const call1 = {jsonrpc:"2.0", id:1, method:"tools/call", params:{name:"add_to_basket", arguments:{item, qty}}};
+    const resp1 = {jsonrpc:"2.0", id:1, result:{structuredContent:{basket_id:basketId, item, qty}}};
+    const call2 = {jsonrpc:"2.0", id:2, method:"tools/call", params:{name:"checkout", arguments:{basket_id:basketId, confirm:true}}};
+    const resp2 = {jsonrpc:"2.0", id:2, result:{content:[{type:"text", text:`Checked out ${qty}x ${item} (${basketId}).`}]}};
+
+    const hi = (s)=> s.split(basketId).join(`<span class="hi">${basketId}</span>`);
+    document.getElementById('m4out').innerHTML =
+`<span class="ink-dim" style="color:var(--ink-faint)">→ tools/call add_to_basket</span>
+${hi(JSON.stringify(call1))}
+<span class="ok">←</span> ${hi(JSON.stringify(resp1))}
+
+<span style="color:var(--ink-faint)">→ tools/call checkout — same handle, threaded as an ordinary argument</span>
+${hi(JSON.stringify(call2))}
+<span class="ok">←</span> ${hi(JSON.stringify(resp2))}`;
+  });
+})();
+/* ---------- Module 5 — cacheable list results ---------- */
+(function(){
+  const tickBtn = document.getElementById('m5tick');
+  if(!tickBtn) return;
+  let clock = 0, scope = 'shared', net = 0, hits = 0;
+  let cacheShared = null; // {fetchedAt}
+  let cachePrivate = { A:null, B:null };
+
+  document.querySelectorAll('[data-m5-scope]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      scope = btn.dataset.m5Scope;
+      document.querySelectorAll('[data-m5-scope]').forEach(b=>b.classList.toggle('active', b===btn));
+    });
+  });
+  tickBtn.addEventListener('click', ()=>{ clock += 2000; document.getElementById('m5clock').textContent = clock+'ms'; });
+  document.getElementById('m5reset').addEventListener('click', ()=>{
+    clock=0; net=0; hits=0; cacheShared=null; cachePrivate={A:null,B:null};
+    document.getElementById('m5clock').textContent='0ms';
+    document.getElementById('m5net').textContent='0';
+    document.getElementById('m5hits').textContent='0';
+    document.getElementById('m5out').textContent = 'Reset. Set ttlMs and cacheScope, then call from both callers.';
+  });
+
+  function call(caller){
+    const ttl = parseInt(document.getElementById('m5ttl').value,10) || 0;
+    let entry = scope==='shared' ? cacheShared : cachePrivate[caller];
+    const fresh = entry && (clock - entry.fetchedAt) < ttl;
+    let msg;
+    if(fresh){
+      hits++;
+      msg = `<span class="ok">cache hit</span> — Caller ${caller} reused a result fetched at ${entry.fetchedAt}ms (now ${clock}ms, ttl ${ttl}ms)${scope==='shared' && entry.by!==caller ? ` — fetched by Caller ${entry.by}` : ''}.`;
+    } else {
+      net++;
+      const newEntry = { fetchedAt: clock, by: caller };
+      if(scope==='shared') cacheShared = newEntry; else cachePrivate[caller] = newEntry;
+      msg = `<span class="hi">network call</span> — Caller ${caller} fetched tools/list fresh at ${clock}ms (ttlMs=${ttl}, cacheScope=${scope}).`;
+    }
+    document.getElementById('m5net').textContent = net;
+    document.getElementById('m5hits').textContent = hits;
+    document.getElementById('m5out').innerHTML = msg;
+  }
+  document.getElementById('m5callA').addEventListener('click', ()=>call('A'));
+  document.getElementById('m5callB').addEventListener('click', ()=>call('B'));
+})();
+/* ---------- Module 6 — MRTR round trip ---------- */
+(function(){
+  const call1Btn = document.getElementById('m6call1');
+  if(!call1Btn) return;
+  let requestState = null;
+  call1Btn.addEventListener('click', ()=>{
+    const title = document.getElementById('m6title').value.trim() || 'Dune';
+    const req1 = {jsonrpc:"2.0", id:1, method:"tools/call", params:{name:"reserve", arguments:{title}}};
+    requestState = "awaiting-copies-" + Math.random().toString(16).slice(2,6);
+    const resp1 = {jsonrpc:"2.0", id:1, result:{
+      resultType:"input_required",
+      inputRequests:{ copies:{ mode:"form", message:"How many copies?", requestedSchema:{properties:{copies:{type:"number"}}} } },
+      requestState
+    }};
+    document.getElementById('m6out').innerHTML =
+`→ ${JSON.stringify(req1)}
+<span class="warn">← input_required</span> ${JSON.stringify(resp1)}
+
+<span style="color:var(--ink-faint)">The call didn't fail — it's asking a question. Answer it below and the client will retry this exact call.</span>`;
+    document.getElementById('m6answerWrap').style.display = '';
+    document.getElementById('m6answerBtnWrap').style.display = '';
+  });
+
+  document.getElementById('m6call2').addEventListener('click', ()=>{
+    const title = document.getElementById('m6title').value.trim() || 'Dune';
+    const copies = parseInt(document.getElementById('m6copies').value,10) || 1;
+    const req2 = {jsonrpc:"2.0", id:1, method:"tools/call",
+      params:{name:"reserve", arguments:{title}, inputResponses:{copies}, requestState}};
+    const resp2 = {jsonrpc:"2.0", id:1, result:{content:[{type:"text", text:`Reserved ${copies} of "${title}".`}]}};
+    document.getElementById('m6out').innerHTML =
+`<span style="color:var(--ink-faint)">→ same call, id 1, retried with the answer attached</span>
+${JSON.stringify(req2)}
+<span class="ok">← final result</span> ${JSON.stringify(resp2)}`;
+  });
+})();
+/* ---------- Module 7 — extensions negotiation ---------- */
+(function(){
+  const runBtn = document.getElementById('m7run');
+  if(!runBtn) return;
+  const SERVER_SUPPORTS = { tasks:true, ui:true, ema:false };
+  runBtn.addEventListener('click', ()=>{
+    const client = {
+      tasks: document.getElementById('m7tasks').checked,
+      ui: document.getElementById('m7ui').checked,
+      ema: document.getElementById('m7ema').checked,
+    };
+    const rows = Object.keys(client).map(k=>{
+      const id = `io.modelcontextprotocol/${k==='ema'?'ema':k}`;
+      const advertised = client[k], supported = SERVER_SUPPORTS[k];
+      let status;
+      if(advertised && supported) status = '<span class="ok">negotiated — available this request</span>';
+      else if(advertised && !supported) status = '<span class="warn">client wants it, server doesn\u2019t have it — quietly unavailable</span>';
+      else if(!advertised && supported) status = '<span style="color:var(--ink-faint)">server has it, client never asked — unused</span>';
+      else status = '<span style="color:var(--ink-faint)">not in play</span>';
+      return `<div><span class="mono hi">${id}</span> — ${status}</div>`;
+    });
+    document.getElementById('m7out').innerHTML = rows.join('<br>');
+  });
+})();
+/* ---------- Module 8 — Tasks lifecycle ---------- */
+(function(){
+  const startBtn = document.getElementById('m8start');
+  if(!startBtn) return;
+  let taskId=null, polls=0, done=false;
+  const NEEDED = 3;
+  function log(line){ document.getElementById('m8out').innerHTML += '\n'+line; }
+  function setStatus(s){ document.getElementById('m8status').textContent = s; }
+
+  startBtn.addEventListener('click', ()=>{
+    taskId = 'tsk_' + Math.random().toString(16).slice(2,6);
+    polls = 0; done = false;
+    document.getElementById('m8polls').textContent = '0';
+    setStatus('working');
+    document.getElementById('m8out').textContent =
+`→ {"method":"tools/call","params":{"name":"generate_report","arguments":{"quarter":"Q3"}}}
+${'\u2190'} {"resultType":"task","taskId":"${taskId}","status":"working","pollIntervalMs":1500}`;
+    document.getElementById('m8poll').disabled = false;
+    document.getElementById('m8cancel').disabled = false;
+    startBtn.disabled = true;
+  });
+
+  document.getElementById('m8poll').addEventListener('click', ()=>{
+    if(done) return;
+    polls++;
+    document.getElementById('m8polls').textContent = polls;
+    if(polls >= NEEDED){
+      done = true;
+      setStatus('completed');
+      log(`→ {"method":"tasks/get","params":{"taskId":"${taskId}"}}`);
+      log(`${'\u2190'} <span class="ok">{"status":"completed","result":{"content":[{"type":"text","text":"Q3 report ready."}]}}</span>`);
+      document.getElementById('m8poll').disabled = true;
+      document.getElementById('m8cancel').disabled = true;
+      startBtn.disabled = false;
+    } else {
+      setStatus('working');
+      log(`→ {"method":"tasks/get","params":{"taskId":"${taskId}"}}`);
+      log(`${'\u2190'} {"status":"working","pollIntervalMs":1500}  <span style="color:var(--ink-faint)">(poll ${polls}/${NEEDED})</span>`);
+    }
+  });
+
+  document.getElementById('m8cancel').addEventListener('click', ()=>{
+    if(done) return;
+    done = true;
+    setStatus('cancelled');
+    log(`→ {"method":"tasks/cancel","params":{"taskId":"${taskId}"}}`);
+    log(`${'\u2190'} <span class="warn">{"status":"cancelled"}</span> — a distinct request/response op, not notifications/cancelled.`);
+    document.getElementById('m8poll').disabled = true;
+    document.getElementById('m8cancel').disabled = true;
+    startBtn.disabled = false;
+  });
+})();
+/* ---------- Module 9 — MCP Apps sandboxed iframe ---------- */
+(function(){
+  const frame = document.getElementById('m9frame');
+  if(!frame) return;
+
+  const APP_SRCDOC = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+    body{font-family:system-ui,sans-serif;margin:0;padding:14px;background:#0f1a2b;color:#e7eef8}
+    h4{margin:0 0 10px;font-size:12px;letter-spacing:.03em;color:#93a8c4;font-weight:600;text-transform:uppercase}
+    .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;padding:4px;border-radius:4px}
+    .bar-row:hover{background:#1a2c48}
+    .bar-label{width:52px;font-size:12px;color:#93a8c4}
+    .bar-track{flex:1;height:14px;background:#1a2740;border-radius:3px;overflow:hidden}
+    .bar-fill{height:100%;background:#52b8ff;transform-origin:left;transition:transform .3s}
+    .bar-val{font-family:ui-monospace,monospace;font-size:11px;color:#e7eef8;width:44px;text-align:right}
+    .detail{margin-top:12px;padding:8px;border:1px solid #25385a;border-radius:4px;font-size:11px;color:#93a8c4;min-height:16px}
+    </style></head><body>
+    <h4>Sales by region</h4>
+    <div class="bar-row" data-region="north"><span class="bar-label">North</span><div class="bar-track"><div class="bar-fill" style="width:62%"></div></div><span class="bar-val">$620K</span></div>
+    <div class="bar-row" data-region="south"><span class="bar-label">South</span><div class="bar-track"><div class="bar-fill" style="width:41%"></div></div><span class="bar-val">$410K</span></div>
+    <div class="bar-row" data-region="west"><span class="bar-label">West</span><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><span class="bar-val">$880K</span></div>
+    <div class="detail" id="detail">Click a region to drill in.</div>
+    <script>
+      document.querySelectorAll('.bar-row').forEach(function(row){
+        row.addEventListener('click', function(){
+          var region = row.dataset.region;
+          parent.postMessage({ mcpApp:true, method:'tools/call', params:{ name:'drill_region', arguments:{ region: region } } }, '*');
+        });
+      });
+      window.addEventListener('message', function(e){
+        var d = e.data;
+        if(d && d.mcpApp && d.method === 'ui/notifications/tool-result'){
+          document.getElementById('detail').textContent = d.params.detail;
+        }
+      });
+    <\/script>
+    </body></html>`;
+
+  frame.srcdoc = APP_SRCDOC;
+
+  const DETAILS = {
+    north: 'North: 340 accounts, avg deal $1.8K, up 6% quarter over quarter.',
+    south: 'South: 210 accounts, avg deal $1.9K, flat quarter over quarter.',
+    west:  'West: 490 accounts, avg deal $1.8K, up 14% quarter over quarter — fastest growing region.',
+  };
+
+  window.addEventListener('message', (e)=>{
+    const d = e.data;
+    if(!d || !d.mcpApp || e.source !== frame.contentWindow) return;
+    if(d.method === 'tools/call'){
+      document.getElementById('m9framebadge').textContent = 'tools/call received';
+      const region = d.params.arguments.region;
+      document.getElementById('m9out').innerHTML =
+`<span class="hi">View → Host:</span> ${JSON.stringify({method:d.method, params:d.params})}
+<span class="ok">Host → View:</span> ${JSON.stringify({method:'ui/notifications/tool-result', params:{region, detail:DETAILS[region]}})}
+
+Only the tool-call arguments above ever reach the model — the bar chart's HTML never does.`;
+      frame.contentWindow.postMessage({ mcpApp:true, method:'ui/notifications/tool-result', params:{ region, detail:DETAILS[region] } }, '*');
+    }
+  });
+})();
+/* ---------- Module 10 — issuer mix-up spotter ---------- */
+(function(){
+  const wrap = document.getElementById('m10rows');
+  if(!wrap) return;
+  const EXPECTED = 'auth.legit-mcp.com';
+  const CASES = [
+    { iss:'https://auth.legit-mcp.com', correctIsAccept:true, note:'iss matches the server this flow was started against.' },
+    { iss:'https://auth.attacker-mcp.com', correctIsAccept:false, note:'iss points to a different authorization server entirely — classic mix-up.' },
+    { iss:'https://auth.legit-mcp.com.attacker.io', correctIsAccept:false, note:'Looks similar, but it\u2019s a different host — subdomain-style spoofing.' },
+    { iss:'https://auth.legit-mcp.com', correctIsAccept:true, note:'A clean match, same as case 1.' },
+  ];
+  let answered = new Array(CASES.length).fill(null);
+  wrap.innerHTML = CASES.map((c,i)=>`
+    <div class="callout" style="margin:0" id="m10case${i}">
+      <div class="label">Callback ${i+1}</div>
+      <div class="mono" style="font-size:.82rem;margin-bottom:var(--sp-2)">iss=${c.iss}</div>
+      <div class="btn-row">
+        <button class="btn small" data-m10="${i}:accept">Accept</button>
+        <button class="btn small" data-m10="${i}:reject">Reject</button>
+      </div>
+      <div class="connect-msg" id="m10verdict${i}"></div>
+    </div>`).join('');
+
+  function score(){
+    const n = answered.filter((a,i)=>a!==null && a===CASES[i].correctIsAccept).length;
+    document.getElementById('m10score').textContent = n + ' / ' + CASES.length;
+  }
+  wrap.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-m10]');
+    if(!btn) return;
+    const [idxStr, choice] = btn.dataset.m10.split(':');
+    const i = parseInt(idxStr,10);
+    const chose = choice === 'accept';
+    answered[i] = chose;
+    const c = CASES[i];
+    const verdict = document.getElementById('m10verdict'+i);
+    const right = chose === c.correctIsAccept;
+    verdict.className = 'connect-msg ' + (right ? 'ok' : 'err');
+    verdict.textContent = (right ? 'Correct — ' : 'Not quite — ') + c.note + ` (expected authorization server: ${EXPECTED})`;
+    score();
+  });
+})();
+/* ---------- Module 11 — capstone: live handle threading ---------- */
+(function(){
+  const runBtn = document.getElementById('m11run');
+  if(!runBtn) return;
+
+  const TOOLS = [
+    { type:"function", function:{ name:"add_to_basket", description:"Add an item to the basket and return a handle for later calls.",
+      parameters:{ type:"object", properties:{ item:{type:"string"}, qty:{type:"integer"} }, required:["item","qty"] } } },
+    { type:"function", function:{ name:"checkout", description:"Finish the order using the basket_id returned by add_to_basket.",
+      parameters:{ type:"object", properties:{ basket_id:{type:"string"}, confirm:{type:"boolean"} }, required:["basket_id"] } } },
+  ];
+  const SYSTEM = "You are a shopping assistant with two tools: add_to_basket and checkout. Always add the requested item first. When you check out, you MUST pass the exact basket_id string you received back from add_to_basket.";
+  const USER = "Add 2 tide charts to my basket, then check out.";
+
+  function execTool(name, args){
+    if(name === 'add_to_basket'){
+      const basket_id = 'bk_' + Math.random().toString(16).slice(2,10);
+      return { basket_id, item: args.item, qty: args.qty };
+    }
+    if(name === 'checkout'){
+      return { status: 'confirmed', basket_id: args.basket_id };
+    }
+    return { error: 'unknown tool' };
+  }
+
+  function runDemo(){
+    document.getElementById('m11badgetext').textContent = 'demo mode';
+    document.getElementById('m11badge').className = 'badge';
+    const basketId = 'bk_demo7a21';
+    const transcript = [
+      `<span class="illustrative">[illustrative, not a live measurement — captured transcript shape]</span>`,
+      `<span style="color:var(--ink-faint)">user →</span> "${USER}"`,
+      `<span class="hi">assistant → tool_call</span> add_to_basket({"item":"tide chart","qty":2})`,
+      `<span class="ok">tool →</span> {"basket_id":"${basketId}","item":"tide chart","qty":2}`,
+      `<span class="hi">assistant → tool_call</span> checkout({"basket_id":"<span class="hi">${basketId}</span>","confirm":true})`,
+      `<span class="ok">tool →</span> {"status":"confirmed","basket_id":"${basketId}"}`,
+      `<span style="color:var(--ink-faint)">assistant →</span> "Done — 2 tide charts are checked out under ${basketId}."`,
+    ];
+    document.getElementById('m11out').innerHTML = transcript.join('\n');
+    document.getElementById('m11calls').textContent = '2';
+    document.getElementById('m11match').textContent = 'yes';
+  }
+
+  async function runLive(){
+    const model = document.getElementById('orModel').value.trim() || 'anthropic/claude-haiku-4.5';
+    const endpoint = document.getElementById('orEndpoint').value.trim() || 'https://openrouter.ai/api/v1/chat/completions';
+    document.getElementById('m11badgetext').textContent = 'calling ' + model + '…';
+    document.getElementById('m11badge').className = 'badge live';
+    let messages = [ {role:"system", content:SYSTEM}, {role:"user", content:USER} ];
+    let log = [];
+    let calls = 0;
+    let mintedBasketId = null, checkoutUsedId = null;
+    try{
+      for(let round=0; round<4; round++){
+        const res = await fetch(endpoint, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+liveKey },
+          body: JSON.stringify({ model, messages, tools:TOOLS, tool_choice:'auto' })
+        });
+        if(!res.ok){
+          const errText = await res.text();
+          log.push(`<span class="bad">HTTP ${res.status}</span> — ${errText.slice(0,200)}`);
+          break;
+        }
+        const data = await res.json();
+        if(data.usage) estimateSpend(data.usage.prompt_tokens||0, data.usage.completion_tokens||0, model);
+        const msg = data.choices[0].message;
+        messages.push(msg);
+        if(msg.tool_calls && msg.tool_calls.length){
+          for(const tc of msg.tool_calls){
+            calls++;
+            const args = JSON.parse(tc.function.arguments || '{}');
+            if(tc.function.name==='add_to_basket') { /* nothing extra */ }
+            if(tc.function.name==='checkout') checkoutUsedId = args.basket_id;
+            const result = execTool(tc.function.name, args);
+            if(tc.function.name==='add_to_basket') mintedBasketId = result.basket_id;
+            log.push(`<span class="hi">assistant → tool_call</span> ${tc.function.name}(${JSON.stringify(args)})`);
+            log.push(`<span class="ok">tool →</span> ${JSON.stringify(result)}`);
+            messages.push({ role:'tool', tool_call_id:tc.id, content: JSON.stringify(result) });
+          }
+        } else {
+          log.push(`<span style="color:var(--ink-faint)">assistant →</span> "${(msg.content||'').replace(/</g,'&lt;')}"`);
+          break;
+        }
+      }
+    } catch(err){
+      log.push(`<span class="bad">Request failed:</span> ${String(err.message||err)}`);
+    }
+    document.getElementById('m11out').innerHTML = log.join('\n');
+    document.getElementById('m11calls').textContent = calls;
+    document.getElementById('m11match').textContent = (mintedBasketId && checkoutUsedId && mintedBasketId===checkoutUsedId) ? 'yes' : (checkoutUsedId ? 'no — mismatch' : '—');
+    document.getElementById('m11badgetext').textContent = 'live · done';
+    document.getElementById('m11badge').className = 'badge ok';
+  }
+
+  runBtn.addEventListener('click', ()=>{
+    if(liveKey) runLive(); else runDemo();
+  });
+})();
+
+/* ---------- Recap checklist (module 11 close) ---------- */
+(function(){
+  const wrap = document.getElementById('recap');
+  if(!wrap) return;
+  const ITEMS = [
+    ['No sessions, no handshake', 'Every request is self-contained — any replica can answer it.'],
+    ['One request, not two', 'initialize + tools/call collapsed into a single self-describing POST.'],
+    ['Headers carry routing info', 'Mcp-Method / Mcp-Name let gateways route without parsing bodies.'],
+    ['State moved to explicit handles', 'A tool mints an ID; the model threads it back as an argument.'],
+    ['Lists carry cache hints', 'ttlMs and cacheScope let clients skip redundant re-fetches.'],
+    ['MRTR replaced server pushes', 'input_required + retry, not a held-open channel.'],
+    ['Extensions are opt-in and negotiated', 'Reverse-DNS IDs, declared per request, never assumed.'],
+    ['Tasks hand back a pollable handle', 'CreateTaskResult now, tasks/get later, tasks/cancel any time.'],
+    ['Apps render inline, sandboxed', 'A ui:// resource becomes a live iframe talking back over JSON-RPC.'],
+    ['Auth checks the issuer', 'RFC 9207 iss validation closes a real mix-up-attack class.'],
+  ];
+  const list = document.createElement('div');
+  list.style.display='flex'; list.style.flexDirection='column'; list.style.gap='var(--sp-2)';
+  ITEMS.forEach((it,i)=>{
+    const label = document.createElement('label');
+    label.className='check-item';
+    label.innerHTML = `<input type="checkbox"><span class="ctext">${it[0]}<span class="sub">${it[1]}</span></span>`;
+    list.appendChild(label);
+  });
+  wrap.appendChild(list);
+  const limit = document.createElement('div');
+  limit.className = 'callout';
+  limit.style.marginTop = 'var(--sp-4)';
+  limit.innerHTML = `<div class="label">One honest limitation</div><p style="max-width:none">This workshop covers the core spec plus three extensions. It doesn't cover Enterprise Managed Authorization in depth, the Go or Rust SDKs, or the legacy-SSE deprecation timeline. The Tasks module runs at the wire level because the Python SDK hasn't caught up to the extension yet. Read the spec itself for anything load-bearing in production.</p>`;
+  wrap.appendChild(limit);
+})();
+</script>
+</body>
+</html>
