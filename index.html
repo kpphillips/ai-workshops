@@ -16,7 +16,15 @@
     .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
     .card { display:flex; min-height:260px; flex-direction:column; padding:26px; border:1px solid var(--line); border-radius:20px; background:linear-gradient(145deg,rgba(30,38,67,.82),rgba(15,19,34,.9)); box-shadow:0 18px 60px rgba(0,0,0,.2); transition:transform .2s,border-color .2s; }
     .card:hover { transform:translateY(-4px); border-color:var(--violet); }
-    .tag { align-self:flex-start; padding:4px 9px; border:1px solid #4d467d; border-radius:99px; color:#c4b5fd; font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+    .card--earlier { background:linear-gradient(145deg,rgba(20,25,42,.6),rgba(12,15,26,.78)); border-color:#1c2540; box-shadow:0 12px 40px rgba(0,0,0,.15); }
+    .card--earlier:hover { border-color:var(--line); }
+    .meta { display:flex; align-self:flex-start; align-items:center; gap:11px; }
+    .date { color:var(--muted); font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+    .section-head { display:flex; align-items:center; gap:16px; margin:46px 0 18px; color:var(--muted); font-size:.72rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
+    .section-head::after { content:""; flex:1; height:1px; background:var(--line); }
+    .tag { padding:4px 9px; border:1px solid #4d467d; border-radius:99px; color:#c4b5fd; font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+    .tag--latest { border-color:var(--blue); color:var(--blue); }
+    .tag--earlier { border-color:#2b3552; color:#7c88a8; }
     h2 { margin:25px 0 8px; font-size:1.55rem; letter-spacing:-.025em; }
     .card p { margin:0; color:var(--muted); }
     .open { display:inline-flex; align-items:center; gap:8px; margin-top:auto; padding-top:25px; color:var(--blue); font-weight:700; text-decoration:none; }
@@ -31,23 +39,27 @@
     <h1>Learn AI by building with it.</h1>
     <p class="intro">Short, hands-on workshops for understanding the tools and ideas behind modern AI. Open a workshop when you’re ready to experiment.</p>
 
-    <section class="grid" aria-label="Available workshops">
+    <section class="grid" aria-label="Latest workshops">
       <article class="card">
-        <div class="tag">Available · 03</div>
+        <div class="meta"><span class="tag tag--latest">Latest</span><span class="date">Sep 2026</span></div>
         <h2>Fable 5.1 Workshop</h2>
         <p>Measure real cost per task on Claude Fable 5.1 — effort levels, cache-read pricing, prompt simplification, append-only history, and migration.</p>
         <a class="open" href="./fable-5.1-workshop/">Start workshop <span aria-hidden="true">→</span></a>
       </article>
       <article class="card">
-        <div class="tag">Available · 02</div>
+        <div class="meta"><span class="tag tag--latest">Current</span><span class="date">Jul 2026</span></div>
         <h2>MCP 2026-07-28</h2>
         <p>Build on the stateless MCP specification with real Python and C# examples, labs, and a live capstone.</p>
         <a class="open" href="./mcp-07-28-workshop/">Start workshop <span aria-hidden="true">→</span></a>
       </article>
-      <article class="card">
-        <div class="tag">Available · 01</div>
+    </section>
+
+    <h2 class="section-head">Earlier workshops</h2>
+    <section class="grid" aria-label="Earlier workshops">
+      <article class="card card--earlier">
+        <div class="meta"><span class="tag tag--earlier">Foundational</span><span class="date">May 2026</span></div>
         <h2>Opus 4.8 Field Workshop</h2>
-        <p>A practical, interactive tour of Claude Opus 4.8 and the workflows that make a frontier model useful.</p>
+        <p>A practical, interactive tour of Claude Opus 4.8 and the workflows that make a frontier model useful. Still relevant — the model has since been superseded.</p>
         <a class="open" href="./opus-4.8-workshop/">Start workshop <span aria-hidden="true">→</span></a>
       </article>
     </section>
