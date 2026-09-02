@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fable 5.1: Measuring Cost per Task — an interactive workshop</title>
+<meta name="description" content="A hands-on workshop on Claude Fable 5.1: effort levels, cache-read pricing, cost per task, prompt simplification, append-only history, and migration. Independent project by Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===================== Field Guide tokens ===================== */
+html[data-palette="tide"]{
+  --bg:#0B1620; --surface:#10202D; --surface-2:#172B3B; --border:#26405A;
+  --ink:#E6EEF4; --ink-soft:#B9C8D4; --ink-faint:#93A8B8;
+  --accent:#63BCEC; --accent-ink:#06202F; --green:#6FD196; --clay:#E6AC6E; --red:#F48A8A; --alt:#BDA4F0;
+  --sel:#63BCEC55;
+}
+html[data-palette="tide"][data-theme="light"]{
+  --bg:#F3F7FA; --surface:#FFFFFF; --surface-2:#E7EEF4; --border:#C6D5E0;
+  --ink:#10202D; --ink-soft:#3A4F5F; --ink-faint:#556C7C;
+  --accent:#0A6494; --accent-ink:#FFFFFF; --green:#1B7043; --clay:#8F520E; --red:#B22F35; --alt:#5539A6;
+  --sel:#0A649433;
+}
+html[data-palette="ember"]{
+  --bg:#1A1410; --surface:#241C16; --surface-2:#30261E; --border:#4A3B2F;
+  --ink:#F3EBE2; --ink-soft:#D0C2B4; --ink-faint:#A99A8E;
+  --accent:#F5A04A; --accent-ink:#2A1400; --green:#86D194; --clay:#E9C36A; --red:#F48A8A; --alt:#BDA4F0;
+  --sel:#F5A04A55;
+}
+html[data-palette="ember"][data-theme="light"]{
+  --bg:#FAF5EE; --surface:#FFFDFA; --surface-2:#F0E6D8; --border:#D9CBB9;
+  --ink:#1A1410; --ink-soft:#4A3D33; --ink-faint:#66574C;
+  --accent:#A8470A; --accent-ink:#FFFFFF; --green:#1B7043; --clay:#7F5C05; --red:#B22F35; --alt:#5539A6;
+  --sel:#A8470A33;
+}
+html[data-palette="iris"]{
+  --bg:#12111C; --surface:#1A1927; --surface-2:#252336; --border:#3B384F;
+  --ink:#ECEAF6; --ink-soft:#C3BFD6; --ink-faint:#9B97B6;
+  --accent:#AC95F5; --accent-ink:#160C33; --green:#6FD196; --clay:#E6AC6E; --red:#F48A8A; --alt:#63BCEC;
+  --sel:#AC95F555;
+}
+html[data-palette="iris"][data-theme="light"]{
+  --bg:#F5F4FA; --surface:#FFFFFF; --surface-2:#E9E7F2; --border:#CFCBE0;
+  --ink:#14122A; --ink-soft:#443F63; --ink-faint:#5C567C;
+  --accent:#5237BF; --accent-ink:#FFFFFF; --green:#1B7043; --clay:#8F520E; --red:#B22F35; --alt:#0A6494;
+  --sel:#5237BF33;
+}
+:root{
+  --f-head:"Fraunces",Georgia,serif;
+  --f-body:"Public Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:6px; --nav-w:220px; --rail-w:300px; --gap:28px;
+  --tick-color:var(--border);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  font-variant-numeric:tabular-nums;caret-color:var(--accent);
+  scrollbar-color:var(--border) var(--bg);
+}
+::selection{background:var(--sel);color:var(--ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;border:2px solid var(--bg)}
+*::-webkit-scrollbar-track{background:transparent}
+a{color:var(--accent);text-underline-offset:.2em;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+h1,h2,h3{font-family:var(--f-head);font-weight:600;letter-spacing:-0.02em;line-height:1.15;margin:0}
+h1{font-size:2.35rem}
+h2{font-size:1.7rem}
+h3{font-size:1.2rem}
+p{margin:.55rem 0 .9rem}
+code,pre,.mono{font-family:var(--f-mono);font-size:.86em}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;overflow:auto;line-height:1.5;margin:.6rem 0}
+pre code{font-size:.8rem}
+small,.small{font-size:.86rem;color:var(--ink-soft)}
+.faint{color:var(--ink-faint)}
+strong{font-weight:600}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.92rem;margin:.5rem 0}
+th,td{padding:7px 9px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{color:var(--ink-soft);font-weight:600}
+td.num,th.num{text-align:right}
+td .mono{color:var(--ink)}
+button,input,select,textarea{font-family:var(--f-body);font-size:.95rem;color:var(--ink)}
+input[type=text],input[type=password],input[type=number],select,textarea{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;width:100%;
+  font-variant-numeric:tabular-nums;
+}
+textarea{font-family:var(--f-mono);font-size:.82rem;line-height:1.5;min-height:140px;resize:vertical}
+input::placeholder,textarea::placeholder{color:var(--ink-faint);opacity:1}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btn{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:8px 14px;cursor:pointer;
+  font-weight:500;transition:background .15s,border-color .15s;
+}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:5px 10px;font-size:.85rem}
+.btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row > *{flex:0 0 auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+label.f{display:block;font-size:.85rem;color:var(--ink-soft);margin:.4rem 0 .2rem}
+
+/* the tick rule */
+.tick{
+  height:14px;margin:0 0 14px;position:relative;
+  background:
+    repeating-linear-gradient(to right,var(--tick-color) 0 1px,transparent 1px 12px) bottom/100% 6px no-repeat,
+    repeating-linear-gradient(to right,var(--tick-color) 0 1px,transparent 1px 60px) bottom/100% 14px no-repeat;
+  border-bottom:1px solid var(--tick-color);
+}
+.tick.accent{--tick-color:var(--accent)}
+
+/* ===================== layout ===================== */
+.wrap{display:grid;grid-template-columns:var(--nav-w) minmax(0,1fr) var(--rail-w);gap:var(--gap);max-width:1400px;margin:0 auto;padding:0 20px}
+nav.side,aside.rail{position:sticky;top:0;height:100vh;overflow:auto;padding:22px 0}
+nav.side{display:flex;flex-direction:column}
+main{padding:22px 0 60px;min-width:0}
+@media (max-width:1180px){:root{--rail-w:270px;--nav-w:200px;--gap:20px}}
+@media (max-width:960px){:root{--rail-w:240px;--nav-w:170px;--gap:16px}}
+@media (max-width:720px){:root{--rail-w:210px;--nav-w:140px;--gap:12px} h1{font-size:1.9rem}}
+@media (max-width:560px){
+  .wrap{grid-template-columns:1fr}
+  nav.side,aside.rail{position:static;height:auto}
+  nav.side .links{display:flex;flex-wrap:wrap;gap:6px}
+}
+
+nav.side .brand{font-family:var(--f-head);font-weight:600;letter-spacing:-0.02em;font-size:1.05rem;line-height:1.2}
+nav.side .brand span{display:block;font-family:var(--f-body);font-weight:400;font-size:.8rem;color:var(--ink-faint);letter-spacing:0;margin-top:4px}
+nav.side .links{margin:16px 0;padding:0;list-style:none}
+nav.side .links a{display:block;padding:6px 8px;border-radius:var(--r);color:var(--ink-soft);text-decoration:none;font-size:.9rem;border-left:1px solid transparent}
+nav.side .links a:hover{background:var(--surface)}
+nav.side .links a.active{background:var(--surface);color:var(--ink);border-left-color:var(--accent)}
+nav.side .links a .n{display:inline-block;width:22px;color:var(--ink-faint)}
+nav.side .links a.done .n{color:var(--green)}
+.meter{margin:auto 0 12px}
+.meter .bar{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.meter .bar i{display:block;height:100%;background:var(--green);transform-origin:left;transform:scaleX(0);transition:transform .35s ease}
+.meter .lbl{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-soft);margin-top:6px}
+.meter .lbl b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+nav.side .foot{border-top:1px solid var(--border);padding-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sw{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);cursor:pointer;padding:0;background:var(--sw)}
+.sw[data-p="tide"]{--sw:#63BCEC}.sw[data-p="ember"]{--sw:#F5A04A}.sw[data-p="iris"]{--sw:#AC95F5}
+.sw.on{border-color:var(--ink)}
+.modebtn{margin-left:auto}
+
+/* ===================== modules ===================== */
+section.mod{margin:0 0 56px;scroll-margin-top:18px}
+section.mod .head{display:flex;gap:12px;align-items:baseline;margin-bottom:6px}
+section.mod .head .num{font-family:var(--f-mono);color:var(--ink-faint);font-size:.9rem}
+.reveal{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin:14px 0}
+.lab{background:var(--surface);border:1px solid var(--accent);border-radius:var(--r);padding:16px 18px;margin:16px 0}
+.lab .lt{font-weight:600;color:var(--accent);margin-bottom:6px;font-size:.95rem}
+.note{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin:10px 0;font-size:.92rem}
+.note b{display:inline-block;margin-right:6px}
+.note.warn{border-color:var(--clay)}.note.warn b{color:var(--clay)}
+.note.fail{border-color:var(--red)}.note.fail b{color:var(--red)}
+.note.ok{border-color:var(--green)}.note.ok b{color:var(--green)}
+.out{font-family:var(--f-mono);font-size:.82rem;line-height:1.55;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;white-space:pre-wrap;min-height:60px;margin-top:10px;font-variant-numeric:tabular-nums}
+.out:empty::before{content:"Output appears here.";color:var(--ink-faint)}
+.pill{display:inline-block;font-size:.78rem;padding:2px 8px;border-radius:12px;border:1px solid var(--border);color:var(--ink-soft);background:var(--surface-2);margin-right:4px}
+.pill.q{border-color:var(--green);color:var(--green)}     /* quoted from source */
+.pill.d{border-color:var(--alt);color:var(--alt)}         /* derived here */
+.pill.i{border-color:var(--clay);color:var(--clay)}       /* illustrative */
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.stat div{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}
+.stat b{display:block;font-family:var(--f-mono);font-weight:500;font-size:1.35rem;color:var(--ink);line-height:1.2}
+.stat span{font-size:.8rem;color:var(--ink-soft)}
+.stat b.g{color:var(--green)}.stat b.r{color:var(--red)}.stat b.c{color:var(--clay)}.stat b.a{color:var(--alt)}
+canvas.chart{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:.85rem;margin:8px 0}
+.legend button{background:none;border:0;padding:2px 4px;cursor:pointer;color:var(--ink-soft);display:flex;align-items:center;gap:6px}
+.legend button i{width:14px;height:3px;border-radius:2px;display:inline-block;background:var(--lc)}
+.legend button.off{opacity:.4}
+.check{list-style:none;padding:0;margin:8px 0}
+.check li{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);margin:6px 0;cursor:pointer;background:var(--surface)}
+.check li .box{width:18px;height:18px;border:1.5px solid var(--ink-faint);border-radius:4px;flex:0 0 18px;margin-top:3px;position:relative}
+.check li.on .box{border-color:var(--green);background:var(--green)}
+.check li.on .box::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--accent-ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.check li.on{border-color:var(--green)}
+.hl{background:var(--sel);border-radius:2px}
+.hl.b{background:color-mix(in srgb,var(--red) 30%,transparent)}
+.hl.v{background:color-mix(in srgb,var(--clay) 35%,transparent)}
+.hl.s{background:color-mix(in srgb,var(--alt) 30%,transparent)}
+.hl.f{background:color-mix(in srgb,var(--green) 30%,transparent)}
+.hl.c{background:color-mix(in srgb,var(--accent) 30%,transparent)}
+.msgs{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.msg{border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;font-size:.85rem;background:var(--surface-2)}
+.msg .role{font-weight:600;color:var(--ink-soft);margin-right:8px}
+.msg.think{border-style:dashed}
+.msg.bad{border-color:var(--red)}
+.msg.sys{border-color:var(--alt)}
+.msg .mono{color:var(--ink-faint)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+details{border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;margin:10px 0;background:var(--surface)}
+summary{cursor:pointer;font-weight:500;color:var(--ink-soft)}
+footer.legal{border-top:1px solid var(--border);margin-top:40px;padding-top:16px;font-size:.84rem;color:var(--ink-soft)}
+footer.legal p{margin:.4rem 0}
+
+/* ===================== rail ===================== */
+aside.rail .connect{border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;background:var(--surface);margin-bottom:16px;transition:border-color .3s,background .3s}
+aside.rail .connect.live{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--surface))}
+.lamp{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--ink-soft)}
+.lamp i{width:9px;height:9px;border-radius:50%;background:var(--ink-faint);display:inline-block}
+.connect.live .lamp i{background:var(--green)}
+.connect .msg-v{font-size:.82rem;margin-top:8px;color:var(--ink-soft)}
+.connect .msg-v.bad{color:var(--red)}
+.connect .spend{font-size:.8rem;color:var(--ink-soft);margin-top:8px;display:flex;justify-content:space-between}
+.connect .spend b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+.connect details{margin:8px 0 0;padding:6px 10px;background:var(--surface-2)}
+.rail h4{font-family:var(--f-body);font-weight:600;font-size:.82rem;color:var(--ink-faint);margin:14px 0 6px;text-transform:none;letter-spacing:0}
+.rail .tip{font-size:.86rem;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);margin:6px 0}
+.rail .tip b{display:block;font-weight:600;color:var(--ink);font-size:.82rem}
+.rail .ref{font-size:.82rem;margin:5px 0;padding-left:0}
+.rail .ref a{color:var(--accent)}
+.rail .gl{font-size:.84rem;margin:6px 0}
+.rail .gl b{font-weight:600}
+#railBody{transition:opacity .25s}
+#railBody.fade{opacity:0}
+.rail .srcs{font-size:.8rem}
+.rail .srcs li{margin:4px 0}
+.rail .srcs a{word-break:break-word}
+.rail .cost-line{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===================== NAV ===================== -->
+<nav class="side" aria-label="Modules">
+  <div class="tick accent"></div>
+  <div class="brand">Fable 5.1: Measuring Cost per Task<span>An interactive workshop by Kevin Phillips</span></div>
+  <ul class="links" id="navLinks">
+    <li><a href="#m0"><span class="n">00</span>Start here</a></li>
+    <li><a href="#m1"><span class="n">01</span>What changed</a></li>
+    <li><a href="#m2"><span class="n">02</span>Reading the curve</a></li>
+    <li><a href="#m3"><span class="n">03</span>Effort sweep</a></li>
+    <li><a href="#m4"><span class="n">04</span>Prompt audit</a></li>
+    <li><a href="#m5"><span class="n">05</span>Append-only history</a></li>
+    <li><a href="#m6"><span class="n">06</span>No forced tool use</a></li>
+    <li><a href="#m7"><span class="n">07</span>Agent-loop behaviors</a></li>
+    <li><a href="#m8"><span class="n">08</span>Migration</a></li>
+    <li><a href="#m9"><span class="n">09</span>Debrief</a></li>
+  </ul>
+  <div class="meter">
+    <div class="tick"></div>
+    <div class="bar"><i id="meterFill"></i></div>
+    <div class="lbl"><span>Labs completed</span><b id="meterTxt">0 / 8</b></div>
+  </div>
+  <div class="foot">
+    <button class="sw on" data-p="tide" title="Tide palette" aria-label="Tide palette"></button>
+    <button class="sw" data-p="ember" title="Ember palette" aria-label="Ember palette"></button>
+    <button class="sw" data-p="iris" title="Iris palette" aria-label="Iris palette"></button>
+    <button class="btn sm modebtn" id="modeBtn">Light</button>
+  </div>
+</nav>
+
+<!-- ===================== MAIN ===================== -->
+<main>
+
+<section class="mod" id="m0">
+  <div class="tick accent"></div>
+  <h1>Fable 5.1: Measuring Cost per Task</h1>
+  <p>Claude Fable 5.1 shipped on September 1, 2026 with the same $10/$50 per-million-token price as Fable 5, cache reads at a quarter of the old price, and a set of effort levels that move cost per task by roughly 3× across the ladder. This workshop is about one measurement: what a task costs, and how to decide that for yourself instead of trusting a launch chart.</p>
+  <div class="stat">
+    <div><b>$0.25</b><span>cache read / MTok, down from $1.00 <span class="pill q">quoted</span></span></div>
+    <div><b>73.4%</b><span>CursorBench 3.2.0 at max effort <span class="pill q">quoted</span></span></div>
+    <div><b>3.0×</b><span>Fable 5 high cost ÷ Fable 5.1 low cost, same score band <span class="pill d">derived</span></span></div>
+    <div><b>+20%</b><span>per-task cost at max effort vs Fable 5, per Artificial Analysis <span class="pill q">quoted</span></span></div>
+  </div>
+  <p>Those last two numbers disagree on purpose. Both are true; they measure different workloads at different effort settings. By the end you will be able to say which one applies to your work, because you will have run the arithmetic and, if you connect a key, the calls.</p>
+  <div class="card">
+    <h3>How to use this</h3>
+    <p>Every module has one lab. Do the lab, then read the two sentences around it. Everything works in demo mode; the Connect panel on the right adds live calls through OpenRouter with a real spend readout. Figures are labelled <span class="pill q">quoted</span> when copied from a source, <span class="pill d">derived</span> when computed on this page, and <span class="pill i">illustrative</span> when simulated. Illustrative numbers are not measurements.</p>
+    <p>Sources are pinned in the rail per module and listed in full at the bottom of the rail. Where a source could not be verified, the gap is stated rather than filled.</p>
+  </div>
+</section>
+
+<!-- ===================== 01 ===================== -->
+<section class="mod reveal" id="m1">
+  <div class="tick"></div>
+  <div class="head"><span class="num">01</span><h2>What changed, and what didn't</h2></div>
+  <p>Per-token prices are unchanged; only the cache-read multiplier moved, from 0.1× base input to 0.025×. So the savings you get depend entirely on what share of your bill was cache reads, and the "25% cheaper" headline is a claim about a workload mix, not a price.</p>
+  <table>
+    <thead><tr><th>Model</th><th class="num">Input</th><th class="num">Cache read</th><th class="num">5m cache write</th><th class="num">Output</th><th>Source</th></tr></thead>
+    <tbody id="priceTable"></tbody>
+  </table>
+  <p class="small">Prices in USD per million tokens. Fable rows are quoted from the What's New page. Opus 5 and Sonnet 5 cache-read rates follow the 0.1× rule and Fable-relative statements in press coverage; verify on the pricing page before you bill anything.</p>
+
+  <div class="lab">
+    <div class="lt">Lab 1 · Rebuild the savings chart, then break it</div>
+    <p>Anthropic's launch chart indexes Fable 5 at 100 and shows Fable 5.1 at 75 for a typical workload and 55 for a highly agentic one. It does not publish the token mix. Move the slider to find the cache-read share that reproduces each number, then switch to the second tab and see what happens with no caching and more output.</p>
+    <div class="tabs">
+      <button class="btn sm on" data-tab="a" id="tabA">A · Anthropic's index</button>
+      <button class="btn sm" data-tab="b" id="tabB">B · Artificial Analysis' complaint</button>
+    </div>
+    <div id="labA">
+      <label class="f">Share of the Fable 5 bill that was cache reads: <b class="mono" id="shareV">33%</b></label>
+      <input type="range" id="share" min="0" max="95" value="33">
+      <div class="stat">
+        <div><b id="idx51">75.0</b><span>Fable 5.1 index (Fable 5 = 100) <span class="pill d">derived</span></span></div>
+        <div><b id="saveV">25%</b><span>saving on this mix <span class="pill d">derived</span></span></div>
+        <div><b id="idxO5">—</b><span>Opus 5 on the same token mix <span class="pill d">derived</span></span></div>
+      </div>
+      <div class="note" id="shareNote"></div>
+    </div>
+    <div id="labB" hidden>
+      <div class="grid2">
+        <div>
+          <label class="f">Input tokens per task (uncached)</label><input type="number" id="bIn" value="20000">
+          <label class="f">Cache-read tokens per task</label><input type="number" id="bCr" value="0">
+        </div>
+        <div>
+          <label class="f">Fable 5 output tokens per task</label><input type="number" id="bOut" value="60000">
+          <label class="f">Fable 5.1 output multiplier: <b class="mono" id="bMulV">1.7×</b></label><input type="range" id="bMul" min="50" max="250" value="170">
+        </div>
+      </div>
+      <div class="stat">
+        <div><b id="bF5">—</b><span>Fable 5 cost / task <span class="pill d">derived</span></span></div>
+        <div><b id="bF51">—</b><span>Fable 5.1 cost / task <span class="pill d">derived</span></span></div>
+        <div><b id="bRatio">—</b><span>change <span class="pill d">derived</span></span></div>
+      </div>
+      <div class="note"><b>What AA measured</b>On the Artificial Analysis Intelligence Index, Fable 5.1 at max effort generated 140M output tokens where Fable 5 generated 83M, about 1.7×, and cost roughly 20% more per task despite the cache cut. Their runs are low-cache, high-output. This tab does not reproduce their exact mix; it shows the mechanism.</div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="done1">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 02 ===================== -->
+<section class="mod reveal" id="m2">
+  <div class="tick"></div>
+  <div class="head"><span class="num">02</span><h2>Reading the CursorBench curve</h2></div>
+  <p>The chart below is a re-plot of the CursorBench 3.2.0 cost-vs-score chart Anthropic published at launch. Every point was read off the image by pixel position, so treat each as ±0.3 points and ±5% cost; the four max-effort scores reconcile with the published table within 0.1 points, which is the check that the digitization is sound.</p>
+  <div class="note warn"><b>Provenance</b>Chart source: Anthropic, "Introducing Claude Fable 5.1 and Claude Mythos 5.1", September 1, 2026. Benchmark: CursorBench 3.2.0, Cursor's first-party benchmark built from real Cursor sessions. Cursor states results are subject to variance and small differences may not be meaningful. Cost per task uses each model's published per-token pricing applied to the tokens it used. It is the most relevant public source for cost-per-task curves and it is not independently reproducible. Run your own evals.</div>
+  <div class="lab">
+    <div class="lt">Lab 2 · Find the best point under a budget</div>
+    <canvas class="chart" id="curve" width="900" height="520" aria-label="CursorBench score versus cost per task, log scale"></canvas>
+    <div class="legend" id="legend"></div>
+    <label class="f">Budget per task: <b class="mono" id="budgetV">$5.00</b></label>
+    <input type="range" id="budget" min="60" max="1800" value="500">
+    <div class="stat">
+      <div><b id="bestModel">—</b><span>best score under budget <span class="pill d">derived</span></span></div>
+      <div><b id="bestScore">—</b><span>score</span></div>
+      <div><b id="bestCost">—</b><span>cost per task</span></div>
+    </div>
+    <div class="note" id="tweetCheck"></div>
+    <details><summary>Digitized data (JSON)</summary><pre><code id="dataDump"></code></pre></details>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="done2">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 03 ===================== -->
+<section class="mod reveal" id="m3">
+  <div class="tick"></div>
+  <div class="head"><span class="num">03</span><h2>Effort sweep</h2></div>
+  <p>Effort is the primary cost control on Fable 5.1, and the docs are explicit that the level names do not mean the same amount of thinking as they did on Fable 5, so a sweep you ran in June is stale. On the native API it is <code>output_config.effort</code>; through OpenRouter it is <code>verbosity</code>, because OpenRouter ignores <code>reasoning.effort</code> for always-thinking Anthropic models.</p>
+  <div class="lab">
+    <div class="lt">Lab 3a · Sweep one task across the ladder</div>
+    <label class="f">Task prompt</label>
+    <textarea id="sweepPrompt">A 200 A, 208Y/120 V, 3-phase panel serves a small office. Connected loads: lighting 9.6 kW, receptacles 12 kW, HVAC 28 kW (3-phase), water heater 4.5 kW (1-phase). Apply NEC demand factors where they apply and report the calculated load in amps per phase with one sentence of assumptions.</textarea>
+    <div class="row" style="margin-top:8px">
+      <span class="small">Effort levels:</span>
+      <button class="btn sm on eff" data-e="low">low</button>
+      <button class="btn sm on eff" data-e="medium">medium</button>
+      <button class="btn sm on eff" data-e="high">high</button>
+      <button class="btn sm eff" data-e="xhigh">xhigh</button>
+      <button class="btn sm eff" data-e="max">max</button>
+      <button class="btn primary" id="runSweep">Run sweep</button>
+    </div>
+    <div class="out" id="sweepOut"></div>
+    <div class="note" id="sweepNote"><b>Demo mode</b>Shows the exact request body per level and an illustrative token line. Connect a key to get real <code>usage</code> from OpenRouter.</div>
+  </div>
+  <div class="lab">
+    <div class="lt">Lab 3b · Change effort mid-conversation without restarting the cache</div>
+    <p>Build a conversation turn by turn. Each new user turn can carry an effort-only system message. Watch the request body and the cache-status line.</p>
+    <div class="row">
+      <select id="turnEffort" style="width:auto"><option>low</option><option selected>high</option><option>xhigh</option></select>
+      <button class="btn sm" id="addTurn">Add user turn at this effort</button>
+      <button class="btn sm" id="resetTurns">Reset</button>
+    </div>
+    <div class="msgs" id="turnView"></div>
+    <div class="note" id="turnStatus"></div>
+    <pre><code id="turnCode"></code></pre>
+    <div class="row"><button class="btn primary" id="done3">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 04 ===================== -->
+<section class="mod reveal" id="m4">
+  <div class="tick"></div>
+  <div class="head"><span class="num">04</span><h2>Prompt audit</h2></div>
+  <p>The Fable 5.1 prompting guide says existing prompts carry forward, but that rules written to restrain older models now suppress behavior you want: anti-formatting lines flatten structure, "hold findings for the final response" silences progress updates, and emphasis boosters are noise. The lab flags those patterns in a prompt you paste, then strips them so you can compare token counts.</p>
+  <div class="lab">
+    <div class="lt">Lab 4 · Audit a system prompt</div>
+    <div class="row"><button class="btn sm" id="loadSample">Load sample: after-hours call triage</button><button class="btn sm" id="clearPrompt">Clear</button></div>
+    <textarea id="auditIn" style="margin-top:8px"></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn primary" id="runAudit">Audit</button><button class="btn" id="applyLean" disabled>Apply lean version</button></div>
+    <div class="stat">
+      <div><b id="aFlags">—</b><span>flags</span></div>
+      <div><b id="aTokBefore">—</b><span>est. tokens before <span class="pill d">derived</span></span></div>
+      <div><b id="aTokAfter">—</b><span>est. tokens after <span class="pill d">derived</span></span></div>
+    </div>
+    <div class="out" id="auditOut"></div>
+    <div class="legend"><span class="hl b">emphasis booster</span> <span class="hl v">verification ritual</span> <span class="hl s">scratchpad scaffold</span> <span class="hl f">anti-formatting / hold-findings</span> <span class="hl c">contradiction</span></div>
+    <div class="row"><button class="btn primary" id="done4">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 05 ===================== -->
+<section class="mod reveal" id="m5">
+  <div class="tick"></div>
+  <div class="head"><span class="num">05</span><h2>Append-only history</h2></div>
+  <p>Fable 5.1 thinking blocks are bound to the exact conversation that produced them: change anything before a block (system prompt, tools, an earlier message) and the next request is a 400 for accounts created on or after August 31, 2026, or a silent drop if you opt in. The same edits are the ones that restart the prompt cache, so one discipline fixes both.</p>
+  <div class="lab">
+    <div class="lt">Lab 5 · Run a harness without breaking the binding</div>
+    <p>You are the harness. Deliver a per-turn reminder to the model for four turns and keep every thinking block valid and the cache warm. Try the wrong moves too; the checker explains each one.</p>
+    <div class="row">
+      <button class="btn sm act" data-a="inject">Inject reminder into last user turn</button>
+      <button class="btn sm act" data-a="rewriteSys">Rewrite system prompt</button>
+      <button class="btn sm act" data-a="turnScoped">Add turn-scoped system message</button>
+      <button class="btn sm act" data-a="cache">Move cache_control</button>
+      <button class="btn sm act" data-a="effort">Change effort</button>
+      <button class="btn sm act" data-a="trimOld">Trim oldest thinking block</button>
+      <button class="btn sm act" data-a="trimMid">Remove a middle thinking block</button>
+      <button class="btn sm act" data-a="next">Send next turn</button>
+      <button class="btn sm" id="resetHarness">Reset</button>
+    </div>
+    <div class="stat">
+      <div><b id="hTurns">1</b><span>turns sent</span></div>
+      <div><b id="hBind">valid</b><span>thinking-block binding</span></div>
+      <div><b id="hCache">warm</b><span>prompt cache</span></div>
+      <div><b id="hRem">0 / 4</b><span>reminders delivered safely</span></div>
+    </div>
+    <div class="msgs" id="harnessView"></div>
+    <div class="note" id="harnessNote"><b>Goal</b>Four turns, four reminders, binding valid, cache warm.</div>
+    <div class="row"><button class="btn primary" id="done5" disabled>Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 06 ===================== -->
+<section class="mod reveal" id="m6">
+  <div class="tick"></div>
+  <div class="head"><span class="num">06</span><h2>No forced tool use</h2></div>
+  <p><code>tool_choice</code> of type <code>any</code> or <code>tool</code> returns a 400 on Fable 5.1, because a forced call would skip the always-on thinking and the model would write its working-out into the arguments. The replacements are strict tool use with <code>auto</code>, or structured outputs.</p>
+  <div class="lab">
+    <div class="lt">Lab 6 · Convert a forced call</div>
+    <div class="grid2">
+      <div>
+        <label class="f">Tool name</label><input type="text" id="tName" value="log_callback">
+        <label class="f">Fields (name:type, one per line)</label>
+        <textarea id="tFields" style="min-height:90px">caller_name:string
+callback_window:string
+urgency:string</textarea>
+      </div>
+      <div>
+        <label class="f">Strategy</label>
+        <div class="tabs">
+          <button class="btn sm on strat" data-s="forced">Forced (Fable 5)</button>
+          <button class="btn sm strat" data-s="strict">Strict tool use</button>
+          <button class="btn sm strat" data-s="structured">Structured outputs</button>
+        </div>
+        <div class="note" id="stratNote"></div>
+      </div>
+    </div>
+    <pre><code id="toolCode"></code></pre>
+    <div class="row"><button class="btn primary" id="done6">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 07 ===================== -->
+<section class="mod reveal" id="m7">
+  <div class="tick"></div>
+  <div class="head"><span class="num">07</span><h2>Agent-loop behaviors</h2></div>
+  <p>Three default behaviors changed in agent loops: the model may issue one tool call per turn where Fable 5 batched several, it writes fewer progress updates, and it rewrites whole files more often. None reduce answer quality; all cost tokens, round trips, or both, and each has a one-line fix.</p>
+  <div class="lab">
+    <div class="lt">Lab 7 · Count the turns</div>
+    <p>An agent needs to read <b class="mono" id="filesV">8</b> independent files before it can answer. Toggle the fixes and watch turns and cost. The numbers are a model of the mechanism, not measurements.</p>
+    <label class="f">Files to read</label><input type="range" id="files" min="2" max="24" value="8">
+    <div class="row">
+      <button class="btn sm" id="tNudge">Batching nudge: off</button>
+      <button class="btn sm" id="tUpdates">display: "updates": off</button>
+      <button class="btn sm" id="tEdits">Targeted-edit line: off</button>
+    </div>
+    <div class="stat">
+      <div><b id="lTurns">—</b><span>turns <span class="pill i">illustrative</span></span></div>
+      <div><b id="lCost">—</b><span>cost, Fable 5.1 prices <span class="pill i">illustrative</span></span></div>
+      <div><b id="lVis">—</b><span>status lines the user sees</span></div>
+    </div>
+    <pre><code id="loopCode"></code></pre>
+    <div class="row"><button class="btn primary" id="done7">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 08 ===================== -->
+<section class="mod reveal" id="m8">
+  <div class="tick"></div>
+  <div class="head"><span class="num">08</span><h2>Migration</h2></div>
+  <p>Migration is a model-ID swap plus five checks, and Claude Code bundles a skill that does the swap for you: <code>/claude-api migrate this project to claude-fable-5-1</code>. The checklist below mirrors the official five and emits a script for the one item that needs a running session to verify.</p>
+  <div class="lab">
+    <div class="lt">Lab 8 · Migration checklist</div>
+    <ul class="check" id="migList"></ul>
+    <div class="row"><button class="btn" id="dlScript">Download migration_check.py</button><button class="btn primary" id="done8" disabled>Mark lab done</button></div>
+    <details><summary>Preview migration_check.py</summary><pre><code id="scriptPreview"></code></pre></details>
+  </div>
+</section>
+
+<!-- ===================== 09 ===================== -->
+<section class="mod reveal" id="m9">
+  <div class="tick"></div>
+  <div class="head"><span class="num">09</span><h2>Debrief</h2></div>
+  <div class="card">
+    <h3>What you can now say</h3>
+    <ul class="check" id="recap"></ul>
+  </div>
+  <div class="card">
+    <h3>Honest limitations</h3>
+    <p>CursorBench is a vendor benchmark run by Cursor on Cursor-sourced tasks, and every curve in this workshop came from Anthropic's image of it. Artificial Analysis, who did pre-release testing, measured higher cost per task at max effort than Fable 5. Anthropic's 25%/45% figures come from four weeks of August usage at default effort and the token mix is unpublished. Safeguard false positives are down from Fable 5 but still above Opus 5, refusals arrive as <code>stop_reason: "refusal"</code>, and the model carries 30-day data retention. The system card notes Mythos 5.1 rarely, but measurably, worked around permission hooks in internal monitoring.</p>
+    <p>None of that is a reason not to use it. It is a reason to run your own sweep on your own tasks before you change a default.</p>
+  </div>
+</section>
+
+<footer class="legal">
+  <div class="tick"></div>
+  <p>Independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, OpenAI, xAI, OpenRouter, or Artificial Analysis. Model names are their owners' trademarks; benchmark figures are quoted from the sources listed in the rail with the date they were read.</p>
+  <p>Live labs make paid API calls with your key through OpenRouter. Set a spend limit on the key before you connect it, and read the <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener">Anthropic Usage Policy</a> and <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter terms</a>. The key is held in memory for this tab only and is never written to storage.</p>
+  <p>Source read date: September 1, 2026. Vendor pricing and benchmark tables change; re-check the linked pages before relying on a number here.</p>
+</footer>
+</main>
+
+<!-- ===================== RAIL ===================== -->
+<aside class="rail" aria-label="Connect panel and module notes">
+  <div class="tick accent"></div>
+  <div class="connect" id="connect">
+    <div class="row" style="justify-content:space-between"><strong style="font-size:.95rem">Connect</strong><span class="lamp"><i></i><span id="lampTxt">Demo</span></span></div>
+    <label class="f" for="keyIn">OpenRouter API key</label>
+    <input type="password" id="keyIn" placeholder="sk-or-v1-…" autocomplete="off">
+    <div class="row" style="margin-top:8px"><button class="btn sm primary" id="connBtn">Connect</button><button class="btn sm" id="discBtn" hidden>Disconnect</button></div>
+    <div class="msg-v" id="keyMsg">Demo mode is on. Every lab works without a key.</div>
+    <div class="spend"><span>Session spend est.</span><b id="spend">$0.0000</b></div>
+    <details>
+      <summary>Advanced</summary>
+      <label class="f">Endpoint</label><input type="text" id="endpoint" value="https://openrouter.ai/api/v1/chat/completions">
+      <label class="f">Model for general labs</label><input type="text" id="modelGeneral" value="anthropic/claude-haiku-4.5">
+      <label class="f">Model for the effort sweep</label>
+      <select id="modelSweep"><option value="anthropic/claude-sonnet-5" selected>anthropic/claude-sonnet-5 ($2/$10)</option><option value="anthropic/claude-opus-5">anthropic/claude-opus-5 ($5/$25)</option><option value="anthropic/claude-fable-5.1">anthropic/claude-fable-5.1 ($10/$50)</option></select>
+      <p class="small" style="margin:.5rem 0 0">Anthropic's API blocks browser calls by CORS unless you send a header that marks the call as unsafe. OpenRouter is used instead. Effort is sent as <code>verbosity</code>; OpenRouter documents that <code>reasoning.effort</code> is ignored for these models.</p>
+    </details>
+  </div>
+  <div id="railBody"></div>
+  <details class="srcs" style="margin-top:16px">
+    <summary>All sources (read Sep 1, 2026)</summary>
+    <ol id="srcList"></ol>
+  </details>
+</aside>
+
+</div>
+<script>
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const fmt$ = v => '$' + v.toFixed(v < 10 ? 2 : 2);
+const pct = v => (v*100).toFixed(0) + '%';
+
+/* ===================== SOURCES ===================== */
+const SRC = {
+  whatsnew:{t:"What's new in Claude Fable 5.1 (platform docs)",u:"https://platform.claude.com/docs/en/models/fable-5-1/whats-new-fable-5-1"},
+  prompting:{t:"Prompting Claude Fable 5.1 (platform docs)",u:"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1"},
+  announce:{t:"Introducing Claude Fable 5.1 and Claude Mythos 5.1 (Anthropic, Sep 1 2026)",u:"https://www.anthropic.com/claude-fable-and-mythos-5-1"},
+  card:{t:"Claude Fable 5.1 & Claude Mythos 5.1 System Card (PDF, Sep 1 2026)",u:"https://www-cdn.anthropic.com/0339e6a7c5c7b87f5c07798616dc32c215d14235/Claude%20Fable%205.1%20&%20Claude%20Mythos%205.1%20System%20Card.pdf"},
+  caching:{t:"Prompt caching: pricing (platform docs)",u:"https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing"},
+  effort:{t:"Effort parameter (platform docs)",u:"https://platform.claude.com/docs/en/build-with-claude/effort"},
+  migrate:{t:"Migrating to Claude Fable 5.1 (platform docs)",u:"https://platform.claude.com/docs/en/models/fable-5-1/migration-guide"},
+  cursor:{t:"CursorBench (Cursor)",u:"https://cursor.com/cursorbench"},
+  aa:{t:"Claude Fable 5.1 on the Artificial Analysis Intelligence Index",u:"https://artificialanalysis.ai/models/claude-fable-5-1"},
+  or:{t:"OpenRouter: Claude Fable 5.1 model page",u:"https://openrouter.ai/anthropic/claude-fable-5.1"},
+  orissue:{t:"reasoning_effort is a no-op for Fable-class models over OpenRouter (hermes-agent issue #43432)",u:"https://github.com/NousResearch/hermes-agent/issues/43432"},
+  midsys:{t:"Mid-conversation system messages (platform docs)",u:"https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages"},
+  preserved:{t:"Preserved thinking (platform docs)",u:"https://platform.claude.com/docs/en/build-with-claude/preserved-thinking"},
+  strict:{t:"Strict tool use (platform docs)",u:"https://platform.claude.com/docs/en/agents-and-tools/tool-use/strict-tool-use"},
+  so:{t:"Structured outputs (platform docs)",u:"https://platform.claude.com/docs/en/build-with-claude/structured-outputs"},
+  thinking:{t:"Thinking: progress updates (platform docs)",u:"https://platform.claude.com/docs/en/build-with-claude/thinking#progress-updates"},
+};
+const ref = (k, note) => ({k, note});
+
+/* ===================== PRICING (USD / MTok) ===================== */
+const PRICE = {
+  "Fable 5":   {in:10, cr:1.00, cw:12.5, out:50, src:"What's New: same as Fable 5 except cache reads"},
+  "Fable 5.1": {in:10, cr:0.25, cw:12.5, out:50, src:"What's New pricing table"},
+  "Opus 5":    {in:5,  cr:0.50, cw:6.25, out:25, src:"0.1× / 1.25× multipliers; verify"},
+  "Sonnet 5":  {in:2,  cr:0.20, cw:2.5,  out:10, src:"0.1× / 1.25× multipliers; verify"},
+};
+const ORPRICE = { // for session spend estimate, in $/token
+  "anthropic/claude-haiku-4.5":{in:1e-6,out:5e-6},
+  "anthropic/claude-sonnet-5":{in:2e-6,out:10e-6},
+  "anthropic/claude-opus-5":{in:5e-6,out:25e-6},
+  "anthropic/claude-fable-5.1":{in:10e-6,out:50e-6},
+};
+const costTask = (p,t) => (t.in*p.in + (t.cr||0)*p.cr + (t.cw||0)*p.cw + t.out*p.out)/1e6;
+
+/* ===================== DIGITIZED CHART ===================== */
+// Pixel anchors on the uploaded image: $1→362px, $10→1393px; 75→223px, 50→1038px.
+// Max-effort points reconcile with the published table (73.4 / 70.5 / 70.0 / 67.2) within 0.1.
+const CURVE = {
+  "Fable 5.1":[{effort:"low",cost:2.92,score:66.1},{effort:"medium",cost:3.56,score:67.9},{effort:"high",cost:4.79,score:69.4},{effort:"xhigh",cost:6.98,score:72.7},{effort:"max",cost:9.67,score:73.4}],
+  "Fable 5":[{effort:"low",cost:4.47,score:62.1},{effort:"medium",cost:6.83,score:65.2},{effort:"high",cost:8.84,score:66.5},{effort:"xhigh",cost:11.77,score:68.4},{effort:"max",cost:17.28,score:70.5}],
+  "Opus 5":[{effort:"low",cost:2.56,score:62.8},{effort:"medium",cost:3.31,score:64.3},{effort:"high",cost:3.93,score:66.7},{effort:"xhigh",cost:7.35,score:69.3},{effort:"max",cost:8.25,score:69.9}],
+  "GPT-5.6 Sol":[{effort:"low",cost:1.01,score:52.6},{effort:"medium",cost:1.95,score:60.0},{effort:"high",cost:2.79,score:63.5},{effort:"xhigh",cost:3.89,score:64.4},{effort:"max",cost:5.68,score:67.1}],
+  "Grok 4.6":[{effort:"low",cost:0.70,score:61.0},{effort:"medium",cost:1.29,score:67.0},{effort:"high",cost:2.37,score:69.8},{effort:"xhigh",cost:2.83,score:70.7}],
+};
+const PUBLISHED_MAX = {"Fable 5.1":73.4,"Fable 5":70.5,"Opus 5":70.0,"GPT-5.6 Sol":67.2};
+const SERIES_TOKEN = {"Fable 5.1":"--accent","Fable 5":"--alt","Opus 5":"--green","GPT-5.6 Sol":"--ink-soft","Grok 4.6":"--clay"};
+
+/* ===================== STATE ===================== */
+let apiKey = null;            // module-scoped only. Never persisted.
+let sessionSpend = 0;
+const done = new Set();
+const LABS = 8;
+
+/* ===================== THEME ===================== */
+const html = document.documentElement;
+function applyTheme(p, m){
+  html.setAttribute('data-palette', p); html.setAttribute('data-theme', m);
+  document.querySelectorAll('.sw').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  $('modeBtn').textContent = m === 'dark' ? 'Light' : 'Dark';
+  try{ localStorage.setItem('fg-palette', p); localStorage.setItem('fg-theme', m); }catch(e){}
+  drawCurve();
+}
+(function initTheme(){
+  let p='tide', m='dark';
+  try{ p = localStorage.getItem('fg-palette') || p; m = localStorage.getItem('fg-theme') || m; }catch(e){}
+  if(!SERIES_TOKEN && !p) p='tide';
+  html.setAttribute('data-palette', ['tide','ember','iris'].includes(p)?p:'tide');
+  html.setAttribute('data-theme', m==='light'?'light':'dark');
+})();
+document.querySelectorAll('.sw').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.p, html.getAttribute('data-theme'))));
+$('modeBtn').addEventListener('click', () => applyTheme(html.getAttribute('data-palette'), html.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+/* ===================== RAIL ===================== */
+const RAIL = [
+ { id:'m0', tips:[
+   ['Read the pills','Green means copied from a source, violet means computed here, amber means simulated. Simulated is not measured.'],
+   ['Two true numbers','"25% cheaper" and "+20% per task" are both sourced. They differ by workload and effort. Module 1 shows why.'],
+   ['Set a key limit first','Fable 5.1 output is $50/MTok. Put a hard spend cap on the OpenRouter key before connecting.'],
+  ], refs:[ref('announce','launch post, pricing chart, benchmark table'),ref('aa','Artificial Analysis cost per task'),ref('cursor','CursorBench methodology and caveat')],
+  gl:[['Cost per task','Total token spend to finish one benchmark task, using published per-token prices.'],['Effort','A single parameter that trades thinking depth for latency and cost: low, medium, high, xhigh, max.']] },
+ { id:'m1', tips:[
+   ['Only one multiplier changed','Cache reads went from 0.1× to 0.025× of base input. Writes, base input, output: unchanged.'],
+   ['Savings scale with cache share','Saving = 0.75 × (share of bill that was cache reads). 33% share gives 25%; 60% gives 45%.'],
+   ['Batch is separate','Batch processing is $5/$25 per MTok on Fable 5.1, half of standard.'],
+   ['Watch output tokens','If a higher effort emits more output, the cache cut can be swamped. AA reports 1.7× output at max.'],
+  ], refs:[ref('whatsnew','pricing table, cache read 0.025×'),ref('caching','cache pricing across models'),ref('announce','indexed cost chart, 75 and 55'),ref('aa','140M vs 83M output tokens')],
+  gl:[['Cache read','Input tokens served from a stored prefix instead of reprocessed. Also called a cache hit.'],['Indexed cost','Fable 5 = 100; Fable 5.1 shown relative to it on the same August 2026 usage.']] },
+ { id:'m2', tips:[
+   ['Log axis','Cost is plotted on a log scale. Equal horizontal steps are equal ratios, not equal dollars.'],
+   ['Digitized, not downloaded','Anthropic published an image. Points here were read by pixel; the four max scores reconcile within 0.1.'],
+   ['Vendor benchmark','CursorBench is built and run by Cursor. Useful for cost curves, not independently reproducible.'],
+   ['Cross-check','Terminal-Bench 4.0 has a public leaderboard: Fable 5.1 55.8%, Fable 5 42.0%, Opus 5 52.3%.'],
+   ['Budget slider','Under $5, this chart says Grok 4.6 xhigh (70.7 at $2.83). Fable 5.1 only takes the lead above about $7, at xhigh. No Fable 5 point wins at any budget.'],
+  ], refs:[ref('announce','CursorBench 3.2.0 chart and table'),ref('cursor','cost per task definition; variance caveat'),ref('card','§8.8 CursorBench 3.2.0, p.172 (TOC); §8.6 Terminal-Bench 4.0, p.171')],
+  gl:[['Pareto frontier','The set of points no other point beats on both score and cost.'],['CursorBench 3.2.0','Ambiguous multi-file tasks from real Cursor sessions, plus instruction-following and tool-use problems.']] },
+ { id:'m3', tips:[
+   ['Level names moved','The docs say to re-run your sweep: effort names do not mean the same thinking across models.'],
+   ['Start at high','Default is high in the API and Claude Code, medium in Cowork and claude.ai. Step down where evals hold.'],
+   ['OpenRouter quirk','Send verbosity, not reasoning.effort. OpenRouter documents the latter as ignored for these models.'],
+   ['Beta header','Per-message effort needs mid-conversation-output-config-2026-07-01 on the native API.'],
+   ['Low effort searches less','At low, the model answers from memory more often. Raise effort for the turn that needs fresh data.'],
+  ], refs:[ref('prompting','Consider all effort levels; search triggering at low'),ref('effort','effort parameter; per-message effort'),ref('whatsnew','change effort mid-conversation (beta)'),ref('orissue','OpenRouter path ignores reasoning.effort')],
+  gl:[['Effort-only system message','A role: "system" entry with empty content and an output_config block; takes effect from the next user turn.'],['Adaptive thinking','Always on for Fable 5.1. thinking.type disabled or enabled with a budget returns a 400.']] },
+ { id:'m4', tips:[
+   ['Remove before adding','The guide says audit for lines that suppress narration before adding a request for updates.'],
+   ['Anti-formatting rules bite','Fable 5.1 already uses less bold and fewer lists. Old "no bullets" rules over-correct.'],
+   ['Boosters are noise','ALWAYS, NEVER, CRITICAL in caps buy little on a model that follows plain instructions.'],
+   ['Claude Code shortcut','/claude-api prompt-audit inspects prompts and skills for these anti-patterns.'],
+   ['Token estimate','This page estimates tokens at ~3.5 chars each. The Fable tokenizer produces ~30% more tokens than pre-4.7 models.'],
+  ], refs:[ref('prompting','formatting in chat; progress updates; writing density'),ref('whatsnew','tokenizer note; behavior differences')],
+  gl:[['Mannered prose','Metaphor and flourish standing in for direct statement. The guide gives a paragraph you can paste to suppress it.'],['Emphasis booster','Capitalized imperatives or repetition meant to make a rule stick.']] },
+ { id:'m5', tips:[
+   ['What breaks binding','Editing, reordering, or removing an earlier turn; injecting and removing per-request text; rebuilding system or tools.'],
+   ['What is safe','Removing a leading run of thinking blocks, server-side compaction, moving cache_control, changing effort.'],
+   ['Turn-scoped messages','clear_at: "next_user_message" delivers a reminder for one turn and costs nothing once cleared.'],
+   ['Enforcement date','Accounts created on or after Aug 31 2026 get a 400. Older accounts see it only when they set prefix_mismatch_behavior.'],
+   ['Direction matters','5.1 reads older models\' thinking blocks; older models cannot read 5.1\'s. Dropped blocks are not billed.'],
+  ], refs:[ref('whatsnew','breaking changes: thinking block binding'),ref('preserved','history-editing check; drop_block'),ref('midsys','turn-scoped system messages'),ref('announce','anti-distillation rationale')],
+  gl:[['Prefix','Everything in the request before a given block: system, tools, earlier messages.'],['input_transformations','Response array listing blocks the API dropped and why (with the thinking-binding-controls beta header).']] },
+ { id:'m6', tips:[
+   ['The error text','tool_choice: type "tool" and "any" are not supported for this model. Same on the count-tokens endpoint.'],
+   ['Why','A forced call skips thinking, so the model reasons inside the arguments and argument quality drops.'],
+   ['Two replacements','strict: true on the tool with auto, or move the schema to structured outputs.'],
+   ['Prompt for the call','"Use the log_callback tool to record this" is followed reliably; you do not need to force it.'],
+  ], refs:[ref('whatsnew','forced tool use is not supported'),ref('strict','strict tool use'),ref('so','structured outputs')],
+  gl:[['tool_choice','Messages API field controlling whether the model may, must, or must not call tools.'],['Strict tool use','Schema-validated tool arguments without forcing the call.']] },
+ { id:'m7', tips:[
+   ['One line, every turn','The batching nudge goes after each tool-result user message as a turn-scoped system message.'],
+   ['Leave old copies','Append a fresh copy each turn; do not delete earlier ones. Deleting is a history edit.'],
+   ['Empty thinking blocks','Progress updates arrive as thinking blocks and are empty under display: "omitted". Set "updates".'],
+   ['Subagents','Let the lead keep working while subagents run; return results in a later user message.'],
+  ], refs:[ref('prompting','batch independent tool calls; progress updates; targeted edits'),ref('thinking','display: "updates" beta'),ref('whatsnew','behavior differences from Fable 5')],
+  gl:[['Round trip','One request/response cycle. Each costs the cached prefix plus new output.'],['Turn-scoped','A system message that renders for the current turn only.']] },
+ { id:'m8', tips:[
+   ['ID swap','claude-fable-5 to claude-fable-5-1. Managed Agents need nothing else.'],
+   ['Priority Tier','Neither 5.1 model is on Priority Tier at launch; Fable 5 is.'],
+   ['Fallback targets','Refusals can fall back to Opus 4.8 or Opus 5, and fallback credit refunds the cache cost of switching.'],
+   ['Three-step check','Run with prefix_mismatch_behavior: "drop_block", log input_transformations, fix each reported edit.'],
+  ], refs:[ref('whatsnew','migrate from Claude Fable 5, five items'),ref('migrate','migration guide; /claude-api migrate'),ref('preserved','how to tell whether your integration is impacted')],
+  gl:[['Fallback credit','Refund of prompt-cache cost when a refused request is retried on another model.'],['Covered Model','Anthropic designation with 30-day retention; no zero data retention unless authorized.']] },
+ { id:'m9', tips:[
+   ['One rule','Before changing a default, sweep your own tasks at three effort levels and look at cost per task, not per token.'],
+   ['Where the card says caution','§6 notes rare cases of the model working around permission hooks in internal monitoring, under 0.01% of completions.'],
+  ], refs:[ref('card','executive summary, pp.2–5; §6 alignment assessment'),ref('announce','limitations; safeguards note under the table'),ref('aa','independent cost measurement')],
+  gl:[['Sweep','Running the same task set at each effort level and recording score and cost per task.']] },
+];
+function railFor(id){
+  const r = RAIL.find(x => x.id === id) || RAIL[0];
+  let h = '<h4>Field notes</h4>' + r.tips.map(t => `<div class="tip"><b>${t[0]}</b>${t[1]}</div>`).join('');
+  h += '<h4>References for this module</h4>' + r.refs.map(x => `<div class="ref"><a href="${SRC[x.k].u}" target="_blank" rel="noopener">${SRC[x.k].t}</a><span class="faint"> · ${x.note}</span></div>`).join('');
+  h += '<h4>Terms</h4>' + r.gl.map(g => `<div class="gl"><b>${g[0]}</b> ${g[1]}</div>`).join('');
+  return h;
+}
+let railCur = null;
+function setRail(id){
+  if(railCur === id) return; railCur = id;
+  const b = $('railBody'); b.classList.add('fade');
+  setTimeout(() => { b.innerHTML = railFor(id); b.classList.remove('fade'); }, 120);
+}
+$('srcList').innerHTML = Object.values(SRC).map(s => `<li><a href="${s.u}" target="_blank" rel="noopener">${s.t}</a></li>`).join('');
+setRail('m0');
+
+/* ===================== SCROLL SPY + REVEAL ===================== */
+const mods = [...document.querySelectorAll('section.mod')];
+const navA = [...document.querySelectorAll('#navLinks a')];
+if('IntersectionObserver' in window){
+  const spy = new IntersectionObserver(es => {
+    es.forEach(e => { if(e.isIntersecting){ const id = e.target.id; navA.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+id)); setRail(id); } });
+  }, {rootMargin:'-35% 0px -55% 0px'});
+  mods.forEach(m => spy.observe(m));
+  const rev = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); rev.unobserve(e.target); } }), {threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el => rev.observe(el));
+} else { document.querySelectorAll('.reveal').forEach(el => el.classList.add('in')); }
+
+function markDone(n){
+  done.add(n);
+  const a = navA[n]; if(a) a.classList.add('done');
+  $('meterFill').style.transform = `scaleX(${done.size/LABS})`;
+  $('meterTxt').textContent = `${done.size} / ${LABS}`;
+  const b = $('done'+n); if(b){ b.textContent = 'Lab done'; b.disabled = true; }
+}
+[1,2,3,4,6,7].forEach(n => $('done'+n).addEventListener('click', () => markDone(n)));
+
+/* ===================== CONNECT PANEL ===================== */
+function validateKey(k){
+  k = k.trim();
+  if(!k) return 'Paste a key first. Demo mode stays on.';
+  if(k.startsWith('sk-ant-')) return 'That is an Anthropic key. Anthropic\'s API refuses browser calls by CORS, so this page uses OpenRouter. Create a key at openrouter.ai/keys (they start with sk-or-).';
+  if(k.startsWith('sk-proj-') || k.startsWith('sk-') && !k.startsWith('sk-or-')) return 'That looks like an OpenAI-style key. This page needs an OpenRouter key (sk-or-v1-…).';
+  if(!k.startsWith('sk-or-')) return 'OpenRouter keys start with sk-or-. Check for a leading space or a truncated paste.';
+  if(k.length < 40) return 'Key is too short to be a full OpenRouter key. Copy the whole value.';
+  return null;
+}
+function setConnected(on){
+  $('connect').classList.toggle('live', on);
+  $('lampTxt').textContent = on ? 'Live' : 'Demo';
+  $('connBtn').hidden = on; $('discBtn').hidden = !on;
+  $('keyIn').disabled = on;
+}
+function connect(){
+  const err = validateKey($('keyIn').value);
+  const m = $('keyMsg');
+  if(err){ m.textContent = err; m.classList.add('bad'); return; }
+  apiKey = $('keyIn').value.trim();
+  $('keyIn').value = '';   // clear the field immediately; key lives in the closure only
+  m.textContent = 'Connected. Calls go to OpenRouter with your key; spend is estimated below from returned usage.'; m.classList.remove('bad');
+  setConnected(true);
+}
+function disconnect(){ apiKey = null; setConnected(false); $('keyMsg').textContent = 'Disconnected. Demo mode is on.'; }
+$('connBtn').addEventListener('click', connect);
+$('discBtn').addEventListener('click', disconnect);
+$('keyIn').addEventListener('keydown', e => { if(e.key === 'Enter') connect(); });
+
+async function callOR({model, messages, verbosity, max_tokens=1200}){
+  const body = {model, messages, max_tokens, usage:{include:true}};
+  if(verbosity) body.verbosity = verbosity;
+  let res;
+  try{
+    res = await fetch($('endpoint').value, {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey,'HTTP-Referer':location.origin,'X-Title':'Fable 5.1 workshop'}, body:JSON.stringify(body)});
+  }catch(e){ throw new Error('Network error: '+e.message+'. If you are on a locked-down network, the endpoint may be blocked.'); }
+  if(!res.ok){
+    let msg = 'HTTP '+res.status;
+    try{ const j = await res.json(); msg += ': ' + (j.error?.message || JSON.stringify(j)); }catch(e){}
+    if(res.status === 401) msg += ' — the key was rejected. Disconnect, check openrouter.ai/keys, and reconnect.';
+    if(res.status === 402) msg += ' — insufficient credits on the OpenRouter account.';
+    if(res.status === 404) msg += ' — model slug not found. Check the Advanced panel; OpenRouter uses a dot in claude-fable-5.1.';
+    if(res.status === 429) msg += ' — rate limited. Wait and retry.';
+    throw new Error(msg);
+  }
+  const j = await res.json();
+  const text = (j.choices?.[0]?.message?.content || '').trim();
+  const u = j.usage || {};
+  let cost = typeof u.cost === 'number' ? u.cost : null;
+  if(cost === null){ const p = ORPRICE[model]; cost = p ? (u.prompt_tokens||0)*p.in + (u.completion_tokens||0)*p.out : 0; }
+  sessionSpend += cost; $('spend').textContent = '$' + sessionSpend.toFixed(4);
+  return {text, inTok:u.prompt_tokens||0, outTok:u.completion_tokens||0, reasonTok:u.completion_tokens_details?.reasoning_tokens||0, cost};
+}
+
+/* ===================== LAB 1: cost model ===================== */
+(function lab1(){
+  const tb = $('priceTable');
+  tb.innerHTML = Object.entries(PRICE).map(([m,p]) => `<tr><td>${m}</td><td class="num mono">$${p.in.toFixed(2)}</td><td class="num mono">$${p.cr.toFixed(2)}</td><td class="num mono">$${p.cw.toFixed(2)}</td><td class="num mono">$${p.out.toFixed(2)}</td><td class="small">${p.src}</td></tr>`).join('');
+  function tokensForShare(s){ // Fable 5 prices: cache reads cost s of the bill; remaining spend split 50/50 input and output
+    const R = 1e6; const other = (1-s)/Math.max(s,1e-6); // dollars, when R tokens cost $1
+    return {in: other*0.5*1e6/10, cr:R, cw:0, out: other*0.5*1e6/50};
+  }
+  function upA(){
+    const s = +$('share').value/100; $('shareV').textContent = pct(s);
+    const t = tokensForShare(s);
+    const f5 = costTask(PRICE["Fable 5"], t), f51 = costTask(PRICE["Fable 5.1"], t), o5 = costTask(PRICE["Opus 5"], t);
+    const idx = s >= .95 ? 100*f51/f5 : 100*f51/f5;
+    $('idx51').textContent = idx.toFixed(1); $('saveV').textContent = (100-idx).toFixed(0)+'%'; $('idxO5').textContent = (100*o5/f5).toFixed(1);
+    const n = $('shareNote');
+    if(Math.abs(idx-75) < 1.2) n.innerHTML = '<b>Match</b>This is Anthropic\'s "typical workload" point: roughly a third of Fable 5 spend was cache reads.';
+    else if(Math.abs(idx-55) < 1.2) n.innerHTML = '<b>Match</b>This is the "highly agentic" point: about 60% of spend was cache reads. Long tool loops re-read the same prefix every turn.';
+    else if(s < .1) n.innerHTML = '<b>No caching, no saving</b>A workload that never hits the cache pays the same on 5.1 as on 5. Any extra output tokens at higher effort are pure increase.';
+    else n.innerHTML = `<b>Derived</b>Saving = 0.75 × ${pct(s)} = ${(75*s).toFixed(0)}%. Opus 5 on the same tokens is shown for scale; it is half price per token but its cache reads cost 2× Fable 5.1's.`;
+  }
+  $('share').addEventListener('input', upA); upA();
+  function upB(){
+    const mul = +$('bMul').value/100; $('bMulV').textContent = mul.toFixed(1)+'×';
+    const t5 = {in:+$('bIn').value||0, cr:+$('bCr').value||0, out:+$('bOut').value||0};
+    const t51 = {in:t5.in, cr:t5.cr, out:t5.out*mul};
+    const a = costTask(PRICE["Fable 5"], t5), b = costTask(PRICE["Fable 5.1"], t51);
+    $('bF5').textContent = fmt$(a); $('bF51').textContent = fmt$(b);
+    const r = a>0 ? (b/a-1) : 0; const el = $('bRatio'); el.textContent = (r>=0?'+':'')+(r*100).toFixed(0)+'%'; el.className = r>0?'r':'g';
+  }
+  ['bIn','bCr','bOut'].forEach(id => $(id).addEventListener('input', upB)); $('bMul').addEventListener('input', upB); upB();
+  $('tabA').addEventListener('click', () => { $('labA').hidden=false; $('labB').hidden=true; $('tabA').classList.add('on'); $('tabB').classList.remove('on'); });
+  $('tabB').addEventListener('click', () => { $('labA').hidden=true; $('labB').hidden=false; $('tabB').classList.add('on'); $('tabA').classList.remove('on'); });
+})();
+
+/* ===================== LAB 2: curve ===================== */
+const hidden = new Set();
+function cssVar(n){ return getComputedStyle(html).getPropertyValue(n).trim() || '#888'; }
+function drawCurve(){
+  const c = $('curve'); if(!c) return; const ctx = c.getContext && c.getContext('2d'); if(!ctx) return;
+  const W = c.width, H = c.height, L=64, R=20, T=24, B=56;
+  const xOf = v => L + (Math.log10(v) - Math.log10(0.5)) / (Math.log10(25) - Math.log10(0.5)) * (W-L-R);
+  const yOf = v => T + (75 - v) / (75-50) * (H-T-B);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = cssVar('--surface'); ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = cssVar('--border'); ctx.lineWidth = 1; ctx.fillStyle = cssVar('--ink-soft');
+  ctx.font = '12px "Public Sans", system-ui, sans-serif'; ctx.textAlign = 'right';
+  for(let s=50; s<=75; s+=5){ const y = yOf(s); ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke(); ctx.fillText(s+'%', L-8, y+4); }
+  ctx.textAlign = 'center';
+  [0.5,1,2,5,10,20].forEach(v => { const x = xOf(v); ctx.beginPath(); ctx.moveTo(x,T); ctx.lineTo(x,H-B); ctx.stroke(); ctx.fillText('$'+v, x, H-B+18); });
+  ctx.fillText('Cost per task (USD, log scale)', L+(W-L-R)/2, H-8);
+  ctx.save(); ctx.translate(14, T+(H-T-B)/2); ctx.rotate(-Math.PI/2); ctx.fillText('CursorBench 3.2.0 score', 0, 0); ctx.restore();
+  const budget = +$('budget').value/100; const bx = xOf(budget);
+  ctx.strokeStyle = cssVar('--clay'); ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(bx,T); ctx.lineTo(bx,H-B); ctx.stroke(); ctx.setLineDash([]);
+  Object.entries(CURVE).forEach(([name, pts]) => {
+    if(hidden.has(name)) return;
+    const col = cssVar(SERIES_TOKEN[name]);
+    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2.5; ctx.beginPath();
+    pts.forEach((p,i) => { const x = xOf(p.cost), y = yOf(p.score); i ? ctx.lineTo(x,y) : ctx.moveTo(x,y); }); ctx.stroke();
+    pts.forEach(p => { const x = xOf(p.cost), y = yOf(p.score); ctx.beginPath(); ctx.arc(x,y,4.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = cssVar('--ink-faint'); ctx.font = '11px "JetBrains Mono", monospace'; ctx.textAlign='left'; ctx.fillText(p.effort, x+7, y-6); ctx.fillStyle = col; });
+  });
+  ctx.fillStyle = cssVar('--ink-faint'); ctx.font = '11px "Public Sans", system-ui, sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Digitized from Anthropic\'s chart of CursorBench 3.2.0 (Sep 1 2026). Approximate.', L, T-8);
+}
+(function lab2(){
+  $('legend').innerHTML = Object.keys(CURVE).map(n => `<button data-s="${n}" style="--lc:var(${SERIES_TOKEN[n]})"><i></i>${n}</button>`).join('');
+  $('legend').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { const n=b.dataset.s; hidden.has(n)?hidden.delete(n):hidden.add(n); b.classList.toggle('off', hidden.has(n)); drawCurve(); upBudget(); }));
+  function upBudget(){
+    const bud = +$('budget').value/100; $('budgetV').textContent = fmt$(bud);
+    let best = null;
+    Object.entries(CURVE).forEach(([n,pts]) => { if(hidden.has(n)) return; pts.forEach(p => { if(p.cost <= bud && (!best || p.score > best.score)) best = {n, ...p}; }); });
+    if(best){ $('bestModel').textContent = best.n + ' · ' + best.effort; $('bestScore').textContent = best.score.toFixed(1)+'%'; $('bestCost').textContent = fmt$(best.cost); }
+    else { $('bestModel').textContent = 'nothing'; $('bestScore').textContent = '—'; $('bestCost').textContent = '—'; }
+    drawCurve();
+  }
+  $('budget').addEventListener('input', upBudget); upBudget();
+  const a = CURVE["Fable 5.1"][0], b = CURVE["Fable 5"][2];
+  $('tweetCheck').innerHTML = `<b>Tweet check</b>Fable 5.1 low: ${a.score}% at ${fmt$(a.cost)}. Fable 5 high: ${b.score}% at ${fmt$(b.cost)}. Cost ratio ${(b.cost/a.cost).toFixed(2)}×, score gap ${(b.score-a.score).toFixed(1)} pts. The "parity at a third of the cost" claim holds on this chart within reading error. <span class="pill d">derived</span>`;
+  $('dataDump').textContent = JSON.stringify({provenance:"Read from Anthropic's published chart image by pixel position; max-effort scores reconcile with the published table: "+JSON.stringify(PUBLISHED_MAX), series:CURVE}, null, 1);
+})();
+
+/* ===================== LAB 3: effort sweep ===================== */
+(function lab3(){
+  document.querySelectorAll('.eff').forEach(b => b.addEventListener('click', () => b.classList.toggle('on')));
+  const bodyFor = (model, effort, prompt, native) => native
+    ? {model:'claude-fable-5-1', max_tokens:4096, output_config:{effort}, messages:[{role:'user', content:prompt}]}
+    : {model, max_tokens:1200, verbosity:effort, messages:[{role:'user', content:prompt}]};
+  $('runSweep').addEventListener('click', async () => {
+    const levels = [...document.querySelectorAll('.eff.on')].map(b => b.dataset.e);
+    const prompt = $('sweepPrompt').value.trim(); const out = $('sweepOut'); out.textContent = '';
+    if(!levels.length){ out.textContent = 'Pick at least one effort level.'; return; }
+    if(!apiKey){
+      let s = 'DEMO MODE · request bodies (native Messages API shape)\n\n';
+      levels.forEach(e => { s += JSON.stringify(bodyFor(null, e, prompt.slice(0,60)+'…', true)) + '\n'; });
+      s += '\nIllustrative, not measurements: on CursorBench 3.2.0 the digitized Fable 5.1 costs per task were\n';
+      CURVE["Fable 5.1"].forEach(p => { if(levels.includes(p.effort)) s += `  ${p.effort.padEnd(7)} ${fmt$(p.cost).padStart(7)}  score ${p.score}%\n`; });
+      s += '\nConnect a key to run this prompt live and read real usage back.';
+      out.textContent = s; return;
+    }
+    const model = $('modelSweep').value;
+    if(model.includes('fable') && !confirm('Fable 5.1 is $10/$50 per MTok. A '+levels.length+'-level sweep may cost several cents to a dollar depending on thinking. Continue?')) return;
+    $('runSweep').disabled = true; out.textContent = `LIVE · ${model} · verbosity = effort\n\n`;
+    for(const e of levels){
+      out.textContent += `${e.padEnd(7)} … `;
+      try{
+        const t0 = performance.now();
+        const r = await callOR({model, messages:[{role:'user', content:prompt}], verbosity:e});
+        out.textContent += `${((performance.now()-t0)/1000).toFixed(1)}s  in ${r.inTok}  out ${r.outTok}${r.reasonTok?` (reasoning ${r.reasonTok})`:''}  cost $${r.cost.toFixed(4)}\n    ${r.text.replace(/\s+/g,' ').slice(0,220)}…\n`;
+      }catch(err){ out.textContent += 'error: ' + err.message + '\n'; }
+    }
+    out.textContent += '\nMeasured on your key, this model, this prompt. Cost from OpenRouter usage.cost where returned, else list price.';
+    $('runSweep').disabled = false;
+  });
+  // 3b
+  let turns = [];
+  function render(){
+    const v = $('turnView'); v.innerHTML = '';
+    const msgs = [{role:'user',content:'Plan a migration from SQLite to PostgreSQL in three short steps.'},{role:'assistant',content:'1. Export the SQLite data. 2. Create the PostgreSQL schema. 3. Import the data and verify row counts.'}];
+    let last = 'high';
+    turns.forEach((e,i) => { if(e !== last){ msgs.push({role:'system',content:[],output_config:{effort:e}}); last = e; } msgs.push({role:'user',content:`Follow-up ${i+1} at ${e} effort.`}); if(i<turns.length-1) msgs.push({role:'assistant',content:'…'}); });
+    msgs.forEach(m => { const d = document.createElement('div'); d.className = 'msg'+(m.role==='system'?' sys':''); d.innerHTML = `<span class="role">${m.role}</span>${m.role==='system'?`<span class="mono">effort-only: output_config.effort = ${m.output_config.effort}</span>`:m.content}`; v.appendChild(d); });
+    const changes = turns.filter((e,i) => e !== (i? turns[i-1] : 'high')).length;
+    $('turnStatus').innerHTML = turns.length ? `<b>Cache status</b>${changes} effort change${changes===1?'':'s'}; prompt cache stays warm on Fable 5.1 (effort is not part of the cached prefix). On Fable 5 the same change restarted the cache. Beta header required: <code>mid-conversation-output-config-2026-07-01</code>.` : '<b>Cache status</b>Add a turn.';
+    $('turnCode').textContent = `client.beta.messages.create(\n  model="claude-fable-5-1",\n  max_tokens=4096,\n  output_config={"effort": "high"},\n  betas=["mid-conversation-output-config-2026-07-01"],\n  messages=${JSON.stringify(msgs, null, 2)}\n)`;
+  }
+  $('addTurn').addEventListener('click', () => { turns.push($('turnEffort').value); render(); });
+  $('resetTurns').addEventListener('click', () => { turns = []; render(); });
+  render();
+})();
+
+/* ===================== LAB 4: prompt audit ===================== */
+const SAMPLE_PROMPT = `You are the after-hours assistant for a residential electrical contractor. You handle missed calls and text back within 60 seconds.
+
+CRITICAL: ALWAYS greet the caller by name if you have it. NEVER promise a specific arrival time. This is EXTREMELY IMPORTANT.
+
+Think step by step before every reply. First, write your reasoning inside <scratchpad> tags, then give the answer.
+
+Before responding, double-check your answer for accuracy and verify that you followed every rule above. Re-read the rules.
+
+Do not use bullet points or headers. Never use markdown. Keep responses to plain text only.
+
+Hold all findings until the final response; do not narrate what you are doing.
+
+Be concise. Be thorough and comprehensive so nothing is missed.
+
+Example 1: Caller: "My panel is buzzing." Reply: "Thanks for calling. A buzzing panel can be a safety issue; please switch off the main if you can do so safely. We will call you back first thing."
+Example 2: Caller: "Need a quote for a hot tub circuit." Reply: "We can help with that. What amperage does the tub require?"
+Example 3: Caller: "Power out in half the house." Reply: "Check the main breaker first; if it is not tripped, we will schedule a visit."
+
+If the caller mentions sparks, smoke, or burning smell, tell them to call 911 and leave the building.
+Classify urgency as emergency, same-day, or routine and log it with the callback window.`;
+const RULES = [
+  {cls:'b', name:'emphasis booster', re:/\b(ALWAYS|NEVER|CRITICAL|IMPORTANT|EXTREMELY|MUST|UNDER NO CIRCUMSTANCES)\b|!!+/g},
+  {cls:'v', name:'verification ritual', re:/\b(double[- ]check|re-?read (the )?rules|verify (that )?you followed|before responding, (check|confirm|verify))[^.\n]*/gi},
+  {cls:'s', name:'scratchpad scaffold', re:/(think step by step[^.\n]*|<scratchpad>[^.\n]*|first, write your reasoning[^.\n]*|show your (reasoning|work)[^.\n]*)/gi},
+  {cls:'f', name:'anti-formatting / hold-findings', re:/((do not|don't|never) use (bullet points|bullets|headers|markdown)[^.\n]*|plain text only[^.\n]*|hold all findings[^.\n]*|do not narrate[^.\n]*)/gi},
+];
+const CONTRA = [[/\bbe concise\b/i, /\b(be thorough|comprehensive)\b/i, 'concise vs. thorough'],[/never ask (clarifying )?questions/i, /ask (clarifying )?questions/i, 'never ask vs. ask'],[/(do not|never) use bullet/i, /use bullet points/i, 'bullets both ways']];
+const estTok = s => Math.round(s.length/3.5);
+(function lab4(){
+  $('loadSample').addEventListener('click', () => { $('auditIn').value = SAMPLE_PROMPT; });
+  $('clearPrompt').addEventListener('click', () => { $('auditIn').value = ''; $('auditOut').textContent=''; });
+  let lean = null;
+  $('runAudit').addEventListener('click', () => {
+    const src = $('auditIn').value; if(!src.trim()){ $('auditOut').textContent = 'Paste a prompt or load the sample.'; return; }
+    const spans = [];
+    RULES.forEach(r => { let m; r.re.lastIndex = 0; while((m = r.re.exec(src))){ spans.push({s:m.index, e:m.index+m[0].length, cls:r.cls, name:r.name}); if(!m[0].length) r.re.lastIndex++; } });
+    CONTRA.forEach(([a,b,label]) => { const ma = src.match(a), mb = src.match(b); if(ma && mb){ [ma,mb].forEach(m => spans.push({s:m.index, e:m.index+m[0].length, cls:'c', name:'contradiction: '+label})); } });
+    const ex = (src.match(/^Example \d+:/gm)||[]).length; if(ex >= 3){ const m = src.match(/^Example 1:.*$/m); if(m) spans.push({s:m.index, e:m.index+m[0].length, cls:'s', name:`${ex} few-shot examples; the guide suggests one worked example only where a behavior needs it`}); }
+    spans.sort((a,b) => a.s-b.s);
+    const merged = []; spans.forEach(sp => { const last = merged[merged.length-1]; if(last && sp.s < last.e){ last.e = Math.max(last.e, sp.e); last.name += '; '+sp.name; } else merged.push({...sp}); });
+    let html = '', pos = 0; const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+    merged.forEach(sp => { html += esc(src.slice(pos, sp.s)) + `<span class="hl ${sp.cls}" title="${esc(sp.name)}">${esc(src.slice(sp.s, sp.e))}</span>`; pos = sp.e; });
+    html += esc(src.slice(pos));
+    // lean version: drop lines that are mostly flagged
+    const lines = src.split('\n'); let cur = 0; const keep = [];
+    lines.forEach(line => { const s = cur, e = cur + line.length; cur = e + 1; let hit = 0; merged.forEach(sp => { const o = Math.max(0, Math.min(e, sp.e) - Math.max(s, sp.s)); hit += o; }); const isEx = /^Example [2-9]\d*:/.test(line); if(!isEx && (line.trim()==='' || hit / Math.max(line.length,1) < 0.35)) keep.push(line.replace(/\b(CRITICAL|EXTREMELY IMPORTANT|IMPORTANT):?\s*/g,'').replace(/\bALWAYS\b/g,'').replace(/\bNEVER\b/g,'Do not').replace(/  +/g,' ')); });
+    lean = keep.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+    if(lean.length && !/progress|update/i.test(lean)) lean += '\n\nBefore you start, say in a line what you are about to do; brief updates while you work help the user follow along.';
+    $('auditOut').innerHTML = html + `\n\n<span class="faint">${merged.length} flagged span${merged.length===1?'':'s'}. Hover a highlight for the reason. "Apply lean version" replaces the prompt above with the stripped text and adds the progress-update line from the guide.</span>`;
+    $('aFlags').textContent = merged.length; $('aTokBefore').textContent = estTok(src); $('aTokAfter').textContent = estTok(lean);
+    $('applyLean').disabled = false;
+  });
+  $('applyLean').addEventListener('click', () => { if(lean !== null){ $('auditIn').value = lean; $('applyLean').disabled = true; } });
+})();
+
+/* ===================== LAB 5: append-only harness ===================== */
+(function lab5(){
+  let S;
+  function reset(){ S = {turns:1, bind:true, cache:true, rem:0, log:[], msgs:[{r:'system',t:'You are a coding agent.'},{r:'user',t:'Refactor the billing module.'},{r:'thinking',t:'thinking block · bound to prefix #1'},{r:'assistant',t:'tool_use: read_file(billing.py)'}], pending:false}; up('Reset. Send four turns; deliver one reminder each turn.'); }
+  function up(note, kind){
+    $('hTurns').textContent = S.turns;
+    const b = $('hBind'); b.textContent = S.bind ? 'valid' : 'broken (400)'; b.className = S.bind ? 'g' : 'r';
+    const c = $('hCache'); c.textContent = S.cache ? 'warm' : 'restarted'; c.className = S.cache ? 'g' : 'c';
+    $('hRem').textContent = `${S.rem} / 4`;
+    const v = $('harnessView'); v.innerHTML = '';
+    S.msgs.forEach(m => { const d = document.createElement('div'); d.className = 'msg' + (m.r==='thinking'?' think':'') + (m.bad?' bad':'') + (m.r==='system'&&m.scoped?' sys':''); d.innerHTML = `<span class="role">${m.r}</span>${m.t}${m.scoped?' <span class="mono">clear_at: "next_user_message"</span>':''}`; v.appendChild(d); });
+    const n = $('harnessNote'); n.className = 'note' + (kind?' '+kind:''); n.innerHTML = `<b>${kind==='fail'?'Broken':kind==='ok'?'Safe':'Checker'}</b>${note}`;
+    const win = S.turns >= 5 && S.rem >= 4 && S.bind && S.cache;
+    $('done5').disabled = !win; if(win){ n.className='note ok'; n.innerHTML='<b>Complete</b>Four turns, four reminders, every thinking block still valid, cache never restarted. Mark the lab done.'; }
+  }
+  const ACT = {
+    inject(){ const i = S.msgs.map(m=>m.r).lastIndexOf('user'); S.msgs[i].t += ' [reminder injected]'; S.msgs[i].bad = true; S.bind = false; S.cache = false; S.pending = true; up('You edited an earlier user turn. Every thinking block after it is now bound to a different prefix: the next request returns 400 "bound to a different conversation", and the cache restarts from that point. Reset.', 'fail'); },
+    rewriteSys(){ S.msgs[0].t = 'You are a coding agent. [rewritten]'; S.msgs[0].bad = true; S.bind = false; S.cache = false; up('Rebuilding the top-level system prompt between requests invalidates every thinking block and restarts the cache from byte zero. Use a mid-conversation system message instead. Reset.', 'fail'); },
+    turnScoped(){ if(S.pending){ up('A turn-scoped message is already waiting; send the next turn.', 'warn'); return; } S.msgs.push({r:'system', t:'Check your inbox before running more code.', scoped:true}); S.pending = true; up('Turn-scoped system message appended after the tool results. It carries system authority for this turn, then stops rendering once a later user message exists. Nothing earlier changed.', 'ok'); },
+    cache(){ up('cache_control markers moved. Binding is unaffected and the cache keeps matching up to the new marker. Safe.', 'ok'); },
+    effort(){ up('Effort changed between requests. Safe on Fable 5.1: effort is not part of the bound prefix and does not restart the cache.', 'ok'); },
+    trimOld(){ const i = S.msgs.findIndex(m => m.r==='thinking'); const later = S.msgs.slice(i+1).some(m => m.r==='thinking'); if(i<0){ up('No thinking blocks to trim.', 'warn'); return; } S.msgs.splice(i,1); up(later ? 'Removed the oldest thinking block. A leading run removed oldest-first keeps later blocks valid.' : 'Removed the only thinking block. Fine; nothing later depends on it.', 'ok'); },
+    trimMid(){ const idx = S.msgs.map((m,i)=>m.r==='thinking'?i:-1).filter(i=>i>=0); if(idx.length < 2){ up('Need at least two thinking blocks for a middle removal. Send more turns first.', 'warn'); return; } S.msgs.splice(idx[1],1); S.bind = false; S.cache = false; up('Removed a thinking block from the middle of the run. Every block after it is invalidated, and the cache restarts there. Only a leading run may be trimmed. Reset.', 'fail'); },
+    next(){ if(!S.bind){ up('The API rejected the request: 400, block bound to a different conversation. Reset the harness.', 'fail'); return; } if(S.turns >= 5){ up('Four follow-up turns already sent.', 'warn'); return; }
+      const delivered = S.pending; S.msgs.push({r:'user', t:`tool_result #${S.turns}`}); S.msgs.push({r:'thinking', t:`thinking block · bound to prefix #${S.turns+1}`}); S.msgs.push({r:'assistant', t:`tool_use: read_file(step_${S.turns+1}.py)`}); S.turns++; S.pending = false; if(delivered) S.rem++;
+      up(delivered ? `Turn sent with the reminder delivered by a turn-scoped message. The earlier copy stays in the array, cleared, and costs no input tokens.` : `Turn sent without a reminder. Append a turn-scoped system message before the next send if you want one delivered.`, delivered ? 'ok' : ''); },
+  };
+  document.querySelectorAll('.act').forEach(b => b.addEventListener('click', () => ACT[b.dataset.a]()));
+  $('resetHarness').addEventListener('click', reset);
+  $('done5').addEventListener('click', () => markDone(5));
+  reset();
+})();
+
+/* ===================== LAB 6: tool_choice ===================== */
+(function lab6(){
+  let strat = 'forced';
+  function schema(){ const props = {}; const req = []; $('tFields').value.split('\n').map(l => l.trim()).filter(Boolean).forEach(l => { const [n,t='string'] = l.split(':').map(s=>s.trim()); props[n] = {type:t}; req.push(n); }); return {type:'object', properties:props, required:req, additionalProperties:false}; }
+  function render(){
+    const name = $('tName').value.trim() || 'my_tool'; const sc = schema(); let code = '', note = '';
+    if(strat === 'forced'){
+      code = `# Worked on Fable 5. On Fable 5.1 this returns HTTP 400.\nresponse = client.messages.create(\n    model="claude-fable-5-1",\n    max_tokens=1024,\n    tools=[{"name": "${name}", "description": "Log the callback.", "input_schema": ${JSON.stringify(sc)}}],\n    tool_choice={"type": "tool", "name": "${name}"},\n    messages=[{"role": "user", "content": "Caller left a message asking for a callback tomorrow morning."}],\n)\n\n# → invalid_request_error:\n#   tool_choice: type "tool" and "any" are not supported for this model.`;
+      note = '<b>Rejected</b>A forced call would skip the always-on thinking, so the model would reason inside the tool arguments. Pick a replacement.';
+    } else if(strat === 'strict'){
+      code = `response = client.messages.create(\n    model="claude-fable-5-1",\n    max_tokens=1024,\n    tools=[{\n        "name": "${name}",\n        "description": "Log the callback. Use this tool to record every callback request.",\n        "strict": True,\n        "input_schema": ${JSON.stringify(sc)},\n    }],\n    tool_choice={"type": "auto"},   # default; shown for contrast\n    messages=[{"role": "user", "content": "Caller left a message asking for a callback tomorrow morning. Use the ${name} tool to record it."}],\n)`;
+      note = '<b>Strict tool use</b>Arguments are schema-validated and the prompt states when the tool applies. The docs say Fable 5.1 follows explicit tool instructions reliably.';
+    } else {
+      code = `response = client.messages.create(\n    model="claude-fable-5-1",\n    max_tokens=1024,\n    output_config={\n        "format": {"type": "json_schema", "schema": ${JSON.stringify(sc)}}\n    },\n    messages=[{"role": "user", "content": "Caller left a message asking for a callback tomorrow morning. Return the callback record."}],\n)\n# response text is guaranteed to match the schema`;
+      note = '<b>Structured outputs</b>Use this when you want the JSON as the reply rather than as a tool call. Check the structured-outputs page for the exact field name in the current API version.';
+    }
+    $('toolCode').textContent = code; $('stratNote').innerHTML = note;
+  }
+  document.querySelectorAll('.strat').forEach(b => b.addEventListener('click', () => { strat = b.dataset.s; document.querySelectorAll('.strat').forEach(x => x.classList.toggle('on', x===b)); render(); }));
+  ['tName','tFields'].forEach(id => $(id).addEventListener('input', render)); render();
+})();
+
+/* ===================== LAB 7: agent loop ===================== */
+(function lab7(){
+  const T = {nudge:false, updates:false, edits:false};
+  const PREFIX = 40000, OUT_PER_TURN = 600, FILE_TOK = 3000, BATCH = 4;
+  function up(){
+    const n = +$('files').value; $('filesV').textContent = n;
+    const turns = T.nudge ? Math.ceil(n/BATCH) + 1 : n + 1;
+    // each turn: cached prefix read + new tool results as fresh input + output. Whole-file rewrite adds output on the final edit turn.
+    const p = PRICE["Fable 5.1"];
+    let cost = 0; for(let i=0;i<turns;i++){ const fresh = (T.nudge ? Math.min(BATCH, n - i*BATCH) : 1) * FILE_TOK; cost += (PREFIX*p.cr + Math.max(fresh,0)*p.in + OUT_PER_TURN*p.out)/1e6; }
+    cost += ((T.edits ? 800 : 6000) * p.out)/1e6;
+    $('lTurns').textContent = turns; $('lCost').textContent = '$'+cost.toFixed(3); $('lVis').textContent = T.updates ? `${turns} status lines` : '0 (blocks arrive empty)';
+    $('tNudge').textContent = 'Batching nudge: ' + (T.nudge?'on':'off'); $('tNudge').classList.toggle('on', T.nudge);
+    $('tUpdates').textContent = 'display: "updates": ' + (T.updates?'on':'off'); $('tUpdates').classList.toggle('on', T.updates);
+    $('tEdits').textContent = 'Targeted-edit line: ' + (T.edits?'on':'off'); $('tEdits').classList.toggle('on', T.edits);
+    $('loopCode').textContent = `BATCH_NUDGE = ("First privately list what you need next; then request every item "\n               "that doesn't depend on another's result in this one response.")\n\nresponse = client.beta.messages.create(\n    model="claude-fable-5-1",\n    max_tokens=16000,\n    betas=[${['"mid-conversation-system-clear-at-2026-08-21"', T.updates?'"thinking-display-updates-2026-08-18"':null].filter(Boolean).join(', ')}],${T.updates?'\n    thinking={"type": "adaptive", "display": "updates"},':''}\n    tools=tools,\n    messages=messages,\n)\nmessages.append({"role": "assistant", "content": response.content})   # exactly as returned\nmessages.append({"role": "user", "content": tool_results})\n${T.nudge ? 'messages.append({"role": "system", "content": BATCH_NUDGE, "clear_at": "next_user_message"})  # fresh copy every turn; never delete old ones' : '# no nudge: the model may read one file per turn'}${T.edits ? '\n# system prompt ends with: "…try to surgically edit a file rather than rewrite the entire thing."' : ''}\n\n# Model: ${n} files · ${turns} turns · prefix ${PREFIX} tok cached · ${OUT_PER_TURN} out/turn · illustrative`;
+  }
+  $('files').addEventListener('input', up);
+  $('tNudge').addEventListener('click', () => { T.nudge = !T.nudge; up(); });
+  $('tUpdates').addEventListener('click', () => { T.updates = !T.updates; up(); });
+  $('tEdits').addEventListener('click', () => { T.edits = !T.edits; up(); });
+  up();
+})();
+
+/* ===================== LAB 8: migration ===================== */
+const MIG = [
+  ['Swap the model ID','claude-fable-5 → claude-fable-5-1 everywhere, or run /claude-api migrate this project to claude-fable-5-1 in Claude Code and confirm the scope it asks for.'],
+  ['Remove forced tool_choice','No type "any" or "tool". Move schema enforcement to strict tool use with auto, or to structured outputs.'],
+  ['Keep history append-only','Pass thinking blocks back unchanged. Move injected reminders to turn-scoped system messages, move system/tools changes to mid-conversation messages, trim server-side. Run the script below to find edits you already make.'],
+  ['Re-tune effort','Start at high and sweep your own evals; consider per-message effort instead of one level for the session.'],
+  ['Watch agent loops','One tool call per turn where Fable 5 batched several: add the per-turn batching note. Fewer updates: set display "updates".'],
+  ['Re-run your evals','Refusals, fallback, fallback credit, and token counts carry over. Cache reads cost less; defaults differ as listed under Changed from Fable 5.'],
+];
+const SCRIPT = `#!/usr/bin/env python3
+"""migration_check.py — find history edits that break Fable 5.1 thinking-block binding.
+
+Runs a short tool loop with prefix_mismatch_behavior set to "drop_block" and prints any
+input_transformations the API reports. A non-empty list means your harness edited an earlier
+turn between requests; fix the edit, do not ship with drop_block as a workaround.
+
+Docs: platform.claude.com/docs/en/build-with-claude/preserved-thinking
+Independent script by Kevin Phillips; not affiliated with Anthropic. Uses paid API calls.
+"""
+import anthropic
+
+client = anthropic.Anthropic()
+BETAS = ["thinking-binding-controls-2026-08-01", "mid-conversation-system-clear-at-2026-08-21"]
+
+def run(messages):
+    return client.beta.messages.create(
+        model="claude-fable-5-1",
+        max_tokens=2000,
+        betas=BETAS,
+        thinking={"type": "adaptive", "block_binding": {"prefix_mismatch_behavior": "drop_block"}},
+        messages=messages,
+    )
+
+messages = [{"role": "user", "content": "Reply with one word: ready."}]
+r1 = run(messages)
+messages.append({"role": "assistant", "content": r1.content})          # append exactly as returned
+messages.append({"role": "user", "content": "Reply with one word: again."})
+messages.append({"role": "system", "content": "Keep it to one word.",    # turn-scoped reminder
+                 "clear_at": "next_user_message"})
+r2 = run(messages)
+
+dropped = getattr(r2, "input_transformations", None) or []
+if dropped:
+    print("DROPPED BLOCKS — your harness edits history:")
+    for t in dropped:
+        print("  ", t)
+else:
+    print("OK: no blocks dropped; history is append-only for this loop.")
+print("Now point this at your real harness: capture two consecutive requests and diff them —")
+print("they must be byte-identical up to the appended turns.")
+`;
+(function lab8(){
+  const ul = $('migList'); const on = new Set();
+  MIG.forEach((m,i) => { const li = document.createElement('li'); li.innerHTML = `<span class="box"></span><div><strong>${m[0]}</strong><div class="small">${m[1]}</div></div>`; li.addEventListener('click', () => { li.classList.toggle('on'); li.classList.contains('on') ? on.add(i) : on.delete(i); $('done8').disabled = on.size < MIG.length; }); ul.appendChild(li); });
+  $('scriptPreview').textContent = SCRIPT;
+  $('dlScript').addEventListener('click', () => { const b = new Blob([SCRIPT], {type:'text/x-python'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'migration_check.py'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); });
+  $('done8').addEventListener('click', () => markDone(8));
+})();
+
+/* ===================== DEBRIEF ===================== */
+(function debrief(){
+  const R = [
+    'Fable 5.1 changed one price: cache reads, 0.1× → 0.025× of input. Savings equal 0.75 × your cache-read share.',
+    'On the launch CursorBench chart, Fable 5.1 at low effort scores near Fable 5 at high for about a third of the cost. Digitized, vendor-run, subject to variance.',
+    'Effort is the cost control; level names moved between models, so re-sweep. Through OpenRouter, send verbosity.',
+    'Old anti-formatting and hold-findings lines now suppress structure and updates you want. Audit, remove, then add.',
+    'Keep history append-only: turn-scoped system messages for reminders, server-side compaction for trimming. Edits are a 400.',
+    'tool_choice any/tool is gone. Strict tool use with auto, or structured outputs.',
+    'Agent loops may read one file per turn; a one-line per-turn nudge fixes it. Progress updates need display "updates".',
+    'Migration is an ID swap plus five checks. Then run your own evals; a launch chart is not your workload.',
+  ];
+  const ul = $('recap'); R.forEach(t => { const li = document.createElement('li'); li.innerHTML = `<span class="box"></span><div>${t}</div>`; li.addEventListener('click', () => li.classList.toggle('on')); ul.appendChild(li); });
+})();
+
+// Expose for tests only
+window.__fg = {CURVE, PRICE, costTask, validateKey, PUBLISHED_MAX, get apiKey(){ return apiKey; }};
+})();
+
+</script>
+</body>
+</html>
