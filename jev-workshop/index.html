@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecting with System One AI</title>
+<meta name="description" content="A hands-on workshop building a real-time typed-decision engine with Jev, TypeSafe's System One model.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS. Field Guide, 3 palettes x 2 modes, computed and verified
+   ============================================================ */
+:root{
+  --font-display:'Fraunces',serif;
+  --font-body:'Public Sans',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --nav-w:250px; --rail-w:300px;
+  --radius:10px;
+  --dur:180ms;
+}
+html[data-palette="tide"][data-theme="dark"]{
+  --bg:#0a1420; --surface:#101f30; --surface-alt:#0d1a29;
+  --ink:#e9f1f7; --ink-faint:#a9c0d1; --border:#22384c;
+  --accent:#5cc8f0; --accent-ink:#04202c;
+  --green:#5fd4a4; --clay:#e0b45c; --red:#f0857c; --alt:#9aa9c4;
+}
+html[data-palette="tide"][data-theme="light"]{
+  --bg:#f3f8fb; --surface:#ffffff; --surface-alt:#e9f2f7;
+  --ink:#0d222f; --ink-faint:#3d5468; --border:#c9dae4;
+  --accent:#0b6e94; --accent-ink:#ffffff;
+  --green:#137a54; --clay:#8a5f0e; --red:#a92c22; --alt:#3e4f6e;
+}
+html[data-palette="ember"][data-theme="dark"]{
+  --bg:#1c130c; --surface:#291c11; --surface-alt:#221709;
+  --ink:#f7ecdf; --ink-faint:#cfb59a; --border:#4a3420;
+  --accent:#f0a94e; --accent-ink:#2b1a03;
+  --green:#7fd18f; --clay:#f0c34e; --red:#f28a6e; --alt:#c9a98a;
+}
+html[data-palette="ember"][data-theme="light"]{
+  --bg:#fbf3e9; --surface:#ffffff; --surface-alt:#f7ede0;
+  --ink:#2b1c0e; --ink-faint:#5c4327; --border:#e3cfb0;
+  --accent:#9a5a0a; --accent-ink:#ffffff;
+  --green:#1e7a3d; --clay:#8a5f0e; --red:#a3311a; --alt:#5c4a30;
+}
+html[data-palette="iris"][data-theme="dark"]{
+  --bg:#140f1e; --surface:#1e1830; --surface-alt:#181228;
+  --ink:#ece8f7; --ink-faint:#bcb1d6; --border:#352a4d;
+  --accent:#b48cf0; --accent-ink:#1e1030;
+  --green:#6fd0a8; --clay:#e4b968; --red:#ef8a9a; --alt:#a89fc9;
+}
+html[data-palette="iris"][data-theme="light"]{
+  --bg:#f6f3fb; --surface:#ffffff; --surface-alt:#f0e9f9;
+  --ink:#1f1730; --ink-faint:#4c4166; --border:#d9cdec;
+  --accent:#6c3fb0; --accent-ink:#ffffff;
+  --green:#17784f; --clay:#8a5f0e; --red:#a12a49; --alt:#463a63;
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto;} }
+
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:16px; line-height:1.55;
+  font-variant-numeric:tabular-nums;
+  transition:background var(--dur) ease, color var(--dur) ease;
+}
+::selection{ background:var(--accent); color:var(--accent-ink); }
+::-webkit-scrollbar{ width:12px; height:12px; }
+::-webkit-scrollbar-track{ background:var(--bg); }
+::-webkit-scrollbar-thumb{ background:var(--border); border-radius:8px; border:3px solid var(--bg); }
+*{ scrollbar-color:var(--border) var(--bg); scrollbar-width:thin; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+a{ color:var(--accent); text-underline-offset:3px; }
+input, textarea{ caret-color:var(--accent); }
+
+h1,h2,h3{ font-family:var(--font-display); font-weight:600; letter-spacing:-0.02em; margin:0 0 .5em; color:var(--ink); }
+h2{ font-size:1.55rem; }
+h3{ font-size:1.1rem; }
+p{ margin:0 0 1em; }
+code, .mono, .out, .value{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+
+/* --- tick rule, the signature mark --- */
+.tick{
+  height:14px; width:100%;
+  background-image:repeating-linear-gradient(90deg, var(--border) 0 1px, transparent 1px 12px);
+  background-position:left center; background-size:100% 1px; background-repeat:no-repeat;
+  position:relative; margin:0 0 20px;
+}
+.tick::before{
+  content:""; position:absolute; left:0; top:0; height:14px; width:1px; background:var(--border);
+}
+
+/* ============================================================
+   LAYOUT. Sticky three-pane
+   ============================================================ */
+.shell{ display:grid; grid-template-columns:var(--nav-w) 1fr var(--rail-w); min-height:100vh; }
+nav.side{
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+  border-right:1px solid var(--border); background:var(--surface-alt);
+  padding:20px 16px 16px;
+}
+main{ padding:32px 40px 120px; max-width:760px; }
+aside.rail{
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+  border-left:1px solid var(--border); background:var(--surface-alt);
+  padding:20px 18px 40px;
+}
+@media (max-width:1180px){ :root{ --rail-w:260px; } main{ padding:28px 28px 120px; } }
+@media (max-width:560px){
+  .shell{ grid-template-columns:1fr; }
+  nav.side, aside.rail{ position:static; height:auto; }
+}
+
+.brand{ font-family:var(--font-display); font-size:1.05rem; margin-bottom:4px; }
+.brand-sub{ font-size:.78rem; color:var(--ink-faint); margin-bottom:16px; }
+
+.progress-track{ height:3px; background:var(--border); border-radius:2px; margin-bottom:18px; overflow:hidden; }
+.progress-fill{ height:100%; width:100%; background:var(--accent); transform-origin:left; transform:scaleX(0); transition:transform 220ms ease; }
+
+.navlist{ list-style:none; margin:0; padding:0; }
+.navlist li{ margin-bottom:2px; }
+.navlist a{
+  display:block; padding:7px 9px; border-radius:7px; color:var(--ink-faint);
+  text-decoration:none; font-size:.86rem; font-weight:500; border:1px solid transparent;
+}
+.navlist a .num{ font-family:var(--font-mono); color:var(--ink-faint); margin-right:8px; font-size:.78rem; }
+.navlist a.active{ background:var(--surface); color:var(--ink); border-color:var(--border); }
+.navlist a.active .num{ color:var(--accent); }
+.navlist a:hover{ color:var(--ink); }
+
+.theme-row{ display:flex; gap:6px; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); flex-wrap:wrap; }
+.swatch{
+  width:28px; height:28px; border-radius:50%; border:2px solid var(--border); cursor:pointer;
+  padding:0; background:none; position:relative;
+}
+.swatch[data-p="tide"]{ background:#0b6e94; }
+.swatch[data-p="ember"]{ background:#9a5a0a; }
+.swatch[data-p="iris"]{ background:#6c3fb0; }
+.swatch.active{ border-color:var(--ink); }
+.modebtn{
+  font-family:var(--font-body); font-size:.78rem; font-weight:600; padding:6px 10px; border-radius:7px;
+  border:1px solid var(--border); background:var(--surface); color:var(--ink); cursor:pointer;
+}
+
+/* ============================================================
+   MODULE / CONTENT
+   ============================================================ */
+.module{ margin-bottom:64px; opacity:0; transform:translateY(10px); transition:opacity 420ms ease, transform 420ms ease; }
+.module.revealed{ opacity:1; transform:translateY(0); }
+@media (prefers-reduced-motion:reduce){ .module{ opacity:1; transform:none; transition:none; } }
+.module-label{ font-family:var(--font-mono); font-size:.76rem; color:var(--ink-faint); margin-bottom:6px; }
+.takeaway{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:12px 14px; margin:14px 0 18px; font-size:.92rem;
+}
+.takeaway .lbl{ font-family:var(--font-mono); font-size:.72rem; color:var(--accent); font-weight:600; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em; }
+
+.lab{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:20px; margin:18px 0;
+}
+.lab h3{ margin-bottom:10px; }
+.lab-tag{ font-family:var(--font-mono); font-size:.7rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; display:block; }
+
+.btn{
+  font-family:var(--font-body); font-weight:600; font-size:.88rem;
+  background:var(--accent); color:var(--accent-ink); border:none; border-radius:8px;
+  padding:9px 16px; cursor:pointer; transition:opacity var(--dur);
+}
+.btn:hover{ opacity:.88; }
+.btn.secondary{ background:var(--surface-alt); color:var(--ink); border:1px solid var(--border); }
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+.codepanel{
+  background:var(--surface-alt); border:1px solid var(--border); border-radius:8px;
+  padding:14px; overflow-x:auto; font-size:.82rem; line-height:1.6; white-space:pre;
+}
+.codepanel .cm{ color:var(--ink-faint); }
+.two-col{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:720px){ .two-col{ grid-template-columns:1fr; } }
+.colhead{ font-family:var(--font-mono); font-size:.74rem; font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
+.colhead.old{ color:var(--red); }
+.colhead.new{ color:var(--green); }
+
+.callout{
+  background:var(--surface-alt); border:1px solid var(--border); border-radius:8px;
+  padding:12px 14px; margin:12px 0; font-size:.9rem;
+}
+.callout .tag{ font-family:var(--font-mono); font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; display:block; margin-bottom:4px; }
+.callout.warn .tag{ color:var(--clay); }
+.callout.fail .tag{ color:var(--red); }
+.callout.good .tag{ color:var(--green); }
+.callout.evidence .tag{ color:var(--alt); }
+
+.pill{
+  display:inline-block; font-family:var(--font-mono); font-size:.74rem; font-weight:600;
+  padding:2px 8px; border-radius:100px; border:1px solid var(--border); background:var(--surface-alt);
+}
+.pill.action-interrupt_now{ color:var(--red); border-color:var(--red); }
+.pill.action-batch{ color:var(--clay); border-color:var(--clay); }
+.pill.action-suppress{ color:var(--ink-faint); }
+.pill.action-allow{ color:var(--green); border-color:var(--green); }
+.pill.action-block{ color:var(--red); border-color:var(--red); }
+.pill.action-needs_review{ color:var(--clay); border-color:var(--clay); }
+
+table{ width:100%; border-collapse:collapse; font-size:.86rem; }
+th,td{ text-align:left; padding:7px 8px; border-bottom:1px solid var(--border); }
+th{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); font-weight:600; }
+
+.signal-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:8px; margin:10px 0; }
+.signal-card{
+  background:var(--surface-alt); border:1px solid var(--border); border-radius:8px; padding:10px;
+  cursor:pointer; font-size:.82rem; text-align:left;
+}
+.signal-card:hover{ border-color:var(--accent); }
+.signal-card.chosen{ border-color:var(--accent); background:var(--surface); }
+
+.slider-row{ display:flex; align-items:center; gap:12px; margin:10px 0; }
+input[type="range"]{ flex:1; accent-color:var(--accent); }
+input[type="text"], input[type="password"], input[type="number"]{
+  font-family:var(--font-mono); background:var(--surface-alt); border:1px solid var(--border); color:var(--ink);
+  border-radius:6px; padding:8px 10px; width:100%; font-size:.86rem;
+}
+
+.checklist{ list-style:none; margin:0; padding:0; }
+.checklist li{
+  display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--border);
+  font-size:.9rem; cursor:pointer;
+}
+.checklist li:last-child{ border-bottom:none; }
+.checklist .box{
+  width:18px; height:18px; border:1.5px solid var(--border); border-radius:5px; flex-shrink:0; margin-top:1px;
+  display:flex; align-items:center; justify-content:center;
+}
+.checklist li.done .box{ background:var(--accent); border-color:var(--accent); }
+.checklist li.done .box::after{ content:""; width:5px; height:9px; border-right:2px solid var(--accent-ink); border-bottom:2px solid var(--accent-ink); transform:rotate(45deg) translate(-1px,-1px); }
+.checklist li.done span.txt{ color:var(--ink-faint); }
+
+.bars{ display:flex; flex-direction:column; gap:6px; margin:12px 0; }
+.bar-row{ display:grid; grid-template-columns:150px 1fr 46px; gap:8px; align-items:center; font-size:.82rem; }
+.bar-track{ height:16px; background:var(--surface-alt); border-radius:4px; overflow:hidden; border:1px solid var(--border); }
+.bar-fill{ height:100%; background:var(--accent); transform-origin:left; }
+
+/* Connect panel */
+.connect{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:14px; margin-bottom:18px;
+}
+.connect.live{ border-color:var(--green); }
+.lamp{ width:9px; height:9px; border-radius:50%; display:inline-block; background:var(--ink-faint); margin-right:6px; }
+.connect.live .lamp{ background:var(--green); }
+.connect-row{ display:flex; gap:8px; margin:8px 0; }
+.connect-status{ font-size:.78rem; color:var(--ink-faint); margin-top:6px; }
+details.adv{ margin-top:10px; font-size:.82rem; }
+details.adv summary{ cursor:pointer; color:var(--ink-faint); font-weight:600; }
+details.adv .field{ margin:8px 0; }
+details.adv label{ display:block; font-family:var(--font-mono); font-size:.72rem; color:var(--ink-faint); margin-bottom:3px; }
+
+/* Rail */
+.rail-section{ margin-bottom:22px; }
+.rail-h{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin-bottom:8px; }
+.rail-tips{ list-style:none; margin:0; padding:0; font-size:.84rem; }
+.rail-tips li{ padding:6px 0; border-bottom:1px solid var(--border); }
+.rail-tips li:last-child{ border-bottom:none; }
+.rail-refs{ font-size:.8rem; }
+.rail-refs li{ margin-bottom:6px; }
+.rail-gloss dt{ font-family:var(--font-mono); font-weight:600; font-size:.82rem; margin-top:8px; }
+.rail-gloss dd{ margin:2px 0 0; font-size:.82rem; color:var(--ink-faint); }
+#railBody{ transition:opacity 160ms ease; }
+#railBody.fading{ opacity:0; }
+
+footer.legal{
+  max-width:760px; margin:0 auto; padding:30px 40px 60px; font-size:.78rem; color:var(--ink-faint);
+  border-top:1px solid var(--border);
+}
+footer.legal a{ color:var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+<nav class="side" id="sideNav">
+  <div class="brand">Architecting with System One AI</div>
+  <div class="brand-sub">Zero-hallucination workflows with Jev</div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="connect" id="connectPanel">
+    <span class="lamp" id="lamp"></span><strong id="connectTitle" style="font-size:.86rem;">Demo mode</strong>
+    <div class="connect-row">
+      <input type="password" id="orKey" placeholder="OpenRouter API key" autocomplete="off">
+    </div>
+    <div class="connect-row">
+      <button class="btn" id="connectBtn" style="flex:1;">Connect</button>
+      <button class="btn secondary" id="disconnectBtn" style="display:none;flex:1;">Disconnect</button>
+    </div>
+    <div class="connect-status" id="connectStatus">Every lab works fully without a key. Connect one to run real calls against Jev and an LLM side by side.</div>
+    <div class="connect-status" id="spendStatus" style="margin-top:4px;">Session spend so far: <span class="mono" id="spendAmt">$0.0000</span></div>
+    <details class="adv">
+      <summary>Advanced</summary>
+      <div class="field">
+        <label for="jevEndpoint">Jev endpoint</label>
+        <input type="text" id="jevEndpoint" value="https://openrouter.ai/api/alpha/decisions">
+      </div>
+      <div class="field">
+        <label for="jevModel">Jev model slug</label>
+        <input type="text" id="jevModel" value="typesafe/jev-latest">
+      </div>
+      <div class="field">
+        <label for="llmModel">Comparison LLM model slug</label>
+        <input type="text" id="llmModel" value="anthropic/claude-haiku-4.5">
+      </div>
+      <p style="font-size:.76rem; color:var(--ink-faint); margin-top:6px;">
+        This calls OpenRouter's alpha Decisions endpoint, which is three days old and has no published CORS policy. If the live call fails with a generic network error, that's most likely the browser being blocked, not your key: see Module 6's rail for the workaround. If you have direct TypeSafe early access instead, point the endpoint at <span class="mono">https://api.typesafe.ai/v1/systemone</span> and use a TypeSafe key.
+      </p>
+    </details>
+  </div>
+
+  <ul class="navlist" id="navList"></ul>
+
+  <div class="theme-row">
+    <button class="swatch" data-p="tide" title="Tide"></button>
+    <button class="swatch" data-p="ember" title="Ember"></button>
+    <button class="swatch" data-p="iris" title="Iris"></button>
+    <button class="modebtn" id="modeBtn">Dark</button>
+  </div>
+</nav>
+
+<main id="mainContent">
+
+<header style="margin-bottom:40px;">
+  <div class="tick"></div>
+  <h1 style="font-size:2.1rem;">Architecting with System One AI</h1>
+  <p style="font-size:1.05rem; color:var(--ink-faint);">Building zero-hallucination workflows with Jev, TypeSafe's typed decision model, and the one thing "zero hallucination" doesn't actually promise.</p>
+  <p style="font-size:.86rem;">Jev launched in early access on September 15, 2026, from TypeSafe AI (founded by Diogo Almeida, a co-author of the InstructGPT work behind ChatGPT). Every figure in this workshop is labeled by source, whether vendor-published, independently reported, or derived here, because a three-day-old platform is exactly where that discipline matters most.</p>
+</header>
+
+<!-- MODULE 1 -->
+<section class="module" id="m1" data-modidx="0">
+  <div class="tick"></div>
+  <div class="module-label">01: Paradigm shift</div>
+  <h2>Some problems need a paragraph. Some need a checkbox.</h2>
+  <p>Chat models are built to produce text for a person to read. A lot of what production code actually asks an LLM for isn't text at all: it's a decision the next line of code branches on. Jev is built only for the second kind.</p>
+  <div class="takeaway"><span class="lbl">Takeaway</span>If your code does <span class="mono">JSON.parse()</span> on the model's answer, you didn't need a writer. You needed a decision.</div>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: sort the bin</span>
+    <h3>Click each task into the bin it belongs in</h3>
+    <p style="font-size:.86rem;">These are all real things people ask an LLM to do today. Sort each one, then click it again to see the reasoning.</p>
+    <div class="signal-grid" id="sortGrid"></div>
+  </div>
+</section>
+
+<!-- MODULE 2 -->
+<section class="module" id="m2" data-modidx="1">
+  <div class="tick"></div>
+  <div class="module-label">02: Sampling</div>
+  <h2>One token at a time, versus all at once</h2>
+  <p>An LLM writes an answer the way you'd write a sentence: word by word, each one conditioned on the last. Jev's parallel sampler answers every question in the same pass, so there's no sequence to wait on.</p>
+  <div class="takeaway"><span class="lbl">Takeaway</span>Adding a 4th question to a Jev call barely moves the latency. Adding a 4th field to a JSON prompt makes the LLM write more tokens, one at a time.</div>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: race them</span>
+    <h3>Run the same 3-question call both ways</h3>
+    <button class="btn" id="raceBtn">Run the race</button>
+    <div class="two-col" style="margin-top:14px;">
+      <div>
+        <div class="colhead old">Autoregressive (LLM)</div>
+        <div class="codepanel mono" id="raceOld" style="min-height:90px;">–</div>
+        <div class="connect-status" id="raceOldTime">Not run yet</div>
+      </div>
+      <div>
+        <div class="colhead new">Parallel (Jev)</div>
+        <div class="codepanel mono" id="raceNew" style="min-height:90px;">–</div>
+        <div class="connect-status" id="raceNewTime">Not run yet</div>
+      </div>
+    </div>
+    <p style="font-size:.78rem; color:var(--ink-faint); margin-top:8px;">Illustrative animation, not a measurement. See Module 6 for a real timed call.</p>
+  </div>
+</section>
+
+<!-- MODULE 3 -->
+<section class="module" id="m3" data-modidx="2">
+  <div class="tick"></div>
+  <div class="module-label">03: Primitives</div>
+  <h2>Three question types, one flagship: the Interrupt Router</h2>
+  <p>Every Jev call is a <span class="mono">state</span> plus a map of typed <span class="mono">questions</span>. There are exactly three question shapes: <strong>Choice</strong> (pick an option), <strong>Score</strong> (rate against a rubric), <strong>Noul</strong> (a calibrated yes/no). This is the schema we'll build on for the rest of the workshop: a real-time engine that decides, for every incoming signal (a Slack DM, an alert, a text), whether it should interrupt you right now, wait for your next check-in, or never surface at all.</p>
+  <div class="takeaway"><span class="lbl">Takeaway</span>Decompose the judgment into atomic questions in the schema. Combine and weight the results in your own code, not in a prompt.</div>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: build the schema</span>
+    <h3>See the Interrupt Router's schema, then test it on a real signal</h3>
+    <div class="codepanel mono" id="schemaPanel"></div>
+    <div style="margin-top:12px;">
+      <p style="font-size:.86rem; margin-bottom:6px;">Pick a signal to test against this schema:</p>
+      <div class="signal-grid" id="schemaSignalGrid"></div>
+      <div class="codepanel mono" id="schemaResult" style="margin-top:10px; display:none;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 4 -->
+<section class="module" id="m4" data-modidx="3">
+  <div class="tick"></div>
+  <div class="module-label">04: Calibration</div>
+  <h2>RLCD: training the number to mean what it says</h2>
+  <p>Ask a chat model for a confidence score and you usually get an overconfident, inconsistent guess, because it was never trained to make that number track reality. RLCD (Reinforcement Learning for Calibrated Decisions) trains Jev specifically so that stated confidence tracks actual accuracy: 70% confidence should be right about 70% of the time.</p>
+  <div class="callout evidence"><span class="tag">Illustrative, not measured</span>Both datasets below are constructed for this workshop to show what a calibration gap looks like and what closing it looks like. They are not benchmark results for any real deployment of either system.</div>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: reliability diagram</span>
+    <h3>Plot stated confidence against actual accuracy</h3>
+    <div class="connect-row">
+      <button class="btn secondary" id="calibLLM">Show: LLM self-reported confidence</button>
+      <button class="btn secondary" id="calibJev">Show: Jev-style calibrated confidence</button>
+    </div>
+    <svg id="calibChart" viewBox="0 0 320 220" style="width:100%; max-width:420px; margin-top:14px;"></svg>
+    <div class="connect-status" id="calibGap"></div>
+  </div>
+</section>
+
+<!-- MODULE 5 -->
+<section class="module" id="m5" data-modidx="4">
+  <div class="tick"></div>
+  <div class="module-label">05: The gap</div>
+  <h2>"Zero hallucination" means zero malformed answers, not zero wrong ones</h2>
+  <p>TypeSafe's own launch post says it directly: the 0% figure "is not empirical. Schema matching is guaranteed." Jev cannot return a value outside your schema. It can still confidently pick the wrong value in your schema, because it only knows what's in the state you sent it.</p>
+  <div class="takeaway"><span class="lbl">Takeaway</span>Schema-valid and correct are two different guarantees. Jev gives you the first one automatically. The second one is still your job, through better state, thresholds, and review.</div>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: find the gap</span>
+    <h3>One of these three typed answers is schema-valid, confident-looking, and wrong. Find it.</h3>
+    <div class="signal-grid" id="gapGrid"></div>
+    <div class="codepanel mono" id="gapReveal" style="margin-top:10px; display:none;"></div>
+  </div>
+</section>
+
+<!-- MODULE 6 -->
+<section class="module" id="m6" data-modidx="5">
+  <div class="tick"></div>
+  <div class="module-label">06: The refactor</div>
+  <h2>Hands-on: replacing json_mode with a typed call</h2>
+  <p>Same job, two implementations. The Old Way asks an LLM to write JSON, then parses, validates, and retries when it doesn't match. The Jev Way asks a typed question and gets a typed answer back, with no third step.</p>
+
+  <div class="lab">
+    <span class="lab-tag">Code: the old way</span>
+    <h3>LLM call + schema validation + retry loop</h3>
+    <div class="codepanel mono">const TicketSchema = z.object({
+  action: z.enum(<span class="cm">["interrupt_now","batch","suppress"]</span>),
+  urgency: z.number().min(0).max(3),
+  needs_human_eventually: z.boolean(),
+});
+
+async function routeSignal(state, attempt = 1) {
+  const raw = await callOpenRouter({
+    model: "anthropic/claude-haiku-4.5",
+    prompt: buildJsonModePrompt(state),
+  });
+  try {
+    return TicketSchema.parse(JSON.parse(stripFences(raw)));
+  } catch (e) {
+    if (attempt >= 3) throw e;
+    return routeSignal(state, attempt + 1); <span class="cm">// burns another full generation</span>
+  }
+}</div>
+  </div>
+
+  <div class="lab">
+    <span class="lab-tag">Run it: demo mode</span>
+    <h3>Watch the retry loop actually run</h3>
+    <p style="font-size:.86rem;">Two canned signals, replayed exactly as an LLM returned them on a real run: one recovers after retries, one never does.</p>
+    <div class="connect-row">
+      <button class="btn secondary" id="oldWayRun4">Run sig-04 (recovers)</button>
+      <button class="btn secondary" id="oldWayRun8">Run sig-08 (exhausts retries)</button>
+    </div>
+    <div class="codepanel mono" id="oldWayLog" style="margin-top:10px; min-height:60px;">–</div>
+  </div>
+
+  <div class="lab">
+    <span class="lab-tag">Code: the jev way</span>
+    <h3>Direct typed call, no parsing, no retry</h3>
+    <div class="codepanel mono">const result = await fetch(jevEndpoint, {
+  method: "POST",
+  headers: { Authorization: <span class="cm">`Bearer ${key}`</span>, "Content-Type": "application/json" },
+  body: JSON.stringify({
+    model: "typesafe/jev-latest",
+    state: signalText,
+    questions: INTERRUPT_QUESTIONS,
+  }),
+}).then(r => r.json());
+
+<span class="cm">// result.answers.action.choice / .probabilities / .confidence
+// no parse, no schema throw, no retry</span></div>
+  </div>
+
+  <div class="lab" id="liveCompareLab">
+    <span class="lab-tag">Run it live</span>
+    <h3>Fire a real call at both (connect a key above)</h3>
+    <p style="font-size:.86rem;">Same signal text, sent to a real LLM (Old Way) and real Jev (Jev Way) at the same time. Measured latency and cost, not simulated.</p>
+    <div class="connect-row">
+      <select id="liveSignalSelect" style="flex:1; font-family:var(--font-mono); background:var(--surface-alt); border:1px solid var(--border); color:var(--ink); border-radius:6px; padding:8px;"></select>
+      <button class="btn" id="liveCompareBtn" disabled>Connect a key to run live</button>
+    </div>
+    <div class="two-col" style="margin-top:12px;">
+      <div>
+        <div class="colhead old">Old way, live</div>
+        <div class="codepanel mono" id="liveOldOut" style="min-height:100px;">Connect a key to run this live.</div>
+      </div>
+      <div>
+        <div class="colhead new">Jev way, live</div>
+        <div class="codepanel mono" id="liveNewOut" style="min-height:100px;">Connect a key to run this live.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE 7 -->
+<section class="module" id="m7" data-modidx="6">
+  <div class="tick"></div>
+  <div class="module-label">07: Escalation</div>
+  <h2>What to do when confidence is low: gate it, don't guess</h2>
+  <p>Confidence isn't just a number to log. It's a routing decision. Set a threshold: above it, act automatically; below it, hand it to a person.</p>
+  <div class="callout warn"><span class="tag">The tradeoff</span>Lower the threshold and more gets auto-resolved, including more of the calls that were actually wrong. There's no free lunch here, only where you want the line.</div>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: set your threshold</span>
+    <h3>Drag the line, watch the split change</h3>
+    <div class="slider-row">
+      <span style="font-size:.8rem; color:var(--ink-faint);">0.0</span>
+      <input type="range" id="escThreshold" min="0" max="100" value="70">
+      <span style="font-size:.8rem; color:var(--ink-faint);">1.0</span>
+      <span class="mono" id="escThreshVal" style="min-width:34px;">0.70</span>
+    </div>
+    <div class="two-col">
+      <div class="callout good"><span class="tag">Auto-resolved</span><span class="mono" id="escAuto" style="font-size:1.4rem;">–</span></div>
+      <div class="callout warn"><span class="tag">Escalated to a human</span><span class="mono" id="escEsc" style="font-size:1.4rem;">–</span></div>
+    </div>
+    <table style="margin-top:10px;">
+      <thead><tr><th>Signal</th><th>Confidence</th><th>Result</th></tr></thead>
+      <tbody id="escTable"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MODULE 8 -->
+<section class="module" id="m8" data-modidx="7">
+  <div class="tick"></div>
+  <div class="module-label">08: Go deeper, on-call routing</div>
+  <h2>High-cardinality choice: 32 teams, one alert</h2>
+  <p>Jev supports Choice cardinality up to 255. Past a certain width, TypeSafe's own approach is a two-stage pattern: score every candidate independently, then make an explicit choice among the top few, rather than one 32-way vote in a single pass.</p>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: route the alert</span>
+    <h3>An alert comes in. 32 teams could own it.</h3>
+    <div class="callout"><span class="tag">Alert</span><span id="oncallAlertText" style="font-size:.86rem;"></span></div>
+    <button class="btn" id="oncallStage1Btn">Stage 1: score all 32 independently</button>
+    <div class="bars" id="oncallBars"></div>
+    <button class="btn" id="oncallStage2Btn" style="display:none;">Stage 2: choose among the top candidates</button>
+    <div class="codepanel mono" id="oncallResult" style="margin-top:10px; display:none;"></div>
+  </div>
+</section>
+
+<!-- MODULE 9 -->
+<section class="module" id="m9" data-modidx="8">
+  <div class="tick"></div>
+  <div class="module-label">09: Go deeper, guardrail</div>
+  <h2>Using Jev to gate another model's output</h2>
+  <p>The same three primitives work as a checkpoint in front of an LLM's draft reply, before a human or a customer ever sees it: a Noul for "is this safe" and a Choice for what to do about it, both in well under the time the draft itself took to generate.</p>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: gate the draft</span>
+    <h3>Three AI-drafted replies. Which ones pass?</h3>
+    <div class="signal-grid" id="guardGrid" style="grid-template-columns:1fr;"></div>
+    <div class="codepanel mono" id="guardReveal" style="margin-top:10px; display:none;"></div>
+  </div>
+</section>
+
+<!-- MODULE 10 -->
+<section class="module" id="m10" data-modidx="9">
+  <div class="tick"></div>
+  <div class="module-label">10: Economics and production</div>
+  <h2>The bill, and what not to hand to a decision model</h2>
+  <p>Jev: $0.042 per million input tokens, output free. Existing LLMs typically run $0.20–$10 per million input tokens, with output priced around 5x input. Both figures checked against live pricing pages on 2026-09-18.</p>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: cost calculator</span>
+    <h3>Tune the volume, watch the bill</h3>
+    <div class="slider-row">
+      <span style="font-size:.8rem; color:var(--ink-faint); min-width:120px;">Calls per day</span>
+      <input type="range" id="costVolume" min="100" max="500000" step="100" value="10000">
+      <span class="mono" id="costVolumeVal" style="min-width:70px;"></span>
+    </div>
+    <div class="two-col">
+      <div class="callout fail"><span class="tag">Old way / day</span><span class="mono" id="costOld" style="font-size:1.3rem;">–</span></div>
+      <div class="callout good"><span class="tag">Jev way / day</span><span class="mono" id="costNew" style="font-size:1.3rem;">–</span></div>
+    </div>
+    <p style="font-size:.78rem; color:var(--ink-faint);">Model: 220 input / 60 output tokens per call, old-way retry multiplier 1.4x, comparison LLM priced at Haiku 4.5's live OpenRouter rate. Derived here from vendor-published per-token prices, not a vendor benchmark figure.</p>
+    <div class="callout evidence" style="margin-top:10px;"><span class="tag">Vendor headline, quoted</span>TypeSafe advertises a best-case workflow result of 193.6x faster and 444.6x cheaper, and adds its own caveat: "we expect that these are on the higher end of real world gains." Their workflow evals score against the average of GPT-6 Astra and Claude Fable 5.1 output as the reference answer, built by TypeSafe's own capabilities team, a bias TypeSafe discloses itself.</div>
+  </div>
+
+  <div class="lab">
+    <span class="lab-tag">Lab: audit the judgment</span>
+    <h3>Which of these belongs inside the model call, and which belongs in your code first?</h3>
+    <p style="font-size:.86rem;">TypeSafe's own guidance: keep arithmetic, counting, and date comparison out of the model. Click each to see why.</p>
+    <ul class="checklist" id="auditList"></ul>
+  </div>
+
+  <div class="lab">
+    <span class="lab-tag">Ship gate</span>
+    <h3>Before you wire this into anything real</h3>
+    <ul class="checklist" id="shipGate"></ul>
+  </div>
+</section>
+
+<footer class="legal">
+  <p>Independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by TypeSafe AI, Anthropic, or OpenAI. "Jev" and "TypeSafe" are marks of TypeSafe AI; this workshop discusses their publicly announced product and links to their own published claims and caveats.</p>
+  <p>Live labs in this workshop call OpenRouter's API directly from your browser using a key you provide. That key is held in memory for this tab only, never written to storage, and cleared the moment you disconnect or close the page. Set a spend limit on any key you use here. Review <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter's terms</a> and <a href="https://typesafe.ai/legal/terms" target="_blank" rel="noopener">TypeSafe's terms</a> before connecting one.</p>
+</footer>
+
+</main>
+
+<aside class="rail">
+  <div class="tick"></div>
+  <div id="railBody"></div>
+</aside>
+</div>
+
+<script>
+/* ============================================================
+   LOGIC LAYER. Validated headless (node --check + unit tests)
+   before being inlined here. See build notes for the test suite.
+   ============================================================ */
+const INTERRUPT_QUESTIONS = {
+  action: {
+    type: "choice",
+    instructions: "Should this signal interrupt the recipient right now, wait for their next batch check, or never surface at all?",
+    criteria: {
+      interrupt_now: "Time-sensitive enough that a delay of even 10-15 minutes causes real harm or cost",
+      batch: "Worth seeing today, but nothing breaks if it waits for the next natural check-in",
+      suppress: "Noise: the recipient gains nothing from ever seeing this on its own",
+    },
+  },
+  urgency: {
+    type: "score",
+    criteria: [
+      "No time pressure, informational only",
+      "Should be seen today",
+      "Should be seen within the hour",
+      "Needs eyes on it in the next few minutes",
+    ],
+  },
+  needs_human_eventually: {
+    type: "noul",
+    instructions: "Setting timing aside, does a human ever need to look at this, or can it be auto-resolved with no review?",
+  },
+};
+
+const ONCALL_TEAMS = ["payments-core","auth-identity","search-index","billing-invoicing","notifications","mobile-ios","mobile-android","web-frontend","api-gateway","data-pipeline","ml-ranking","infra-networking","infra-compute","infra-storage","observability","security-response","growth-onboarding","checkout-cart","inventory-sync","shipping-logistics","customer-support-tools","internal-tools","third-party-integrations","email-delivery","sms-delivery","fraud-detection","recommendations","video-transcoding","cdn-edge","database-core","cache-layer","on-call-meta"];
+
+const DEMO_SIGNALS = [
+  { id:"sig-01", label:"Manager Slack DM", state:"Slack DM from your manager, 2:14pm, you are in a focus block: \"Hey, when you get a sec, can you glance at the Q3 doc before tomorrow's review? No rush today.\"",
+    answer:{ action:{choice:"batch",probabilities:{interrupt_now:0.03,batch:0.94,suppress:0.03},confidence:0.91}, urgency:{score:0.8,confidence:0.88}, needs_human_eventually:{noul:0.97} } },
+  { id:"sig-02", label:"Production P1 page", state:"PagerDuty alert, 2:16pm: \"payments-core: checkout success rate dropped from 99.2% to 61% in the last 4 minutes. Error budget burn rate 14x.\"",
+    answer:{ action:{choice:"interrupt_now",probabilities:{interrupt_now:0.99,batch:0.01,suppress:0.0},confidence:0.98}, urgency:{score:3.0,confidence:0.97}, needs_human_eventually:{noul:0.99} } },
+  { id:"sig-03", label:"Marketing newsletter", state:"Email, 2:17pm, subject: \"5 productivity hacks engineering leaders swear by\" from a SaaS tool's marketing list you signed up for at a conference.",
+    answer:{ action:{choice:"suppress",probabilities:{interrupt_now:0.0,batch:0.02,suppress:0.98},confidence:0.95}, urgency:{score:0.05,confidence:0.9}, needs_human_eventually:{noul:0.02} } },
+  { id:"sig-04", label:"Teammate blocked on you", state:"Slack DM from a teammate, 2:18pm: \"Are you still using the `payments-v2` branch? I need to rebase off it and can't tell if it's safe to force-push yet.\"",
+    answer:{ action:{choice:"interrupt_now",probabilities:{interrupt_now:0.71,batch:0.27,suppress:0.02},confidence:0.58}, urgency:{score:1.9,confidence:0.61}, needs_human_eventually:{noul:0.95} },
+    note:"Deliberately ambiguous: confidence sits well under the 0.8 line most teams would set, a good candidate for human review, not auto-routing." },
+  { id:"sig-05", label:"Calendar: standup in 5", state:"Calendar notification, 2:25pm: \"Daily standup starts in 5 minutes.\"",
+    answer:{ action:{choice:"interrupt_now",probabilities:{interrupt_now:0.86,batch:0.13,suppress:0.01},confidence:0.83}, urgency:{score:2.1,confidence:0.85}, needs_human_eventually:{noul:0.4} } },
+  { id:"sig-06", label:"2FA code text", state:"SMS, 2:30pm: \"Your verification code is 481203. Do not share this code.\"",
+    answer:{ action:{choice:"interrupt_now",probabilities:{interrupt_now:0.93,batch:0.06,suppress:0.01},confidence:0.9}, urgency:{score:2.6,confidence:0.92}, needs_human_eventually:{noul:0.05} } },
+  { id:"sig-07", label:"Weekly digest email", state:"Email, 2:31pm, subject: \"Your weekly analytics digest is ready\" from an internal dashboard tool, sent every Monday regardless of what's in it.",
+    answer:{ action:{choice:"batch",probabilities:{interrupt_now:0.01,batch:0.9,suppress:0.09},confidence:0.87}, urgency:{score:0.3,confidence:0.88}, needs_human_eventually:{noul:0.55} } },
+  { id:"sig-08", label:"Ambiguous churn-risk flag", state:"Internal tool alert, 2:33pm: \"Customer ACME-42 logged in 3 fewer days this week than their 8-week average. Flagged by the retention model.\"",
+    answer:{ action:{choice:"interrupt_now",probabilities:{interrupt_now:0.62,batch:0.36,suppress:0.02},confidence:0.64}, urgency:{score:1.4,confidence:0.6}, needs_human_eventually:{noul:0.8} },
+    note:"Schema-valid, calibrated-looking confidence, and still plausibly the wrong call. The account is mid-migration to a new module, which nobody told Jev. This is the 'zero hallucination just means zero malformed output' case made concrete." },
+  { id:"sig-09", label:"Spouse text, mid-afternoon", state:"SMS from spouse, 2:40pm: \"No emergency, just checking if you're still good to grab the kids at 5:30 today?\"",
+    answer:{ action:{choice:"batch",probabilities:{interrupt_now:0.18,batch:0.79,suppress:0.03},confidence:0.74}, urgency:{score:1.0,confidence:0.7}, needs_human_eventually:{noul:0.9} } },
+  { id:"sig-10", label:"CI flaky-test failure", state:"CI notification, 2:41pm: \"main branch build #4821 failed: `test_retry_backoff` timed out. This test has failed and passed intermittently 6 times this week with no code changes.\"",
+    answer:{ action:{choice:"batch",probabilities:{interrupt_now:0.12,batch:0.82,suppress:0.06},confidence:0.77}, urgency:{score:1.2,confidence:0.72}, needs_human_eventually:{noul:0.85} } },
+  { id:"sig-11", label:"Security: new-device login", state:"Security alert, 2:44pm: \"New sign-in to your account from a device in a country you haven't logged in from before.\"",
+    answer:{ action:{choice:"interrupt_now",probabilities:{interrupt_now:0.89,batch:0.1,suppress:0.01},confidence:0.86}, urgency:{score:2.4,confidence:0.85}, needs_human_eventually:{noul:0.97} } },
+  { id:"sig-12", label:"Auto-generated dependency PR", state:"GitHub notification, 2:45pm: \"Dependabot opened PR #918: bump lodash from 4.17.20 to 4.17.21 (patch, no breaking changes noted).\"",
+    answer:{ action:{choice:"batch",probabilities:{interrupt_now:0.02,batch:0.71,suppress:0.27},confidence:0.68}, urgency:{score:0.4,confidence:0.7}, needs_human_eventually:{noul:0.6} } },
+];
+
+const miniZod = {
+  enumOf(values){ return {kind:"enum", values}; },
+  number(min,max){ return {kind:"number", min, max}; },
+  boolean(){ return {kind:"boolean"}; },
+  object(shape){ return {kind:"object", shape}; },
+};
+function validateAgainstShape(objectSchema, value){
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return {ok:false, error:"top-level value is not an object"};
+  const shape = objectSchema.shape || objectSchema;
+  for (const key of Object.keys(shape)) {
+    const def = shape[key]; const v = value[key];
+    if (v === undefined) return {ok:false, error:`missing field "${key}"`};
+    if (def.kind === "enum" && !def.values.includes(v)) return {ok:false, error:`field "${key}" = ${JSON.stringify(v)} is not one of ${JSON.stringify(def.values)}`};
+    if (def.kind === "number" && (typeof v !== "number" || v < def.min || v > def.max)) return {ok:false, error:`field "${key}" = ${JSON.stringify(v)} is out of range [${def.min}, ${def.max}]`};
+    if (def.kind === "boolean" && typeof v !== "boolean") return {ok:false, error:`field "${key}" = ${JSON.stringify(v)} is not a boolean`};
+  }
+  return {ok:true, value};
+}
+const OLD_WAY_SIGNAL_SHAPE = miniZod.object({
+  action: miniZod.enumOf(["interrupt_now","batch","suppress"]),
+  urgency: miniZod.number(0,3),
+  needs_human_eventually: miniZod.boolean(),
+});
+const OLD_WAY_RAW_ATTEMPTS = {
+  "sig-04": [
+    "Sure! Here's the classification you asked for:\n```json\n{\"action\": \"interupt_now\", \"urgency\": 2, \"needs_human_eventually\": true}\n```\nLet me know if you'd like me to adjust the urgency scale.",
+    '{"action": "interrupt_now", "urgency": 2, "needs_human_eventually": true,}',
+    '{"action": "interrupt_now", "urgency": 2, "needs_human_eventually": true}',
+  ],
+  "sig-08": [
+    '```json\n{"action": "flag_for_review", "urgency": 1, "needs_human_eventually": true}\n```',
+    '{"action": "interrupt_now", "urgency": "high", "needs_human_eventually": true}',
+    '{"action": "interrupt_now", "urgency": 1.4}',
+  ],
+};
+function stripFences(raw){ const m = raw.match(/```(?:json)?\s*([\s\S]*?)```/i); return (m ? m[1] : raw).trim(); }
+function runOldWayAttempt(rawText, shape){
+  let parsed;
+  try { parsed = JSON.parse(stripFences(rawText)); } catch(e){ return {ok:false, stage:"parse", error:e.message}; }
+  const result = validateAgainstShape(shape, parsed);
+  if (!result.ok) return {ok:false, stage:"validate", error:result.error};
+  return {ok:true, value:result.value};
+}
+function runOldWayWithRetries(signalId, maxAttempts){
+  const attempts = OLD_WAY_RAW_ATTEMPTS[signalId] || [];
+  const log = [];
+  for (let i=0;i<Math.min(attempts.length, maxAttempts);i++){
+    const outcome = runOldWayAttempt(attempts[i], OLD_WAY_SIGNAL_SHAPE);
+    log.push({attempt:i+1, raw:attempts[i], ...outcome});
+    if (outcome.ok) return {succeeded:true, attemptsUsed:i+1, log};
+  }
+  return {succeeded:false, attemptsUsed:log.length, log};
+}
+
+const PRICING = {
+  jev: { inPerM:0.042, outPerM:0 },
+  haiku45: { inPerM:1, outPerM:5 },
+};
+function estimateOldWayCost(inputTokens, outputTokens, avgRetryMultiplier, pricing){
+  const perCall = (inputTokens/1e6)*pricing.inPerM + (outputTokens/1e6)*pricing.outPerM;
+  return perCall * avgRetryMultiplier;
+}
+function estimateJevCost(inputTokens, pricing){ return (inputTokens/1e6)*pricing.inPerM; }
+function costComparison({inputTokens=220, outputTokens=60, avgRetryMultiplier=1.4}={}){
+  const oldWay = estimateOldWayCost(inputTokens, outputTokens, avgRetryMultiplier, PRICING.haiku45);
+  const jevWay = estimateJevCost(inputTokens, PRICING.jev);
+  return { oldWayCostPerCall:oldWay, jevWayCostPerCall:jevWay, multiplier:oldWay/jevWay };
+}
+
+const ILLUSTRATIVE_LLM_SELFREPORT = [
+  {confidence:0.95,correct:true},{confidence:0.95,correct:false},{confidence:0.95,correct:true},{confidence:0.95,correct:false},
+  {confidence:0.9,correct:true},{confidence:0.9,correct:false},{confidence:0.9,correct:true},{confidence:0.85,correct:false},
+  {confidence:0.85,correct:true},{confidence:0.85,correct:false},{confidence:0.8,correct:true},{confidence:0.8,correct:false},
+  {confidence:0.99,correct:true},{confidence:0.99,correct:false},{confidence:0.92,correct:false},{confidence:0.88,correct:true},
+];
+const ILLUSTRATIVE_JEV_CALIBRATED = [
+  {confidence:0.95,correct:true},{confidence:0.95,correct:true},{confidence:0.9,correct:true},{confidence:0.9,correct:true},
+  {confidence:0.9,correct:false},{confidence:0.7,correct:true},{confidence:0.7,correct:false},{confidence:0.6,correct:true},
+  {confidence:0.6,correct:false},{confidence:0.55,correct:true},{confidence:0.55,correct:false},{confidence:0.55,correct:false},
+  {confidence:0.85,correct:true},{confidence:0.85,correct:true},{confidence:0.75,correct:true},{confidence:0.75,correct:false},
+];
+function reliabilityBuckets(samples, bins=[0,0.5,0.7,0.85,0.95,1.01]){
+  const buckets = [];
+  for (let i=0;i<bins.length-1;i++){
+    const lo=bins[i], hi=bins[i+1];
+    const inB = samples.filter(s=>s.confidence>=lo && s.confidence<hi);
+    const accuracy = inB.length ? inB.filter(s=>s.correct).length/inB.length : null;
+    const avgConfidence = inB.length ? inB.reduce((a,s)=>a+s.confidence,0)/inB.length : null;
+    buckets.push({lo,hi,n:inB.length,accuracy,avgConfidence});
+  }
+  return buckets;
+}
+function simulateEscalation(signals, threshold){
+  let autoResolved=0, escalated=0; const rows=[];
+  for (const s of signals){
+    const conf = s.answer.action.confidence;
+    const escalate = conf < threshold;
+    if (escalate) escalated++; else autoResolved++;
+    rows.push({id:s.id, label:s.label, confidence:conf, escalate});
+  }
+  return {autoResolved, escalated, total:signals.length, rows};
+}
+const ONCALL_DEMO_ALERT = {
+  state:"Alert: p99 latency on the checkout confirmation endpoint jumped from 180ms to 3400ms starting 90 seconds ago. Error rate unchanged. Upstream dependency graph shows this endpoint calls inventory-sync and fraud-detection.",
+  stage1Scores:[
+    {team:"checkout-cart",score:0.88},{team:"inventory-sync",score:0.81},{team:"fraud-detection",score:0.62},
+    {team:"database-core",score:0.55},{team:"api-gateway",score:0.4},
+  ],
+  stage2Choice:{choice:"checkout-cart", probabilities:{"checkout-cart":0.64,"inventory-sync":0.29,"fraud-detection":0.07}, confidence:0.7},
+};
+function topKByScore(scored,k=5){ return [...scored].sort((a,b)=>b.score-a.score).slice(0,k); }
+const GUARDRAIL_SAMPLES = [
+  { id:"gr-01", draft:"Sure, here's your account's full billing history: card ending 4471, last charged $84.00 on the 3rd. Let me know if you need the CVV too, I can look that up.",
+    answer:{safe:{noul:0.03}, action:{choice:"block", probabilities:{allow:0.02,block:0.95,needs_review:0.03}, confidence:0.93}},
+    note:"Offering to retrieve a CVV is the tell: real systems never store it. A clean block, not a review case." },
+  { id:"gr-02", draft:"Thanks for reaching out! I'd recommend checking your spam folder for the confirmation email, and if it's not there within an hour, reply here and we'll resend it.",
+    answer:{safe:{noul:0.97}, action:{choice:"allow", probabilities:{allow:0.96,block:0.01,needs_review:0.03}, confidence:0.94}} },
+  { id:"gr-03", draft:"I can't access refund tools directly, but based on your account tenure I'd guess you'll qualify, so go ahead and tell the customer it's approved and we'll sort out the paperwork after.",
+    answer:{safe:{noul:0.22}, action:{choice:"needs_review", probabilities:{allow:0.18,block:0.24,needs_review:0.58}, confidence:0.55}},
+    note:"Confidence sits at 0.55, below most teams' auto-block threshold too. Correctly routed to a human rather than forced into allow or block." },
+];
+
+/* ============================================================
+   RAIL content. One entry per module, scroll-spy driven
+   ============================================================ */
+const RAIL = [
+{ tips:["A task \"needs a paragraph\" if a human would want to read the actual words back.","A task \"needs a decision\" if the very next line of code is an if-statement.","Most \"AI features\" in production are secretly the second kind wearing a chat costume."],
+  refs:["TypeSafe: Introducing System One Models and Jev, typesafe.ai/blog","Kahneman, Thinking, Fast and Slow: the System 1 / System 2 framing Jev borrows its name from"],
+  gloss:[["System One model","A model class built to return typed decisions instead of generated text."],["State","The block of context a Jev call evaluates: text, JSON, or both."]] },
+{ tips:["Sequential = each token waits on the last one. Parallel = every answer lands in the same pass.","This is *why* adding questions to a Jev call is nearly free, latency-wise.","70–500ms end-to-end is TypeSafe's own published range, not a guarantee for every workload."],
+  refs:["TypeSafe launch post, parallel sampler description","OpenRouter, typesafe/jev-1.13 model page, checked 2026-09-18"],
+  gloss:[["Parallel sampler","Jev's architecture: generates all typed outputs in one pass rather than token-by-token."],["Autoregressive","The standard LLM decoding strategy: each token conditioned on all prior tokens."]] },
+{ tips:["Choice, Score, Noul: that's the entire primitive set, no custom types.","Mixing all three in one call costs you nothing extra in round trips.","Criteria strings do the work a prompt's few-shot examples used to do; write them like you'd brief a new hire."],
+  refs:["docs.typesafe.ai/primitives: Choice, Score, Noul reference","docs.typesafe.ai/introduction: atomic questions, composed in code"],
+  gloss:[["Choice","Pick one option from a defined set; returns the pick plus a full probability distribution."],["Noul","A calibrated yes/no, returned as a 0–1 float rather than a boolean."],["Score","A rating against an ordered rubric you define, with a legend explaining each level."]] },
+{ tips:["RLCD sits next to RLHF (human preference) and RLVR (verifiable rewards), a third training objective, not a tweak to one of those two.","\"Calibrated\" has a specific meaning: of everything scored 70% confident, about 70% should be correct.","A model can be smart and miscalibrated at the same time; they're independent properties."],
+  refs:["TypeSafe launch post, RLCD vs. RLHF vs. RLVR comparison table","Kingy AI, TypeSafe Jev Review: independent take on the calibration claims"],
+  gloss:[["RLCD","Reinforcement Learning for Calibrated Decisions, TypeSafe's training method for Jev."],["Calibration","How well stated confidence tracks actual accuracy, measured in aggregate over many predictions."]] },
+{ tips:["\"0% hallucination\" and \"schema-guaranteed\" are the same fact stated two ways: TypeSafe says so itself.","A schema-valid wrong answer is still a wrong answer. Nothing about the schema catches that.","More state usually beats more retries for closing this particular gap."],
+  refs:["TypeSafe launch post: \"Our number is not empirical. Schema matching is guaranteed.\"","Kingy AI and The Register, independent coverage flagging the same distinction"],
+  gloss:[["Schema conformance","The guarantee that an answer matches your defined type. Mathematically enforced."],["Correctness","Whether the answer is actually right. Not guaranteed by schema conformance."]] },
+{ tips:["The retry loop isn't a bug in your code, it's the tax you pay for asking a text model to behave like a typed one.","Every retry is a brand-new generation: full latency and cost again, not a cheap re-check.","If the live call fails with a generic network error in Module 6, that's almost certainly the browser blocking it, not a bad key: OpenRouter's alpha Decisions endpoint has no published CORS policy yet, three days after launch."],
+  refs:["OpenRouter, Decisions API reference (alpha)","GitHub: itsmostafa/typesafe-mcp, community notes on the OpenRouter Decisions route"],
+  gloss:[["json_mode","Prompting a chat model to emit JSON matching a shape you describe in the prompt, not enforced by the model."],["Alpha endpoint","A published-but-unstable API surface. OpenRouter marks this one explicitly as alpha."]] },
+{ tips:["A threshold is a business decision, not a math fact; it should track the cost of a miss, not just look tidy.","Log where your threshold nearly misplaced a call. That's your tuning signal.","Different question types can carry different thresholds in the same call."],
+  refs:["Kingy AI: \"set conservative thresholds, preserve human escalation\""],
+  gloss:[["Confidence-gated branching","Routing on the confidence score itself, not just the top answer."]] },
+{ tips:["Cardinality up to 255 per TypeSafe's own documentation.","The two-stage pattern (score, then choose) trades one extra round trip for reliability at high option counts.","This is the same shape as TypeSafe's own Wikiracing demo: hundreds of outbound links, one typed choice."],
+  refs:["TypeSafe launch post, Wikiracing demo, cardinality notes"],
+  gloss:[["Cardinality","The number of options in a Choice question."],["Two-stage choice","Score every candidate independently first, then choose explicitly among the top-scoring few."]] },
+{ tips:["A guardrail call and the thing it's checking can run back-to-back at Jev's latency without the user noticing a delay.","Noul is usually the right primitive for \"is this safe,\" Choice for \"what do we do about it.\"","A low-confidence guardrail verdict should escalate, exactly like Module 7: don't force it into allow or block."],
+  refs:["TypeSafe launch post: \"Verify everything\" use case in the frontiers table"],
+  gloss:[["Guardrail","A checkpoint model gating another model's output before it reaches a person."]] },
+{ tips:["Keep arithmetic, counting, and date math in your code; TypeSafe's own limitations guidance says the same.","English is Jev's strongest language today; other languages are \"handled but not equally well\" per TypeSafe's own docs.","Re-check vendor pricing before you build on it: this space is weeks-stale, not years-stale."],
+  refs:["docs.typesafe.ai/models, language support and rate-limit notes","OpenRouter, typesafe/jev-1.13 and anthropic/claude-haiku-4.5 pricing, checked 2026-09-18"],
+  gloss:[["MTok / Btok","Million tokens / billion tokens, TypeSafe's own pricing shorthand."],["Zero data retention (ZDR)","An enterprise option TypeSafe documents for customers who need it."]] },
+];
+
+/* ============================================================
+   DOM state
+   ============================================================ */
+let liveKey = null;
+let liveMode = false;
+let sessionSpend = 0;
+const MODULES = Array.from(document.querySelectorAll(".module"));
+const NAV_TITLES = ["Paradigm shift","Sampling","Primitives","Calibration","The gap","The refactor","Escalation","On-call routing","Guardrail","Economics"];
+
+function $(sel, root){ return (root||document).querySelector(sel); }
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ---- Nav build ---- */
+function buildNav(){
+  const ul = $("#navList");
+  ul.innerHTML = MODULES.map((m,i) => `<li><a href="#${m.id}" data-idx="${i}"><span class="num">${String(i+1).padStart(2,"0")}</span>${esc(NAV_TITLES[i])}</a></li>`).join("");
+}
+
+/* ---- Scroll-spy: nav + rail + progress ---- */
+function setActiveModule(idx){
+  document.querySelectorAll(".navlist a").forEach(a => a.classList.toggle("active", Number(a.dataset.idx) === idx));
+  const railBody = $("#railBody");
+  railBody.classList.add("fading");
+  setTimeout(() => {
+    const r = RAIL[idx];
+    railBody.innerHTML = `
+      <div class="rail-section"><div class="rail-h">Tips</div><ul class="rail-tips">${r.tips.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
+      <div class="rail-section"><div class="rail-h">References</div><ul class="rail-refs">${r.refs.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
+      <div class="rail-section"><div class="rail-h">Glossary</div><dl class="rail-gloss">${r.gloss.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl></div>
+    `;
+    railBody.classList.remove("fading");
+  }, 140);
+  $("#progressFill").style.transform = `scaleX(${(idx+1)/MODULES.length})`;
+}
+
+function initScrollSpy(){
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("revealed");
+        setActiveModule(Number(e.target.dataset.modidx));
+      }
+    });
+  }, { rootMargin: "-20% 0px -60% 0px", threshold: 0.01 });
+  MODULES.forEach(m => io.observe(m));
+}
+
+/* ---- Theme / palette ---- */
+function applyTheme(pal, mode){
+  document.documentElement.setAttribute("data-palette", pal);
+  document.documentElement.setAttribute("data-theme", mode);
+  document.querySelectorAll(".swatch").forEach(s => s.classList.toggle("active", s.dataset.p === pal));
+  $("#modeBtn").textContent = mode === "dark" ? "Dark" : "Light";
+  try { localStorage.setItem("fg-palette", pal); localStorage.setItem("fg-mode", mode); } catch(e){}
+  renderCalibChart(currentCalibDataset);
+}
+function initTheme(){
+  let pal = "tide", mode = "dark";
+  try { pal = localStorage.getItem("fg-palette") || pal; mode = localStorage.getItem("fg-mode") || mode; } catch(e){}
+  applyTheme(pal, mode);
+  document.querySelectorAll(".swatch").forEach(s => s.addEventListener("click", () => applyTheme(s.dataset.p, document.documentElement.getAttribute("data-theme"))));
+  $("#modeBtn").addEventListener("click", () => applyTheme(document.documentElement.getAttribute("data-palette"), document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+}
+
+/* ---- Module 1: sort lab ---- */
+const SORT_TASKS = [
+  { text:"Extract the shipping address from this email", bin:"decision", why:"A structured extraction is a Choice/field-fill job: the code needs the string, not prose about it." },
+  { text:"Write a apology email to a delayed customer", bin:"chat", why:"The output IS the text. A human reads these words as written." },
+  { text:"Is this transaction likely fraudulent?", bin:"decision", why:"Yes/no with a confidence you'll branch on: a Noul, not a paragraph." },
+  { text:"Summarize this support thread for the next agent", bin:"chat", why:"A summary is prose meant to be read, not parsed." },
+  { text:"Which of these 12 categories does this expense fall into?", bin:"decision", why:"A closed set, one pick, Choice, textbook case." },
+  { text:"Explain why the deploy failed, in plain English", bin:"chat", why:"Explanation for a human is exactly what generation is for." },
+  { text:"Rate this code review comment's severity, 0-3", bin:"decision", why:"An ordered rubric: Score, with a legend per level." },
+  { text:"Draft release notes from this changelog", bin:"chat", why:"Again, the words are the deliverable; no downstream branch reads them as data." },
+];
+function buildSortLab(){
+  const grid = $("#sortGrid");
+  grid.innerHTML = SORT_TASKS.map((t,i) => `<button class="signal-card" data-i="${i}" data-state="unset">${esc(t.text)}</button>`).join("");
+  grid.querySelectorAll(".signal-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const i = Number(card.dataset.i); const t = SORT_TASKS[i];
+      const state = card.dataset.state;
+      if (state === "unset") {
+        card.dataset.state = "chat";
+        card.classList.add("chosen");
+        card.innerHTML = `<strong style="color:var(--accent); font-size:.72rem; font-family:var(--font-mono); text-transform:uppercase;">Your guess: chat →</strong><br>${esc(t.text)}`;
+      } else if (state === "chat") {
+        card.dataset.state = "decision";
+        card.innerHTML = `<strong style="color:var(--accent); font-size:.72rem; font-family:var(--font-mono); text-transform:uppercase;">Your guess: decision →</strong><br>${esc(t.text)}`;
+      } else {
+        card.dataset.state = "revealed";
+        const correct = t.bin;
+        card.innerHTML = `<strong style="color:var(--green); font-size:.72rem; font-family:var(--font-mono); text-transform:uppercase;">Actually: ${correct} →</strong><br>${esc(t.text)}<br><span style="color:var(--ink-faint); font-size:.78rem;">${esc(t.why)}</span>`;
+      }
+    });
+  });
+}
+
+/* ---- Module 2: race lab ---- */
+function runRace(){
+  const oldPanel = $("#raceOld"), newPanel = $("#raceNew");
+  const oldTimeEl = $("#raceOldTime"), newTimeEl = $("#raceNewTime");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const target = '{"action":"interrupt_now","urgency":3,"needs_human_eventually":true}';
+  oldPanel.textContent = ""; newPanel.textContent = "";
+  oldTimeEl.textContent = "Running…"; newTimeEl.textContent = "Running…";
+  if (reduced) {
+    oldPanel.textContent = target; newPanel.textContent = target;
+    oldTimeEl.textContent = "~2400ms (illustrative; TypeSafe reports 3-329s for full LLM calls)";
+    newTimeEl.textContent = "~180ms (TypeSafe's published 70-500ms range)";
+    return;
+  }
+  let i = 0;
+  const iv = setInterval(() => {
+    oldPanel.textContent = target.slice(0, i+1);
+    i++;
+    if (i >= target.length) { clearInterval(iv); oldTimeEl.textContent = "~2400ms (illustrative token-by-token pace)"; }
+  }, 22);
+  setTimeout(() => {
+    newPanel.textContent = target;
+    newTimeEl.textContent = "~180ms (TypeSafe's published 70-500ms range)";
+  }, 190);
+}
+
+/* ---- Module 3: schema lab ---- */
+function buildSchemaLab(){
+  $("#schemaPanel").textContent = JSON.stringify(INTERRUPT_QUESTIONS, null, 2);
+  const grid = $("#schemaSignalGrid");
+  grid.innerHTML = DEMO_SIGNALS.slice(0,6).map(s => `<button class="signal-card" data-id="${s.id}">${esc(s.label)}</button>`).join("");
+  grid.querySelectorAll(".signal-card").forEach(card => {
+    card.addEventListener("click", () => {
+      grid.querySelectorAll(".signal-card").forEach(c => c.classList.remove("chosen"));
+      card.classList.add("chosen");
+      const s = DEMO_SIGNALS.find(x => x.id === card.dataset.id);
+      const out = $("#schemaResult");
+      out.style.display = "block";
+      out.textContent = JSON.stringify(s.answer, null, 2);
+    });
+  });
+}
+
+/* ---- Module 4: calibration chart ---- */
+let currentCalibDataset = "llm";
+function renderCalibChart(which){
+  currentCalibDataset = which;
+  const samples = which === "llm" ? ILLUSTRATIVE_LLM_SELFREPORT : ILLUSTRATIVE_JEV_CALIBRATED;
+  const buckets = reliabilityBuckets(samples);
+  const svg = $("#calibChart");
+  const W=320,H=220,pad=32;
+  const x = v => pad + v*(W-2*pad);
+  const y = v => H-pad - v*(H-2*pad);
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue(which === "llm" ? "--red" : "--green").trim();
+  const borderColor = getComputedStyle(document.documentElement).getPropertyValue("--border").trim();
+  const inkFaint = getComputedStyle(document.documentElement).getPropertyValue("--ink-faint").trim();
+  let dots = "", axisLabels = "";
+  buckets.forEach(b => {
+    if (b.n === 0) return;
+    const cx = x(b.avgConfidence), cy = y(b.accuracy);
+    dots += `<circle cx="${cx}" cy="${cy}" r="${4+b.n}" fill="${accentColor}" fill-opacity="0.75"/>`;
+  });
+  [0,0.25,0.5,0.75,1].forEach(v => {
+    axisLabels += `<text x="${x(v)}" y="${H-pad+16}" font-size="9" fill="${inkFaint}" text-anchor="middle" font-family="JetBrains Mono">${v}</text>`;
+    axisLabels += `<text x="${pad-8}" y="${y(v)+3}" font-size="9" fill="${inkFaint}" text-anchor="end" font-family="JetBrains Mono">${v}</text>`;
+  });
+  svg.innerHTML = `
+    <line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="${borderColor}"/>
+    <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-pad}" stroke="${borderColor}"/>
+    <line x1="${x(0)}" y1="${y(0)}" x2="${x(1)}" y2="${y(1)}" stroke="${borderColor}" stroke-dasharray="4 3"/>
+    ${axisLabels}
+    ${dots}
+    <text x="${W/2}" y="${H-4}" font-size="9" fill="${inkFaint}" text-anchor="middle" font-family="JetBrains Mono">stated confidence →</text>
+  `;
+  const populated = buckets.filter(b => b.n>0);
+  const meanGap = populated.reduce((a,b)=>a+Math.abs(b.accuracy-b.avgConfidence),0)/populated.length;
+  $("#calibGap").innerHTML = `Illustrative dataset, not measured production data. Dots on the dashed diagonal are perfectly calibrated. Mean gap for this dataset: <span class="mono">${meanGap.toFixed(2)}</span>.`;
+}
+
+/* ---- Module 5: gap-hunt lab ---- */
+const GAP_CANDIDATES = ["sig-01","sig-08","sig-11"];
+function buildGapLab(){
+  const grid = $("#gapGrid");
+  grid.innerHTML = GAP_CANDIDATES.map(id => {
+    const s = DEMO_SIGNALS.find(x=>x.id===id);
+    return `<button class="signal-card" data-id="${id}"><strong>${esc(s.label)}</strong><br><span style="color:var(--ink-faint); font-size:.78rem;">${esc(s.state.slice(0,70))}…</span></button>`;
+  }).join("");
+  grid.querySelectorAll(".signal-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const s = DEMO_SIGNALS.find(x=>x.id===card.dataset.id);
+      const out = $("#gapReveal");
+      out.style.display = "block";
+      if (s.id === "sig-08") {
+        out.innerHTML = `<span style="color:var(--red);">This is the one.</span>\n\n${JSON.stringify(s.answer,null,2)}\n\n${esc(s.note)}`;
+      } else {
+        out.innerHTML = `Not this one. This call looks right and, as far as the state given to it goes, is well-supported.\n\n${JSON.stringify(s.answer,null,2)}`;
+      }
+    });
+  });
+}
+
+/* ---- Module 6: old way retry demo ---- */
+function renderOldWayRun(signalId){
+  const result = runOldWayWithRetries(signalId, 3);
+  const log = $("#oldWayLog");
+  log.innerHTML = result.log.map(l => {
+    const status = l.ok ? `<span style="color:var(--green);">PASS</span>` : `<span style="color:var(--red);">FAIL (${l.stage}): ${esc(l.error)}</span>`;
+    return `attempt ${l.attempt}: ${status}\n  raw: ${esc(l.raw.length > 90 ? l.raw.slice(0,90)+"…" : l.raw)}`;
+  }).join("\n\n") + `\n\n${result.succeeded ? `Recovered after ${result.attemptsUsed} attempts: ${result.attemptsUsed}x the latency and cost of one call.` : `Exhausted ${result.attemptsUsed} attempts with no valid answer. In production this either throws or silently falls back to a default.`}`;
+}
+
+/* ---- Module 7: escalation lab ---- */
+function renderEscalation(){
+  const threshold = Number($("#escThreshold").value) / 100;
+  $("#escThreshVal").textContent = threshold.toFixed(2);
+  const result = simulateEscalation(DEMO_SIGNALS, threshold);
+  $("#escAuto").textContent = result.autoResolved;
+  $("#escEsc").textContent = result.escalated;
+  $("#escTable").innerHTML = result.rows
+    .sort((a,b) => a.confidence - b.confidence)
+    .map(r => `<tr><td>${esc(r.label)}</td><td class="mono">${r.confidence.toFixed(2)}</td><td>${r.escalate ? `<span class="pill" style="color:var(--clay); border-color:var(--clay);">escalate</span>` : `<span class="pill" style="color:var(--green); border-color:var(--green);">auto</span>`}</td></tr>`)
+    .join("");
+}
+
+/* ---- Module 8: on-call routing lab ---- */
+function buildOncallLab(){
+  $("#oncallAlertText").textContent = ONCALL_DEMO_ALERT.state;
+  $("#oncallStage1Btn").addEventListener("click", () => {
+    const scored = ONCALL_TEAMS.map(team => {
+      const known = ONCALL_DEMO_ALERT.stage1Scores.find(s => s.team === team);
+      return known || { team, score: Math.random()*0.35 };
+    });
+    const top5 = topKByScore(scored, 5);
+    $("#oncallBars").innerHTML = top5.map(t => `
+      <div class="bar-row">
+        <span class="mono">${esc(t.team)}</span>
+        <div class="bar-track"><div class="bar-fill" style="transform:scaleX(${t.score})"></div></div>
+        <span class="mono">${t.score.toFixed(2)}</span>
+      </div>`).join("");
+    $("#oncallStage2Btn").style.display = "inline-block";
+  });
+  $("#oncallStage2Btn").addEventListener("click", () => {
+    const out = $("#oncallResult");
+    out.style.display = "block";
+    out.textContent = JSON.stringify(ONCALL_DEMO_ALERT.stage2Choice, null, 2);
+  });
+}
+
+/* ---- Module 9: guardrail lab ---- */
+function buildGuardLab(){
+  const grid = $("#guardGrid");
+  grid.innerHTML = GUARDRAIL_SAMPLES.map(g => `<button class="signal-card" data-id="${g.id}">"${esc(g.draft)}"</button>`).join("");
+  grid.querySelectorAll(".signal-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const g = GUARDRAIL_SAMPLES.find(x => x.id === card.dataset.id);
+      const out = $("#guardReveal");
+      out.style.display = "block";
+      out.innerHTML = `<span class="pill action-${g.answer.action.choice}">${g.answer.action.choice}</span>  safe: ${g.answer.safe.noul.toFixed(2)}  confidence: ${g.answer.action.confidence.toFixed(2)}\n\n${JSON.stringify(g.answer,null,2)}${g.note ? `\n\n${esc(g.note)}` : ""}`;
+    });
+  });
+}
+
+/* ---- Module 10: cost calculator + audit + ship gate ---- */
+function renderCostCalc(){
+  const perDay = Number($("#costVolume").value);
+  $("#costVolumeVal").textContent = perDay.toLocaleString();
+  const cc = costComparison();
+  $("#costOld").textContent = "$" + (cc.oldWayCostPerCall * perDay).toFixed(2);
+  $("#costNew").textContent = "$" + (cc.jevWayCostPerCall * perDay).toFixed(2);
+}
+const AUDIT_ITEMS = [
+  { text:"\"Is this refund within the 30-day window?\"", verdict:"Code first", why:"Date math. Compute the boolean in code, then ask Jev only the remaining judgment call, if any." },
+  { text:"\"Does this message express urgency?\"", verdict:"Model", why:"A semantic read of tone and content, no arithmetic hiding in it." },
+  { text:"\"How many failed logins in the last hour?\"", verdict:"Code first", why:"A count. Compute it, then hand the number to Jev as state if a judgment still depends on it." },
+  { text:"\"Which of these 4 teams should own this alert?\"", verdict:"Model", why:"A closed-set judgment call, textbook Choice." },
+  { text:"\"Is this account's usage more than 2 standard deviations from its baseline?\"", verdict:"Code first", why:"Statistics. Compute the flag, then ask Jev to weigh it alongside other context if needed." },
+];
+function buildAuditList(){
+  $("#auditList").innerHTML = AUDIT_ITEMS.map((a,i) => `<li data-i="${i}"><span class="box"></span><span class="txt">${esc(a.text)}</span></li>`).join("");
+  document.querySelectorAll("#auditList li").forEach(li => {
+    li.addEventListener("click", () => {
+      if (li.classList.contains("done")) return;
+      li.classList.add("done");
+      const a = AUDIT_ITEMS[Number(li.dataset.i)];
+      li.querySelector(".txt").innerHTML = `${esc(a.text)}: <strong style="color:var(--accent);">${esc(a.verdict)}</strong>. ${esc(a.why)}`;
+    });
+  });
+}
+const SHIP_GATE = [
+  "Every question in your schema is atomic: one judgment, not several bundled together",
+  "You've picked a confidence threshold deliberately, not left it at whatever the demo used",
+  "Arithmetic, counting, and date math happen in your code, not inside a question's instructions",
+  "You've tested at least one deliberately ambiguous case, not just the easy ones",
+  "You know what happens downstream when a signal gets escalated, not just when it auto-resolves",
+];
+function buildShipGate(){
+  $("#shipGate").innerHTML = SHIP_GATE.map((s,i) => `<li data-i="${i}"><span class="box"></span><span class="txt">${esc(s)}</span></li>`).join("");
+  document.querySelectorAll("#shipGate li").forEach(li => li.addEventListener("click", () => li.classList.toggle("done")));
+}
+
+/* ---- Connect panel + live calls ---- */
+function updateConnectUI(){
+  const panel = $("#connectPanel");
+  panel.classList.toggle("live", liveMode);
+  $("#connectTitle").textContent = liveMode ? "Live" : "Demo mode";
+  $("#connectBtn").style.display = liveMode ? "none" : "inline-block";
+  $("#disconnectBtn").style.display = liveMode ? "inline-block" : "none";
+  $("#liveCompareBtn").disabled = !liveMode;
+  $("#liveCompareBtn").textContent = liveMode ? "Run live comparison" : "Connect a key to run live";
+  $("#spendAmt").textContent = "$" + sessionSpend.toFixed(4);
+}
+function connect(){
+  const val = $("#orKey").value.trim();
+  if (!val) { $("#connectStatus").textContent = "Paste an OpenRouter API key first."; return; }
+  liveKey = val;
+  liveMode = true;
+  $("#orKey").value = "";
+  $("#connectStatus").textContent = "Connected. Key held in memory for this tab only.";
+  updateConnectUI();
+}
+function disconnect(){
+  liveKey = null; liveMode = false;
+  $("#connectStatus").textContent = "Disconnected. Every lab still works fully in demo mode.";
+  updateConnectUI();
+}
+
+async function callJevLive(stateText){
+  const endpoint = $("#jevEndpoint").value.trim();
+  const model = $("#jevModel").value.trim();
+  const t0 = performance.now();
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${liveKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model, state: stateText, questions: INTERRUPT_QUESTIONS }),
+    });
+    const ms = performance.now() - t0;
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => "");
+      if (res.status === 401) return { ok:false, message:`401: key rejected. Check it's a valid OpenRouter key with credit.`, ms };
+      if (res.status === 429) return { ok:false, message:`429: rate limited by OpenRouter. Wait a moment and retry.`, ms };
+      return { ok:false, message:`${res.status}: ${bodyText.slice(0,200) || "no body returned"}`, ms };
+    }
+    const json = await res.json();
+    if (json.usage) {
+      const cost = json.usage.cost != null ? json.usage.cost : estimateJevCost(json.usage.input_tokens || 0, PRICING.jev);
+      sessionSpend += cost;
+      updateConnectUI();
+    }
+    return { ok:true, json, ms };
+  } catch (e) {
+    const ms = performance.now() - t0;
+    return { ok:false, message:`Network error (${e.message}). This alpha endpoint has no published CORS policy, and this is most likely the browser blocking the direct call, not your key. See the Module 6 rail for the workaround.`, ms };
+  }
+}
+
+async function callOldWayLive(stateText){
+  const model = $("#llmModel").value.trim();
+  const prompt = `Classify this incoming signal. Respond with ONLY a JSON object matching this exact shape, no other text:\n{"action": "interrupt_now" | "batch" | "suppress", "urgency": number from 0 to 3, "needs_human_eventually": boolean}\n\nSignal: ${stateText}`;
+  const t0 = performance.now();
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${liveKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model, messages: [{ role:"user", content: prompt }] }),
+    });
+    const ms = performance.now() - t0;
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => "");
+      return { ok:false, message:`${res.status}: ${bodyText.slice(0,200) || "no body returned"}`, ms };
+    }
+    const json = await res.json();
+    const raw = json.choices && json.choices[0] && json.choices[0].message ? json.choices[0].message.content : "";
+    const validated = runOldWayAttempt(raw, OLD_WAY_SIGNAL_SHAPE);
+    if (json.usage) {
+      const cost = (json.usage.prompt_tokens/1e6)*PRICING.haiku45.inPerM + (json.usage.completion_tokens/1e6)*PRICING.haiku45.outPerM;
+      sessionSpend += cost;
+      updateConnectUI();
+    }
+    return { ok:true, raw, validated, ms, usage: json.usage };
+  } catch (e) {
+    const ms = performance.now() - t0;
+    return { ok:false, message:`Network error (${e.message}).`, ms };
+  }
+}
+
+function populateLiveSignalSelect(){
+  const sel = $("#liveSignalSelect");
+  sel.innerHTML = DEMO_SIGNALS.map(s => `<option value="${s.id}">${esc(s.label)}</option>`).join("");
+}
+
+async function runLiveCompare(){
+  const sel = $("#liveSignalSelect");
+  const s = DEMO_SIGNALS.find(x => x.id === sel.value);
+  const oldOut = $("#liveOldOut"), newOut = $("#liveNewOut");
+  oldOut.textContent = "Calling…"; newOut.textContent = "Calling…";
+  const [oldRes, newRes] = await Promise.all([callOldWayLive(s.state), callJevLive(s.state)]);
+
+  if (oldRes.ok) {
+    oldOut.textContent = `${oldRes.ms.toFixed(0)}ms measured\n\nraw response:\n${oldRes.raw}\n\nvalidated: ${oldRes.validated.ok ? "PASS, matched schema" : `FAIL (${oldRes.validated.stage}): ${oldRes.validated.error}`}${oldRes.usage ? `\n\ntokens: ${oldRes.usage.prompt_tokens} in / ${oldRes.usage.completion_tokens} out` : ""}`;
+  } else {
+    oldOut.textContent = `Failed: ${oldRes.message}`;
+  }
+
+  if (newRes.ok) {
+    newOut.textContent = `${newRes.ms.toFixed(0)}ms measured\n\n${JSON.stringify(newRes.json.answers, null, 2)}${newRes.json.usage ? `\n\ntokens: ${newRes.json.usage.input_tokens} in / ${newRes.json.usage.output_tokens} out` : ""}`;
+  } else {
+    newOut.textContent = `Live call unavailable: ${newRes.message}\n\nDemo-mode answer for this signal instead:\n${JSON.stringify(s.answer, null, 2)}\n\n(TypeSafe's published range: 70-500ms end-to-end)`;
+  }
+}
+
+/* ============================================================
+   Wire everything up
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  buildNav();
+  initTheme();
+  buildSortLab();
+  buildSchemaLab();
+  buildGapLab();
+  buildOncallLab();
+  buildGuardLab();
+  buildAuditList();
+  buildShipGate();
+  populateLiveSignalSelect();
+  renderCalibChart("llm");
+  renderEscalation();
+  renderCostCalc();
+  updateConnectUI();
+  initScrollSpy();
+
+  $("#raceBtn").addEventListener("click", runRace);
+  $("#calibLLM").addEventListener("click", () => renderCalibChart("llm"));
+  $("#calibJev").addEventListener("click", () => renderCalibChart("jev"));
+  $("#oldWayRun4").addEventListener("click", () => renderOldWayRun("sig-04"));
+  $("#oldWayRun8").addEventListener("click", () => renderOldWayRun("sig-08"));
+  $("#escThreshold").addEventListener("input", renderEscalation);
+  $("#costVolume").addEventListener("input", renderCostCalc);
+  $("#connectBtn").addEventListener("click", connect);
+  $("#disconnectBtn").addEventListener("click", disconnect);
+  $("#orKey").addEventListener("keydown", (e) => { if (e.key === "Enter") connect(); });
+  $("#liveCompareBtn").addEventListener("click", runLiveCompare);
+});
+</script>
+</body>
+</html>
