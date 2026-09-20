@@ -4,7 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MCP 2026-07-28: The Stateless Spec, Hands-On</title>
-<meta name="description" content="An interactive workshop on the Model Context Protocol 2026-07-28 specification: stateless core, MRTR, Tasks, MCP Apps, and auth hardening, built with real Python and C# SDK code.">
+<meta name="description" content="An interactive workshop on the Model Context Protocol 2026-07-28 specification: stateless core, MRTR, Tasks, MCP Apps, and auth hardening, built with real Python and C# SDK code. Independent project by Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/mcp-07-28-workshop/">
+<!-- Open Graph -->
+<meta property="og:title" content="MCP 2026-07-28: The Stateless Spec, Hands-On">
+<meta property="og:description" content="An interactive workshop on the Model Context Protocol 2026-07-28 specification: stateless core, MRTR, Tasks, MCP Apps, and auth hardening.">
+<meta property="og:url" content="https://www.kpphillips.com/ai-workshops/mcp-07-28-workshop/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MCP 2026-07-28: The Stateless Spec, Hands-On">
+<meta name="twitter:description" content="An interactive workshop on the Model Context Protocol 2026-07-28 specification: stateless core, MRTR, Tasks, MCP Apps, and auth hardening.">
+<meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "MCP 2026-07-28: The Stateless Spec, Hands-On",
+  "description": "An interactive workshop on the Model Context Protocol 2026-07-28 specification: stateless core, MRTR, Tasks, MCP Apps, and auth hardening.",
+  "url": "https://www.kpphillips.com/ai-workshops/mcp-07-28-workshop/",
+  "author": {
+    "@type": "Person",
+    "name": "Kevin Phillips"
+  },
+  "educationalLevel": "Intermediate",
+  "learningResourceType": "Interactive workshop"
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -963,7 +992,7 @@ GET /callback?code=abc123&state=xyz&iss=https://auth.legit-mcp.com
     </div>
     <div class="field">
       <label for="orKey">OpenRouter API key</label>
-      <input type="text" id="orKey" placeholder="sk-or-v1-··········" autocomplete="off">
+      <input type="password" id="orKey" placeholder="sk-or-v1-··········" autocomplete="off">
     </div>
     <div class="btn-row">
       <button class="btn primary small" id="connectBtn">Connect</button>
@@ -1323,6 +1352,9 @@ function highlightAll(){
 /* ============================================================
    CONNECT PANEL — module 11 capstone only. Key lives in memory only.
    ============================================================ */
+function isAllowedEndpoint(url){
+  try{ const u = new URL(url); return u.hostname === 'openrouter.ai'; }catch(e){ return false; }
+}
 let liveKey = null; // module-scoped, never persisted
 let sessionSpend = 0;
 const connectPanel = document.getElementById('connectPanel');
@@ -1868,6 +1900,10 @@ Only the tool-call arguments above ever reach the model — the bar chart's HTML
   async function runLive(){
     const model = document.getElementById('orModel').value.trim() || 'anthropic/claude-haiku-4.5';
     const endpoint = document.getElementById('orEndpoint').value.trim() || 'https://openrouter.ai/api/v1/chat/completions';
+    if(!isAllowedEndpoint(endpoint)){
+      document.getElementById('m11out').innerHTML = '<span class="bad">Endpoint must be on openrouter.ai. Other hosts are blocked to protect your API key.</span>';
+      return;
+    }
     document.getElementById('m11badgetext').textContent = 'calling ' + model + '…';
     document.getElementById('m11badge').className = 'badge live';
     let messages = [ {role:"system", content:SYSTEM}, {role:"user", content:USER} ];
