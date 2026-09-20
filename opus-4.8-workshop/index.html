@@ -4,7 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OPUS 4.8 // FIELD WORKSHOP</title>
-<!-- NOTE: This single line is the only third-party request the page makes besides the Anthropic API.
+<meta name="description" content="A practical, interactive tour of Claude Opus 4.8 and the workflows that make a frontier model useful. Learn effort levels, honesty probes, long-horizon planning, cost routing, and prompt engineering. Independent project by Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/opus-4.8-workshop/">
+<!-- Open Graph -->
+<meta property="og:title" content="Opus 4.8 Field Workshop">
+<meta property="og:description" content="A practical, interactive tour of Claude Opus 4.8 and the workflows that make a frontier model useful. Learn effort levels, honesty probes, long-horizon planning, and more.">
+<meta property="og:url" content="https://www.kpphillips.com/ai-workshops/opus-4.8-workshop/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Opus 4.8 Field Workshop">
+<meta name="twitter:description" content="A practical, interactive tour of Claude Opus 4.8 and the workflows that make a frontier model useful.">
+<meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Opus 4.8 Field Workshop",
+  "description": "A practical, interactive tour of Claude Opus 4.8 and the workflows that make a frontier model useful.",
+  "url": "https://www.kpphillips.com/ai-workshops/opus-4.8-workshop/",
+  "author": {
+    "@type": "Person",
+    "name": "Kevin Phillips"
+  },
+  "educationalLevel": "Intermediate",
+  "learningResourceType": "Interactive workshop"
+}
+</script>
+<!-- NOTE: This single line is the only third-party request the page makes besides OpenRouter.
      Delete it to run fully offline (the UI will fall back to monospace/sans-serif). -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -350,8 +380,8 @@
 
   <!-- API KEY -->
   <div class="api-key-section">
-    <label>Anthropic API Key</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...  (kept in memory only, never saved)" autocomplete="off" spellcheck="false">
+    <label>OpenRouter API Key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-or-v1-...  (kept in memory only, never saved)" autocomplete="off" spellcheck="false">
     <button class="btn btn-secondary" onclick="saveKey()">Authenticate</button>
     <span class="key-status" id="keyStatus" style="display:none"></span>
   </div>
@@ -465,8 +495,8 @@
       <div class="card-label">// HOW TO GET A KEY &amp; START</div>
       <ol class="step-list">
         <li>Go to <strong>console.anthropic.com</strong>, sign in, and open <strong>API Keys</strong>. Create a new key. It looks like <code>sk-ant-api03-...</code></li>
-        <li>Make sure your account has a little credit on it. The labs are cheap (typically a few cents each), but they bill your account in real money.</li>
-        <li>Paste the key into the field at the top of this page and click <strong>Authenticate</strong>. It's held in memory only — nothing is written to disk, cookies, or any server but Anthropic's.</li>
+        <li>Make sure your OpenRouter account has a little credit. The labs are cheap (typically a few cents each), but they bill real money.</li>
+        <li>Paste the key into the field at the top of this page and click <strong>Authenticate</strong>. It's held in memory only — nothing is written to disk, cookies, or any server but OpenRouter's.</li>
         <li>Work through the labs <strong>Effort → Honesty → Long-Horizon → Cost Routing → Build</strong>, then generate your Debrief.</li>
       </ol>
       <div class="warn-box" style="margin-top:16px;margin-bottom:0">
@@ -480,16 +510,16 @@
 
       <ul style="font-size:12.5px;line-height:1.8;color:var(--text-dim);margin:14px 0 14px 18px">
         <li><strong style="color:var(--text-bright)">It's a single, plain HTML file with no build step and no hidden code.</strong> You can open it in any text editor and read every line. Nothing is minified or obfuscated.</li>
-        <li><strong style="color:var(--text-bright)">It makes exactly two kinds of outbound connections:</strong> (1) the labs send your prompts and key to <code>api.anthropic.com</code> over HTTPS — the official endpoint, nowhere else; (2) the page loads display fonts from <code>fonts.googleapis.com</code> (Google sees that request). There are no analytics, no trackers, no other servers.</li>
+        <li><strong style="color:var(--text-bright)">It makes exactly two kinds of outbound connections:</strong> (1) the labs send your prompts and key to <code>openrouter.ai</code> over HTTPS, which routes to Claude; (2) the page loads display fonts from <code>fonts.googleapis.com</code> (Google sees that request). There are no analytics, no trackers, no other servers.</li>
         <li><strong style="color:var(--text-bright)">Your key is never stored.</strong> It lives in a single JavaScript variable while the tab is open. It is not saved to localStorage, cookies, or disk. Close the tab and it's gone — you'll re-enter it next time. That's deliberate.</li>
-        <li><strong style="color:var(--text-bright)">Your key is only ever sent to Anthropic.</strong> Search the file for <code>fetch(</code> and you'll find the only destination is the Anthropic API.</li>
+        <li><strong style="color:var(--text-bright)">Your key is only ever sent to OpenRouter.</strong> Search the file for <code>fetch(</code> and you'll find the only destination is the OpenRouter API.</li>
       </ul>
 
       <p style="font-size:13px;line-height:1.8;color:var(--text);margin-top:8px"><strong style="color:var(--accent3)">The real risks to know about:</strong></p>
       <ul style="font-size:12.5px;line-height:1.8;color:var(--text-dim);margin:10px 0 0 18px">
-        <li><strong style="color:var(--text-bright)">Trust the source.</strong> Any browser page that you give an API key to <em>could</em>, if maliciously written, send that key elsewhere. This file doesn't — but if you got a copy from somewhere untrusted, open it and confirm the only <code>fetch</code> target is <code>api.anthropic.com</code> before pasting a key. That habit applies to every BYO-key tool, not just this one.</li>
-        <li><strong style="color:var(--text-bright)">It spends real money.</strong> Each run bills your account. Use a key with a spending limit, or one you can rotate/revoke afterward in the console.</li>
-        <li><strong style="color:var(--text-bright)">Don't host it publicly with your key.</strong> This is a local prototyping tool. The browser-access header it uses is meant for experimentation, not a public website where others could rack up charges on your key.</li>
+        <li><strong style="color:var(--text-bright)">Trust the source.</strong> Any browser page that you give an API key to <em>could</em>, if maliciously written, send that key elsewhere. This file doesn't — but if you got a copy from somewhere untrusted, open it and confirm the only <code>fetch</code> target is <code>openrouter.ai</code> before pasting a key. That habit applies to every BYO-key tool, not just this one.</li>
+        <li><strong style="color:var(--text-bright)">It spends real money.</strong> Each run bills your OpenRouter account. Set a spend limit on your key at openrouter.ai/keys before connecting.</li>
+        <li><strong style="color:var(--text-bright)">Don't host it publicly with your key.</strong> This is a local prototyping tool, not a public website where others could rack up charges on your key.</li>
       </ul>
       <p class="small-note">TL;DR — safe to run locally with your own (ideally limited/rotatable) key. Read the source if you didn't get it from someone you trust. Revoke the key when you're done if you're cautious.</p>
     </div>
@@ -512,7 +542,7 @@ resp = client.messages.<span class="f">create</span>(
 
 <span class="k">print</span>(resp.content[<span class="s">0</span>].text)
 <span class="k">print</span>(resp.usage)  <span class="c"># input_tokens, output_tokens (output already includes any reasoning)</span></code></pre>
-          <p class="ref-note">In the browser this same request goes to <code>https://api.anthropic.com/v1/messages</code> with your key in the <code>x-api-key</code> header. The SDK just wraps that for you.</p>
+          <p class="ref-note">In the browser this workshop uses OpenRouter at <code>https://openrouter.ai/api/v1/chat/completions</code> to route to Claude models. The SDK shown above uses the native API directly.</p>
         </div>
       </div>
     </div>
@@ -1054,6 +1084,12 @@ client = anthropic.<span class="f">AsyncAnthropic</span>()
     </div>
   </div>
 
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid var(--border);margin-top:48px;padding:24px 0;font-size:12px;color:var(--text-dim);line-height:1.7">
+    <p>Independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, OpenRouter, or OpenAI. "Claude" and "Opus" are marks of Anthropic; this workshop discusses their publicly announced product.</p>
+    <p style="margin-top:12px">Live labs make paid API calls with your key through OpenRouter. Set a spend limit on your key before connecting. Review the <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener" style="color:var(--accent)">Anthropic Usage Policy</a> and <a href="https://openrouter.ai/terms" target="_blank" rel="noopener" style="color:var(--accent)">OpenRouter terms</a>. The key is held in memory for this tab only and is never written to storage.</p>
+  </footer>
+
 </div>
 
 <script>
@@ -1192,58 +1228,55 @@ function copyRaw(bodyId){
 function saveKey(){
   const val = document.getElementById('apiKeyInput').value.trim();
   const statusEl = document.getElementById('keyStatus');
-  if(!val.startsWith('sk-ant-')){
-    statusEl.textContent = '✗ INVALID FORMAT'; statusEl.className='key-status bad'; statusEl.style.display='inline-block'; return;
+  if(!val.startsWith('sk-or-')){
+    statusEl.textContent = '✗ INVALID FORMAT (need sk-or-...)'; statusEl.className='key-status bad'; statusEl.style.display='inline-block'; return;
   }
   apiKey = val;
+  document.getElementById('apiKeyInput').value = '';
   statusEl.textContent = '✓ AUTHENTICATED'; statusEl.className='key-status ok'; statusEl.style.display='inline-block';
 }
 function getKey(){
-  if(!apiKey){ const v=document.getElementById('apiKeyInput').value.trim(); if(v.startsWith('sk-ant-')) apiKey=v; }
+  if(!apiKey){ const v=document.getElementById('apiKeyInput').value.trim(); if(v.startsWith('sk-or-')) apiKey=v; }
   return apiKey;
 }
 function requireKey(){
-  if(!getKey()){ alert('Enter your Anthropic API key at the top and click Authenticate first.'); return false; }
+  if(!getKey()){ alert('Enter your OpenRouter API key at the top and click Authenticate first.'); return false; }
   return true;
 }
+const OR_MODEL_MAP = {
+  'claude-opus-4-8': 'anthropic/claude-opus-4-8',
+  'claude-sonnet-4-5': 'anthropic/claude-sonnet-4-5',
+  'claude-haiku-4-5': 'anthropic/claude-haiku-4-5'
+};
 async function callClaude(model, system, userPrompt, maxTokens, opts={}){
   const key = getKey();
   if(!key) throw new Error('No API key.');
-  const buildBody = (extras)=>{
-    const b = { model, max_tokens:maxTokens, messages:[{role:'user', content:userPrompt}] };
-    if(system) b.system = system;
-    if(extras){
-      if(opts.effort)   b.output_config = { effort: opts.effort };
-      if(opts.thinking) b.thinking = { type:'adaptive' };
-    }
-    return b;
-  };
-  const doFetch = (body)=> fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{ 'Content-Type':'application/json', 'x-api-key':key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-    body: JSON.stringify(body)
-  });
-  let useExtras = !!(opts.effort || opts.thinking);
-  let res, usedFallback=false;
+  const orModel = OR_MODEL_MAP[model] || 'anthropic/' + model;
+  const messages = [];
+  if(system) messages.push({role:'system', content:system});
+  messages.push({role:'user', content:userPrompt});
+  const body = { model:orModel, max_tokens:maxTokens, messages };
+  let res;
   try {
-    res = await doFetch(buildBody(useExtras));
+    res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+key, 'HTTP-Referer':location.origin, 'X-Title':'Opus 4.8 Workshop' },
+      body: JSON.stringify(body)
+    });
   } catch(netErr){
-    throw new Error('Network/CORS error — if you opened this file directly, serve it via a local server (see Setup & Safety).');
-  }
-  if(!res.ok && res.status===400 && useExtras){
-    usedFallback = true;
-    try { res = await doFetch(buildBody(false)); } catch(_){}
+    throw new Error('Network error — check your connection or try again.');
   }
   if(!res.ok){
     let msg = 'API error '+res.status;
     try { const e = await res.json(); msg = e.error?.message || msg; } catch(_){}
-    if(res.status===401) msg = 'Invalid API key (401). Check it and re-authenticate.';
+    if(res.status===401) msg = 'Invalid API key (401). Check it and re-authenticate at openrouter.ai/keys.';
+    if(res.status===402) msg = 'Insufficient credits (402). Add credits at openrouter.ai.';
     if(res.status===429) msg = 'Rate limited (429). Wait a moment and retry.';
     throw new Error(msg);
   }
   const data = await res.json();
-  const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
-  return { text, inTok:data.usage?.input_tokens||0, outTok:data.usage?.output_tokens||0, usedFallback };
+  const text = (data.choices?.[0]?.message?.content || '').trim();
+  return { text, inTok:data.usage?.prompt_tokens||0, outTok:data.usage?.completion_tokens||0, usedFallback:false };
 }
 function estCost(inTok, outTok, model){
   const r = PRICING[model] || PRICING['claude-opus-4-8'];
