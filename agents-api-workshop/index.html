@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenAI Agents API: Building a Research Agent</title>
+<meta name="description" content="A hands-on workshop on the OpenAI Agents API: sessions, turns, events, tools, context compaction, and resume/steer. Build a research agent with the managed Codex harness. Independent project by Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/agents-api-workshop/">
+<!-- Open Graph -->
+<meta property="og:title" content="OpenAI Agents API: Building a Research Agent">
+<meta property="og:description" content="A hands-on workshop on the OpenAI Agents API: sessions, turns, events, tools, context compaction, and resume/steer.">
+<meta property="og:url" content="https://www.kpphillips.com/ai-workshops/agents-api-workshop/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OpenAI Agents API: Building a Research Agent">
+<meta name="twitter:description" content="A hands-on workshop on the OpenAI Agents API: sessions, turns, events, tools, context compaction, and resume/steer.">
+<meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "OpenAI Agents API: Building a Research Agent",
+  "description": "A hands-on workshop on the OpenAI Agents API: sessions, turns, events, tools, context compaction, and resume/steer. Build a research agent with the managed Codex harness.",
+  "url": "https://www.kpphillips.com/ai-workshops/agents-api-workshop/",
+  "author": {
+    "@type": "Person",
+    "name": "Kevin Phillips"
+  },
+  "educationalLevel": "Intermediate",
+  "learningResourceType": "Interactive workshop"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===================== Field Guide tokens ===================== */
+html[data-palette="tide"]{
+  --bg:#0B1620; --surface:#10202D; --surface-2:#172B3B; --border:#26405A;
+  --ink:#E6EEF4; --ink-soft:#B9C8D4; --ink-faint:#93A8B8;
+  --accent:#63BCEC; --accent-ink:#06202F; --green:#6FD196; --clay:#E6AC6E; --red:#F48A8A; --alt:#BDA4F0;
+  --sel:#63BCEC55;
+}
+html[data-palette="tide"][data-theme="light"]{
+  --bg:#F3F7FA; --surface:#FFFFFF; --surface-2:#E7EEF4; --border:#C6D5E0;
+  --ink:#10202D; --ink-soft:#3A4F5F; --ink-faint:#556C7C;
+  --accent:#0A6494; --accent-ink:#FFFFFF; --green:#1B7043; --clay:#8F520E; --red:#B22F35; --alt:#5539A6;
+  --sel:#0A649433;
+}
+html[data-palette="ember"]{
+  --bg:#1A1410; --surface:#241C16; --surface-2:#30261E; --border:#4A3B2F;
+  --ink:#F3EBE2; --ink-soft:#D0C2B4; --ink-faint:#A99A8E;
+  --accent:#F5A04A; --accent-ink:#2A1400; --green:#86D194; --clay:#E9C36A; --red:#F48A8A; --alt:#BDA4F0;
+  --sel:#F5A04A55;
+}
+html[data-palette="ember"][data-theme="light"]{
+  --bg:#FAF5EE; --surface:#FFFDFA; --surface-2:#F0E6D8; --border:#D9CBB9;
+  --ink:#1A1410; --ink-soft:#4A3D33; --ink-faint:#66574C;
+  --accent:#A8470A; --accent-ink:#FFFFFF; --green:#1B7043; --clay:#7F5C05; --red:#B22F35; --alt:#5539A6;
+  --sel:#A8470A33;
+}
+html[data-palette="iris"]{
+  --bg:#12111C; --surface:#1A1927; --surface-2:#252336; --border:#3B384F;
+  --ink:#ECEAF6; --ink-soft:#C3BFD6; --ink-faint:#9B97B6;
+  --accent:#AC95F5; --accent-ink:#160C33; --green:#6FD196; --clay:#E6AC6E; --red:#F48A8A; --alt:#63BCEC;
+  --sel:#AC95F555;
+}
+html[data-palette="iris"][data-theme="light"]{
+  --bg:#F5F4FA; --surface:#FFFFFF; --surface-2:#E9E7F2; --border:#CFCBE0;
+  --ink:#14122A; --ink-soft:#443F63; --ink-faint:#5C567C;
+  --accent:#5237BF; --accent-ink:#FFFFFF; --green:#1B7043; --clay:#8F520E; --red:#B22F35; --alt:#0A6494;
+  --sel:#5237BF33;
+}
+:root{
+  --f-head:"Fraunces",Georgia,serif;
+  --f-body:"Public Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:6px; --nav-w:220px; --rail-w:300px; --gap:28px;
+  --tick-color:var(--border);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  font-variant-numeric:tabular-nums;caret-color:var(--accent);
+  scrollbar-color:var(--border) var(--bg);
+}
+::selection{background:var(--sel);color:var(--ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;border:2px solid var(--bg)}
+*::-webkit-scrollbar-track{background:transparent}
+a{color:var(--accent);text-underline-offset:.2em;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+h1,h2,h3{font-family:var(--f-head);font-weight:600;letter-spacing:-0.02em;line-height:1.15;margin:0}
+h1{font-size:2.35rem}
+h2{font-size:1.7rem}
+h3{font-size:1.2rem}
+p{margin:.55rem 0 .9rem}
+code,pre,.mono{font-family:var(--f-mono);font-size:.86em}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;overflow:auto;line-height:1.5;margin:.6rem 0}
+pre code{font-size:.8rem}
+small,.small{font-size:.86rem;color:var(--ink-soft)}
+.faint{color:var(--ink-faint)}
+strong{font-weight:600}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.92rem;margin:.5rem 0}
+th,td{padding:7px 9px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{color:var(--ink-soft);font-weight:600}
+td.num,th.num{text-align:right}
+td .mono{color:var(--ink)}
+button,input,select,textarea{font-family:var(--f-body);font-size:.95rem;color:var(--ink)}
+input[type=text],input[type=password],input[type=number],select,textarea{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;width:100%;
+  font-variant-numeric:tabular-nums;
+}
+textarea{font-family:var(--f-mono);font-size:.82rem;line-height:1.5;min-height:140px;resize:vertical}
+input::placeholder,textarea::placeholder{color:var(--ink-faint);opacity:1}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btn{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:8px 14px;cursor:pointer;
+  font-weight:500;transition:background .15s,border-color .15s;
+}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:5px 10px;font-size:.85rem}
+.btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row > *{flex:0 0 auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+label.f{display:block;font-size:.85rem;color:var(--ink-soft);margin:.4rem 0 .2rem}
+
+/* the tick rule */
+.tick{
+  height:14px;margin:0 0 14px;position:relative;
+  background:
+    repeating-linear-gradient(to right,var(--tick-color) 0 1px,transparent 1px 12px) bottom/100% 6px no-repeat,
+    repeating-linear-gradient(to right,var(--tick-color) 0 1px,transparent 1px 60px) bottom/100% 14px no-repeat;
+  border-bottom:1px solid var(--tick-color);
+}
+.tick.accent{--tick-color:var(--accent)}
+
+/* ===================== layout ===================== */
+.wrap{display:grid;grid-template-columns:var(--nav-w) minmax(0,1fr) var(--rail-w);gap:var(--gap);max-width:1400px;margin:0 auto;padding:0 20px}
+nav.side,aside.rail{position:sticky;top:0;height:100vh;overflow:auto;padding:22px 0}
+nav.side{display:flex;flex-direction:column}
+main{padding:22px 0 60px;min-width:0}
+@media (max-width:1180px){:root{--rail-w:270px;--nav-w:200px;--gap:20px}}
+@media (max-width:960px){:root{--rail-w:240px;--nav-w:170px;--gap:16px}}
+@media (max-width:720px){:root{--rail-w:210px;--nav-w:140px;--gap:12px} h1{font-size:1.9rem}}
+@media (max-width:560px){
+  .wrap{grid-template-columns:1fr}
+  nav.side,aside.rail{position:static;height:auto}
+  nav.side .links{display:flex;flex-wrap:wrap;gap:6px}
+}
+
+nav.side .brand{font-family:var(--f-head);font-weight:600;letter-spacing:-0.02em;font-size:1.05rem;line-height:1.2}
+nav.side .brand span{display:block;font-family:var(--f-body);font-weight:400;font-size:.8rem;color:var(--ink-faint);letter-spacing:0;margin-top:4px}
+nav.side .links{margin:16px 0;padding:0;list-style:none}
+nav.side .links a{display:block;padding:6px 8px;border-radius:var(--r);color:var(--ink-soft);text-decoration:none;font-size:.9rem;border-left:1px solid transparent}
+nav.side .links a:hover{background:var(--surface)}
+nav.side .links a.active{background:var(--surface);color:var(--ink);border-left-color:var(--accent)}
+nav.side .links a .n{display:inline-block;width:22px;color:var(--ink-faint)}
+nav.side .links a.done .n{color:var(--green)}
+.meter{margin:auto 0 12px}
+.meter .bar{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.meter .bar i{display:block;height:100%;background:var(--green);transform-origin:left;transform:scaleX(0);transition:transform .35s ease}
+.meter .lbl{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-soft);margin-top:6px}
+.meter .lbl b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+nav.side .foot{border-top:1px solid var(--border);padding-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sw{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);cursor:pointer;padding:0;background:var(--sw)}
+.sw[data-p="tide"]{--sw:#63BCEC}.sw[data-p="ember"]{--sw:#F5A04A}.sw[data-p="iris"]{--sw:#AC95F5}
+.sw.on{border-color:var(--ink)}
+.modebtn{margin-left:auto}
+
+/* ===================== modules ===================== */
+section.mod{margin:0 0 56px;scroll-margin-top:18px}
+section.mod .head{display:flex;gap:12px;align-items:baseline;margin-bottom:6px}
+section.mod .head .num{font-family:var(--f-mono);color:var(--ink-faint);font-size:.9rem}
+.reveal{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin:14px 0}
+.lab{background:var(--surface);border:1px solid var(--accent);border-radius:var(--r);padding:16px 18px;margin:16px 0}
+.lab .lt{font-weight:600;color:var(--accent);margin-bottom:6px;font-size:.95rem}
+.note{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin:10px 0;font-size:.92rem}
+.note b{display:inline-block;margin-right:6px}
+.note.warn{border-color:var(--clay)}.note.warn b{color:var(--clay)}
+.note.fail{border-color:var(--red)}.note.fail b{color:var(--red)}
+.note.ok{border-color:var(--green)}.note.ok b{color:var(--green)}
+.out{font-family:var(--f-mono);font-size:.82rem;line-height:1.55;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;white-space:pre-wrap;min-height:60px;margin-top:10px;font-variant-numeric:tabular-nums}
+.out:empty::before{content:"Output appears here.";color:var(--ink-faint)}
+.pill{display:inline-block;font-size:.78rem;padding:2px 8px;border-radius:12px;border:1px solid var(--border);color:var(--ink-soft);background:var(--surface-2);margin-right:4px}
+.pill.q{border-color:var(--green);color:var(--green)}
+.pill.d{border-color:var(--alt);color:var(--alt)}
+.pill.i{border-color:var(--clay);color:var(--clay)}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.stat div{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}
+.stat b{display:block;font-family:var(--f-mono);font-weight:500;font-size:1.35rem;color:var(--ink);line-height:1.2}
+.stat span{font-size:.8rem;color:var(--ink-soft)}
+.stat b.g{color:var(--green)}.stat b.r{color:var(--red)}.stat b.c{color:var(--clay)}.stat b.a{color:var(--alt)}
+.check{list-style:none;padding:0;margin:8px 0}
+.check li{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);margin:6px 0;cursor:pointer;background:var(--surface)}
+.check li .box{width:18px;height:18px;border:1.5px solid var(--ink-faint);border-radius:4px;flex:0 0 18px;margin-top:3px;position:relative}
+.check li.on .box{border-color:var(--green);background:var(--green)}
+.check li.on .box::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--accent-ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.check li.on{border-color:var(--green)}
+.hl{background:var(--sel);border-radius:2px}
+.msgs{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.msg{border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;font-size:.85rem;background:var(--surface-2)}
+.msg .role{font-weight:600;color:var(--ink-soft);margin-right:8px}
+.msg.event{border-color:var(--alt);border-style:dashed}
+.msg.sys{border-color:var(--alt)}
+.msg.tool{border-color:var(--clay)}
+.msg.err{border-color:var(--red)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+details{border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;margin:10px 0;background:var(--surface)}
+summary{cursor:pointer;font-weight:500;color:var(--ink-soft)}
+footer.legal{border-top:1px solid var(--border);margin-top:40px;padding-top:16px;font-size:.84rem;color:var(--ink-soft)}
+footer.legal p{margin:.4rem 0}
+
+/* ===================== rail ===================== */
+aside.rail .connect{border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;background:var(--surface);margin-bottom:16px;transition:border-color .3s,background .3s}
+aside.rail .connect.live{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--surface))}
+.lamp{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--ink-soft)}
+.lamp i{width:9px;height:9px;border-radius:50%;background:var(--ink-faint);display:inline-block}
+.connect.live .lamp i{background:var(--green)}
+.connect .msg-v{font-size:.82rem;margin-top:8px;color:var(--ink-soft)}
+.connect .msg-v.bad{color:var(--red)}
+.connect .spend{font-size:.8rem;color:var(--ink-soft);margin-top:8px;display:flex;justify-content:space-between}
+.connect .spend b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+.connect details{margin:8px 0 0;padding:6px 10px;background:var(--surface-2)}
+.rail h4{font-family:var(--f-body);font-weight:600;font-size:.82rem;color:var(--ink-faint);margin:14px 0 6px;text-transform:none;letter-spacing:0}
+.rail .tip{font-size:.86rem;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);margin:6px 0}
+.rail .tip b{display:block;font-weight:600;color:var(--ink);font-size:.82rem}
+.rail .ref{font-size:.82rem;margin:5px 0;padding-left:0}
+.rail .ref a{color:var(--accent)}
+.rail .gl{font-size:.84rem;margin:6px 0}
+.rail .gl b{font-weight:600}
+#railBody{transition:opacity .25s}
+#railBody.fade{opacity:0}
+.rail .srcs{font-size:.8rem}
+.rail .srcs li{margin:4px 0}
+.rail .srcs a{word-break:break-word}
+
+/* event stream animation */
+.event-stream{display:flex;flex-direction:column;gap:4px;font-family:var(--f-mono);font-size:.78rem}
+.event-stream .ev{padding:6px 8px;border-radius:4px;background:var(--surface-2);border-left:3px solid var(--border);opacity:0;animation:fadeSlide .3s ease forwards}
+.event-stream .ev.turn{border-left-color:var(--accent)}
+.event-stream .ev.item{border-left-color:var(--green)}
+.event-stream .ev.tool{border-left-color:var(--clay)}
+.event-stream .ev.done{border-left-color:var(--alt)}
+@keyframes fadeSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+
+/* timeline */
+.timeline{position:relative;padding-left:24px;margin:16px 0}
+.timeline::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border)}
+.timeline .step{position:relative;padding:10px 0 16px}
+.timeline .step::before{content:"";position:absolute;left:-20px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--surface-2);border:2px solid var(--border)}
+.timeline .step.active::before{background:var(--accent);border-color:var(--accent)}
+.timeline .step.done::before{background:var(--green);border-color:var(--green)}
+.timeline .step .t{font-weight:600;font-size:.9rem}
+.timeline .step .d{font-size:.84rem;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===================== NAV ===================== -->
+<nav class="side" aria-label="Modules">
+  <div class="tick accent"></div>
+  <div class="brand">OpenAI Agents API<span>Building a Research Agent</span></div>
+  <a href="https://www.kpphillips.com/ai-workshops/" style="display:inline-block;margin-bottom:18px;font-family:var(--f-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);text-decoration:none;">All workshops</a>
+  <ul class="links" id="navLinks">
+    <li><a href="#m0"><span class="n">00</span>Start here</a></li>
+    <li><a href="#m1"><span class="n">01</span>Runtime choice</a></li>
+    <li><a href="#m2"><span class="n">02</span>Sessions</a></li>
+    <li><a href="#m3"><span class="n">03</span>Turns and events</a></li>
+    <li><a href="#m4"><span class="n">04</span>Tools</a></li>
+    <li><a href="#m5"><span class="n">05</span>Compaction</a></li>
+    <li><a href="#m6"><span class="n">06</span>Resume and steer</a></li>
+    <li><a href="#m7"><span class="n">07</span>Cost discipline</a></li>
+    <li><a href="#m8"><span class="n">08</span>Debrief</a></li>
+  </ul>
+  <div class="meter">
+    <div class="tick"></div>
+    <div class="bar"><i id="meterFill"></i></div>
+    <div class="lbl"><span>Labs completed</span><b id="meterTxt">0 / 7</b></div>
+  </div>
+  <div class="foot">
+    <button class="sw on" data-p="tide" title="Tide palette" aria-label="Tide palette"></button>
+    <button class="sw" data-p="ember" title="Ember palette" aria-label="Ember palette"></button>
+    <button class="sw" data-p="iris" title="Iris palette" aria-label="Iris palette"></button>
+    <button class="btn sm modebtn" id="modeBtn">Light</button>
+  </div>
+</nav>
+
+<!-- ===================== MAIN ===================== -->
+<main>
+
+<section class="mod" id="m0">
+  <div class="tick accent"></div>
+  <h1>OpenAI Agents API: Building a Research Agent</h1>
+  <p>The Agents API gives your application access to the Codex harness through an OpenAI-managed API. OpenAI manages sessions, orchestration, context compaction, and recovery while your application provides tools and chooses its execution environment. This workshop teaches the core harness concepts through a single case study: a research agent that can search, retrieve, and synthesize information.</p>
+  <div class="stat">
+    <div><b>Session</b><span>Durable agent instance that persists state</span></div>
+    <div><b>Turn</b><span>One cycle of work within a session</span></div>
+    <div><b>Items</b><span>Saved messages and tool calls</span></div>
+    <div><b>Events</b><span>Live progress streamed to your app</span></div>
+  </div>
+  <p>By the end you will understand how the managed Codex harness works: how to create sessions, follow events, wire tools, manage context as an attention budget, and resume or steer agents mid-task. The code samples are Python-first and presentation-friendly.</p>
+  <div class="card">
+    <h3>How to use this</h3>
+    <p>Every module has one lab. The labs work in demo mode without an API key. The Connect panel on the right lets you use OpenRouter to run live calls if you want to experiment with real requests. Figures are labelled <span class="pill q">quoted</span> when copied from OpenAI documentation, <span class="pill d">derived</span> when computed on this page, and <span class="pill i">illustrative</span> when simulated for teaching purposes.</p>
+  </div>
+  <div class="note warn"><b>Scope</b>This workshop covers the core Agents API harness only: sessions, tools, events, compaction, resume/steer. Sandboxes (OpenAI-hosted and self-hosted execution environments) are an advanced topic for a future workshop. We mention them briefly where relevant.</div>
+</section>
+
+<!-- ===================== 01 ===================== -->
+<section class="mod reveal" id="m1">
+  <div class="tick"></div>
+  <div class="head"><span class="num">01</span><h2>Runtime choice</h2></div>
+  <p>OpenAI offers three ways to build agents. Your choice depends on where you want orchestration to run and who manages state between tasks. This module is awareness only: understand the landscape so you pick the right starting point.</p>
+  <table>
+    <thead><tr><th></th><th>Agents API</th><th>Agents SDK</th><th>Responses API</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Use for</strong></td><td>Long-running tasks where OpenAI manages the agent</td><td>Building agents with custom tools in your app</td><td>Calling models directly</td></tr>
+      <tr><td><strong>Where runs</strong></td><td>Managed Codex harness</td><td>SDK in your application</td><td>Your application</td></tr>
+      <tr><td><strong>State</strong></td><td>Saved session configuration, turns, items</td><td>Your storage and SDK sessions</td><td>Manual history or Conversations</td></tr>
+      <tr><td><strong>Tool execution</strong></td><td>Service tools, function handlers, sandbox</td><td>Tools configured in your app</td><td>Your execution environment</td></tr>
+      <tr><td><strong>Integration effort</strong></td><td class="mono">Low</td><td class="mono">Medium</td><td class="mono">High</td></tr>
+    </tbody>
+  </table>
+  <p class="small">The Agents API runs the Codex harness and manages infrastructure so you focus on what your agents do. The Agents SDK gives your application control over deployment, storage, and runtime. The Responses API is for direct model calls.</p>
+  <div class="lab">
+    <div class="lt">Lab 1: Classify the runtime</div>
+    <p>For each scenario, pick the runtime that fits best. The goal is to build intuition, not memorize a table.</p>
+    <div id="runtimeQuiz"></div>
+    <div class="stat">
+      <div><b id="quizScore">0 / 4</b><span>correct</span></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="done1" disabled>Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 02 ===================== -->
+<section class="mod reveal" id="m2">
+  <div class="tick"></div>
+  <div class="head"><span class="num">02</span><h2>Sessions</h2></div>
+  <p>A session is a durable instance of an agent. It keeps the agent's configuration, conversation, and saved work over time. Reuse the same session to send follow-up messages and continue work.</p>
+  <pre><code># Create a session with an agent configuration
+session = client.beta.agents.sessions.create(
+    agent={
+        "model": "gpt-6-astra",
+        "instructions": "You are a research assistant...",
+        "tools": [{"type": "web_search"}],
+    },
+    input="Research recent advances in battery technology.",
+)</code></pre>
+  <p>The session returns a <code>session.id</code> that you store. Use it to send follow-up messages, retrieve saved items, or inspect the session state. Sessions persist until you delete them.</p>
+  <div class="lab">
+    <div class="lt">Lab 2: Build a session configuration</div>
+    <p>Configure a research agent session. Pick the tools and settings, then see the resulting API request body.</p>
+    <div class="grid2">
+      <div>
+        <label class="f">Agent instructions</label>
+        <textarea id="sessInstr" style="min-height:80px">You are a research assistant. Search the web for current information, summarize findings clearly, and cite your sources.</textarea>
+        <label class="f">Tools (check to include)</label>
+        <div class="row" style="margin-top:4px">
+          <label><input type="checkbox" id="toolWeb" checked> web_search</label>
+          <label><input type="checkbox" id="toolFile"> file_search</label>
+          <label><input type="checkbox" id="toolMcp"> MCP server</label>
+        </div>
+      </div>
+      <div>
+        <label class="f">Model</label>
+        <select id="sessModel">
+          <option value="gpt-6-astra" selected>gpt-6-astra</option>
+          <option value="gpt-5.6-sol">gpt-5.6-sol</option>
+        </select>
+        <label class="f">Initial task</label>
+        <input type="text" id="sessTask" value="Research the current state of solid-state batteries">
+        <label class="f" style="margin-top:8px">MCP server URL (if enabled)</label>
+        <input type="text" id="sessMcp" value="https://docs.example.com/mcp" placeholder="https://...">
+      </div>
+    </div>
+    <pre><code id="sessCode"></code></pre>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="done2">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 03 ===================== -->
+<section class="mod reveal" id="m3">
+  <div class="tick"></div>
+  <div class="head"><span class="num">03</span><h2>Turns and events</h2></div>
+  <p>A turn is one cycle of work within a session. When you send a message to an idle session, it starts a new turn. When you send a message during an active turn, it steers that turn. Turns run asynchronously; your application follows progress through streaming.</p>
+  <div class="timeline" id="turnTimeline">
+    <div class="step active"><div class="t">Turn started</div><div class="d">agent.session.turn.started</div></div>
+    <div class="step"><div class="t">Thinking</div><div class="d">agent.session.item.created (reasoning)</div></div>
+    <div class="step"><div class="t">Tool call</div><div class="d">agent.session.item.created (tool_call)</div></div>
+    <div class="step"><div class="t">Tool result</div><div class="d">agent.session.item.created (tool_result)</div></div>
+    <div class="step"><div class="t">Response</div><div class="d">agent.session.item.created (message)</div></div>
+    <div class="step"><div class="t">Turn completed</div><div class="d">agent.session.turn.completed</div></div>
+  </div>
+  <p>Events report output and changes as the agent works. Key events to handle: <code>turn.completed</code>, <code>turn.failed</code>, <code>turn.cancelled</code>. Items are the saved messages and tool calls, including completed responses.</p>
+  <div class="lab">
+    <div class="lt">Lab 3: Watch the event stream</div>
+    <p>Run a simulated research task and watch events arrive. This illustrates the event sequence without making a real API call.</p>
+    <div class="row">
+      <button class="btn primary" id="runEvents">Run simulation</button>
+      <button class="btn" id="resetEvents">Reset</button>
+    </div>
+    <div class="event-stream" id="eventStream"></div>
+    <div class="stat" style="margin-top:12px">
+      <div><b id="evTurns">0</b><span>turns</span></div>
+      <div><b id="evItems">0</b><span>items created</span></div>
+      <div><b id="evTools">0</b><span>tool calls</span></div>
+    </div>
+    <div class="note" id="evNote"><b>Demo mode</b>This simulation shows the structure of events, not a live API call. Connect a key and use the Sessions module to run real requests.</div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="done3">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 04 ===================== -->
+<section class="mod reveal" id="m4">
+  <div class="tick"></div>
+  <div class="head"><span class="num">04</span><h2>Tools</h2></div>
+  <p>Tools extend what agents can do. The Agents API supports three categories: hosted tools (web_search, file_search), function calling (your code handles the call), and MCP servers (remote tool providers). A research agent typically uses web search for current information and may add file search for domain-specific documents.</p>
+  <pre><code>tools = [
+    {"type": "web_search"},
+    {"type": "file_search", "vector_store_ids": ["vs_abc123"]},
+    {
+        "type": "mcp",
+        "server_label": "company_docs",
+        "transport": {
+            "type": "http",
+            "server_url": "https://docs.example.com/mcp"
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "save_finding",
+            "description": "Save a research finding to the database",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string"},
+                    "summary": {"type": "string"},
+                    "source_url": {"type": "string"}
+                },
+                "required": ["title", "summary"]
+            }
+        }
+    }
+]</code></pre>
+  <div class="lab">
+    <div class="lt">Lab 4: Wire tools to a research task</div>
+    <p>Given a research task, decide which tools the agent needs. The goal is to think about tool selection, not memorize configurations.</p>
+    <div class="card">
+      <p><strong>Task:</strong> Find the top three competitors to a product, summarize their pricing, and save the findings to a database for the sales team.</p>
+    </div>
+    <div id="toolSelect">
+      <label class="f">Select tools needed (check all that apply)</label>
+      <div class="row" style="margin-top:6px;gap:16px">
+        <label><input type="checkbox" id="t1"> web_search</label>
+        <label><input type="checkbox" id="t2"> file_search</label>
+        <label><input type="checkbox" id="t3"> MCP (company CRM)</label>
+        <label><input type="checkbox" id="t4"> function: save_finding</label>
+      </div>
+    </div>
+    <div class="note" id="toolNote"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="checkTools">Check answer</button>
+      <button class="btn primary" id="done4" disabled>Mark lab done</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 05 ===================== -->
+<section class="mod reveal" id="m5">
+  <div class="tick"></div>
+  <div class="head"><span class="num">05</span><h2>Context compaction</h2></div>
+  <p>The context window is an attention budget, not a trash bag. As a session grows, the Agents API automatically summarizes previous work to keep the context within limits. This is compaction: the harness creates a condensed representation of earlier turns so the agent can continue without losing track of what it learned.</p>
+  <div class="card">
+    <h3>How compaction works</h3>
+    <p>The Codex harness monitors context usage. When the conversation approaches the model's context limit, it summarizes older turns into a compact form. The agent sees the summary plus recent turns, preserving continuity while fitting the budget.</p>
+  </div>
+  <p>You do not call compaction directly. The harness handles it. But understanding that it happens explains why long sessions remain coherent and why token usage does not grow linearly with conversation length.</p>
+  <div class="lab">
+    <div class="lt">Lab 5: Simulate context growth</div>
+    <p>Watch how context grows over turns, then see what happens when compaction kicks in. Move the slider to simulate turns.</p>
+    <label class="f">Turns completed: <b class="mono" id="compTurns">0</b></label>
+    <input type="range" id="compSlider" min="0" max="20" value="0">
+    <div class="stat">
+      <div><b id="compTokens">0</b><span>context tokens <span class="pill i">illustrative</span></span></div>
+      <div><b id="compLimit">128,000</b><span>model limit</span></div>
+      <div><b id="compStatus">idle</b><span>compaction status</span></div>
+    </div>
+    <div class="note" id="compNote"><b>Observation</b>Move the slider to see context grow. Around turn 12-14, compaction kicks in and the token count drops.</div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="done5">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 06 ===================== -->
+<section class="mod reveal" id="m6">
+  <div class="tick"></div>
+  <div class="head"><span class="num">06</span><h2>Resume and steer</h2></div>
+  <p>Sessions are durable. You can send another message to the same session to continue work. If the agent is idle, your message starts a new turn. If the agent is working, your message steers the active turn. This lets you correct course without starting over.</p>
+  <pre><code># Continue an existing session
+client.beta.agents.sessions.events.create(
+    session_id,
+    events=[{
+        "type": "agent.session.input.message",
+        "input": [{
+            "role": "user",
+            "content": [{"type": "input_text", "text": "Focus on the European market."}]
+        }]
+    }]
+)</code></pre>
+  <p>To cancel an active turn, send a cancel event. The session and its previous work remain available.</p>
+  <pre><code># Cancel the current turn
+client.beta.agents.sessions.events.create(
+    session_id,
+    events=[{"type": "agent.session.input.cancel"}]
+)</code></pre>
+  <div class="lab">
+    <div class="lt">Lab 6: Steer a session</div>
+    <p>Simulate an agent working on a research task. Mid-turn, send a steering message to redirect its focus.</p>
+    <div class="msgs" id="steerMsgs"></div>
+    <div class="row">
+      <input type="text" id="steerInput" placeholder="Type a steering message..." style="flex:1">
+      <button class="btn" id="steerSend">Send</button>
+      <button class="btn" id="steerCancel">Cancel turn</button>
+      <button class="btn" id="steerReset">Reset</button>
+    </div>
+    <div class="note" id="steerNote"><b>Status</b>Click Send to steer the agent, or Cancel to stop the current turn.</div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="done6">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 07 ===================== -->
+<section class="mod reveal" id="m7">
+  <div class="tick"></div>
+  <div class="head"><span class="num">07</span><h2>Cost discipline</h2></div>
+  <p>The Agents API bills at the selected model's API rates. OpenAI tools use their standard rates. Understanding cost per session helps you build sustainably. Demo mode in this workshop costs nothing; live calls through OpenRouter use your key.</p>
+  <table>
+    <thead><tr><th>Model</th><th class="num">Input</th><th class="num">Output</th><th>Notes</th></tr></thead>
+    <tbody id="priceTable"></tbody>
+  </table>
+  <p class="small">Prices in USD per million tokens. Check the OpenAI pricing page for current rates. Agents API sessions may use multiple model calls per turn.</p>
+  <div class="lab">
+    <div class="lt">Lab 7: Estimate session cost</div>
+    <p>Estimate the cost of a research session based on expected turns and token usage.</p>
+    <div class="grid2">
+      <div>
+        <label class="f">Expected turns</label>
+        <input type="number" id="costTurns" value="5" min="1" max="50">
+        <label class="f">Avg input tokens per turn</label>
+        <input type="number" id="costIn" value="2000" min="100">
+      </div>
+      <div>
+        <label class="f">Avg output tokens per turn</label>
+        <input type="number" id="costOut" value="1500" min="100">
+        <label class="f">Model</label>
+        <select id="costModel">
+          <option value="gpt-6-astra">gpt-6-astra ($6/$24)</option>
+          <option value="gpt-5.6-sol">gpt-5.6-sol ($3/$15)</option>
+        </select>
+      </div>
+    </div>
+    <div class="stat">
+      <div><b id="costTotal">$0.00</b><span>estimated session cost <span class="pill d">derived</span></span></div>
+      <div><b id="costPerTurn">$0.00</b><span>per turn average</span></div>
+    </div>
+    <div class="note"><b>Tip</b>Set a spend limit on your API key before running long sessions. Context compaction helps control costs on extended conversations.</div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="done7">Mark lab done</button></div>
+  </div>
+</section>
+
+<!-- ===================== 08 ===================== -->
+<section class="mod reveal" id="m8">
+  <div class="tick"></div>
+  <div class="head"><span class="num">08</span><h2>Debrief</h2></div>
+  <div class="card">
+    <h3>What you can now say</h3>
+    <ul class="check" id="recap"></ul>
+  </div>
+  <div class="card">
+    <h3>Honest limitations</h3>
+    <p>This workshop covers the core Agents API harness. It does not cover sandboxes (OpenAI-hosted or self-hosted execution environments), which are how agents run code and edit files. Sandboxes add significant capability but also complexity; they are the subject of a future advanced workshop.</p>
+    <p>The Agents API currently supports data residency only in the United States and does not support Zero Data Retention (ZDR). Session data persists until you delete it. Check the OpenAI data controls documentation for current policies.</p>
+  </div>
+  <div class="card">
+    <h3>Anthropic note</h3>
+    <p>Claude and Anthropic have their own agent APIs with different design choices. A future workshop will cover building interchangeable harnesses that work across vendors. For now, the patterns here (sessions, tools, events, compaction) transfer conceptually even when the API shapes differ.</p>
+  </div>
+  <div class="note" style="margin-top:20px"><b>Future workshop</b>Domain-focused app builders on Codex sandboxes plus Claude Code in secure sandboxes. Coming when the sandbox story is clearer.</div>
+</section>
+
+<footer class="legal">
+  <div class="tick"></div>
+  <p>Independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by OpenAI, Anthropic, OpenRouter, or any vendor mentioned. Model names and API shapes are their owners' intellectual property; API details are quoted from public documentation.</p>
+  <p>Live labs make paid API calls with your key through OpenRouter. Set a spend limit on the key before you connect it, and read the <a href="https://openai.com/policies/usage-policies" target="_blank" rel="noopener">OpenAI Usage Policy</a> and <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter terms</a>. The key is held in memory for this tab only and is never written to storage.</p>
+  <p>Source read date: September 2026. API shapes and pricing change; re-check the linked documentation before relying on details here.</p>
+</footer>
+</main>
+
+<!-- ===================== RAIL ===================== -->
+<aside class="rail" aria-label="Connect panel and module notes">
+  <div class="tick accent"></div>
+  <div class="connect" id="connect">
+    <div class="row" style="justify-content:space-between"><strong style="font-size:.95rem">Connect</strong><span class="lamp"><i></i><span id="lampTxt">Demo</span></span></div>
+    <label class="f" for="keyIn">OpenRouter API key</label>
+    <input type="password" id="keyIn" placeholder="sk-or-v1-..." autocomplete="off">
+    <div class="row" style="margin-top:8px"><button class="btn sm primary" id="connBtn">Connect</button><button class="btn sm" id="discBtn" hidden>Disconnect</button></div>
+    <div class="msg-v" id="keyMsg">Demo mode is on. Every lab works without a key.</div>
+    <div class="spend"><span>Session spend est.</span><b id="spend">$0.0000</b></div>
+    <details>
+      <summary>Advanced</summary>
+      <label class="f">Endpoint</label><input type="text" id="endpoint" value="https://openrouter.ai/api/v1/chat/completions">
+      <label class="f">Model</label><input type="text" id="modelLive" value="openai/gpt-4o">
+      <p class="small" style="margin:.5rem 0 0">OpenRouter proxies requests to OpenAI and other providers. The Agents API itself requires direct OpenAI access; this workshop uses chat completions for demonstration.</p>
+    </details>
+  </div>
+  <div id="railBody"></div>
+  <details class="srcs" style="margin-top:16px">
+    <summary>All sources</summary>
+    <ol id="srcList"></ol>
+  </details>
+</aside>
+
+</div>
+<script>
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const fmt$ = v => '$' + v.toFixed(v < 1 ? 4 : 2);
+
+/* ===================== SOURCES ===================== */
+const SRC = {
+  overview:{t:"Agents API Overview (OpenAI platform docs)",u:"https://platform.openai.com/docs/guides/agents-api/overview"},
+  agents:{t:"Agents Guide (OpenAI platform docs)",u:"https://platform.openai.com/docs/guides/agents"},
+  sessions:{t:"Run and continue sessions (OpenAI platform docs)",u:"https://platform.openai.com/docs/guides/agents-api/sessions"},
+  tools:{t:"Using tools (OpenAI platform docs)",u:"https://platform.openai.com/docs/guides/tools"},
+  pricing:{t:"OpenAI API Pricing",u:"https://openai.com/api/pricing/"},
+};
+const ref = (k, note) => ({k, note});
+
+/* ===================== PRICING ===================== */
+const PRICE = {
+  "gpt-6-astra": {in:6, out:24, note:"Flagship model"},
+  "gpt-5.6-sol": {in:3, out:15, note:"Cost-efficient"},
+  "gpt-4o": {in:2.5, out:10, note:"Previous generation"},
+};
+
+/* ===================== STATE ===================== */
+let apiKey = null;
+let sessionSpend = 0;
+const done = new Set();
+const LABS = 7;
+
+/* ===================== THEME ===================== */
+const html = document.documentElement;
+function applyTheme(p, m){
+  html.setAttribute('data-palette', p);
+  html.setAttribute('data-theme', m);
+  document.querySelectorAll('.sw').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  $('modeBtn').textContent = m === 'dark' ? 'Light' : 'Dark';
+  try{ localStorage.setItem('fg-palette', p); localStorage.setItem('fg-theme', m); }catch(e){}
+}
+(function initTheme(){
+  let p='tide', m='dark';
+  try{ p = localStorage.getItem('fg-palette') || p; m = localStorage.getItem('fg-theme') || m; }catch(e){}
+  html.setAttribute('data-palette', ['tide','ember','iris'].includes(p)?p:'tide');
+  html.setAttribute('data-theme', m==='light'?'light':'dark');
+})();
+document.querySelectorAll('.sw').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.p, html.getAttribute('data-theme'))));
+$('modeBtn').addEventListener('click', () => applyTheme(html.getAttribute('data-palette'), html.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+/* ===================== RAIL ===================== */
+const RAIL = [
+ { id:'m0', tips:[
+   ['Four core concepts','Agent, Environment, Session, Events/Items. This workshop focuses on sessions and events.'],
+   ['Harness = infrastructure','The managed Codex harness runs your agent and handles orchestration, compaction, and recovery.'],
+   ['Python-first samples','Code samples target Python for readability. The patterns apply to all SDKs.'],
+  ], refs:[ref('overview','Agents API overview and core concepts'),ref('agents','Choosing between Agents API, SDK, and Responses API')],
+  gl:[['Session','A durable instance of an agent that persists configuration and conversation.'],['Turn','One cycle of work within a session.']] },
+ { id:'m1', tips:[
+   ['Three runtimes','Agents API (OpenAI manages), Agents SDK (you manage), Responses API (direct calls).'],
+   ['Start with Agents API','If you want managed infrastructure and durable sessions, start here.'],
+   ['SDK for control','Use the Agents SDK when you need custom deployment, storage, or approval flows.'],
+  ], refs:[ref('agents','Runtime comparison table'),ref('overview','What the managed harness provides')],
+  gl:[['Codex harness','The infrastructure OpenAI runs to execute agents, including sandboxes, compaction, and recovery.'],['Orchestration','Managing the agent loop: model calls, tool execution, state updates.']] },
+ { id:'m2', tips:[
+   ['Sessions persist','A session keeps configuration, conversation, and work until you delete it.'],
+   ['Store the session_id','Your application needs to track session IDs to continue conversations.'],
+   ['Agent config at create time','Model, instructions, and tools are set when you create the session.'],
+  ], refs:[ref('sessions','Creating and managing sessions'),ref('overview','Core concepts')],
+  gl:[['session_id','The unique identifier for a session, returned at creation.'],['agent','The model, instructions, tools, and MCP servers available to the agent.']] },
+ { id:'m3', tips:[
+   ['Events are live','Stream events to follow progress. Items are saved results.'],
+   ['Handle outcomes','Check turn.completed, turn.failed, or turn.cancelled.'],
+   ['Async by default','Turns run asynchronously. Your app subscribes to events.'],
+  ], refs:[ref('sessions','Follow progress and handle outcomes'),ref('overview','Events and items')],
+  gl:[['Event','A message reporting progress or state change, streamed to your app.'],['Item','A saved message, tool call, or response in the session history.']] },
+ { id:'m4', tips:[
+   ['Three tool types','Hosted (web_search, file_search), function calling, MCP servers.'],
+   ['web_search for research','Current information from the web.'],
+   ['MCP for external data','Connect to your own data sources via MCP servers.'],
+  ], refs:[ref('tools','Using tools: function calling, MCP, hosted tools'),ref('overview','Connecting to external data')],
+  gl:[['Hosted tool','A tool OpenAI runs for you: web_search, file_search.'],['MCP server','A remote tool provider using the Model Context Protocol.']] },
+ { id:'m5', tips:[
+   ['Automatic compaction','The harness summarizes old turns to fit the context window.'],
+   ['Attention budget','Think of context as a budget, not a trash bag.'],
+   ['Seamless to your code','You do not call compaction; the harness handles it.'],
+  ], refs:[ref('overview','Summarizing previous work to manage context'),ref('sessions','Session state and turn history')],
+  gl:[['Compaction','Summarizing older conversation turns to fit the model context limit.'],['Context window','The maximum tokens the model can process in one request.']] },
+ { id:'m6', tips:[
+   ['Continue or steer','Send a message to an idle session to start a new turn, or to a working session to steer.'],
+   ['Cancel gracefully','Cancel events stop the current turn but keep the session.'],
+   ['No need to rebuild','Sessions remember previous work; just send the next message.'],
+  ], refs:[ref('sessions','Continue or steer the work'),ref('sessions','Cancel an active turn')],
+  gl:[['Steer','Redirect an agent during an active turn by sending a new message.'],['Cancel','Stop the current turn. The session and previous work remain.']] },
+ { id:'m7', tips:[
+   ['Model rates apply','Agents API bills at the model\'s API rates.'],
+   ['Tool costs add up','Hosted tools and sandbox time have their own rates.'],
+   ['Set spend limits','Protect your budget with key-level spend limits.'],
+  ], refs:[ref('pricing','OpenAI API pricing'),ref('overview','Pricing section')],
+  gl:[['Input tokens','Tokens sent to the model: instructions, conversation, tool results.'],['Output tokens','Tokens the model generates: responses, tool calls.']] },
+ { id:'m8', tips:[
+   ['Core harness only','This workshop covers sessions, tools, events. Sandboxes are advanced.'],
+   ['US data residency','Agents API currently supports US only, no ZDR.'],
+   ['Patterns transfer','Session/event patterns apply conceptually to other agent frameworks.'],
+  ], refs:[ref('overview','Data controls and limitations'),ref('agents','Future: interchangeable harnesses')],
+  gl:[['Sandbox','An execution environment where agents can run code and edit files.'],['ZDR','Zero Data Retention: a policy where data is not stored after processing.']] },
+];
+function railFor(id){
+  const r = RAIL.find(x => x.id === id) || RAIL[0];
+  let h = '<h4>Field notes</h4>' + r.tips.map(t => `<div class="tip"><b>${t[0]}</b>${t[1]}</div>`).join('');
+  h += '<h4>References</h4>' + r.refs.map(x => `<div class="ref"><a href="${SRC[x.k].u}" target="_blank" rel="noopener">${SRC[x.k].t}</a><span class="faint"> — ${x.note}</span></div>`).join('');
+  h += '<h4>Terms</h4>' + r.gl.map(g => `<div class="gl"><b>${g[0]}</b> ${g[1]}</div>`).join('');
+  return h;
+}
+let railCur = null;
+function setRail(id){
+  if(railCur === id) return; railCur = id;
+  const b = $('railBody'); b.classList.add('fade');
+  setTimeout(() => { b.innerHTML = railFor(id); b.classList.remove('fade'); }, 120);
+}
+$('srcList').innerHTML = Object.values(SRC).map(s => `<li><a href="${s.u}" target="_blank" rel="noopener">${s.t}</a></li>`).join('');
+setRail('m0');
+
+/* ===================== SCROLL SPY + REVEAL ===================== */
+const mods = [...document.querySelectorAll('section.mod')];
+const navA = [...document.querySelectorAll('#navLinks a')];
+if('IntersectionObserver' in window){
+  const spy = new IntersectionObserver(es => {
+    es.forEach(e => { if(e.isIntersecting){ const id = e.target.id; navA.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+id)); setRail(id); } });
+  }, {rootMargin:'-35% 0px -55% 0px'});
+  mods.forEach(m => spy.observe(m));
+  const rev = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); rev.unobserve(e.target); } }), {threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el => rev.observe(el));
+} else { document.querySelectorAll('.reveal').forEach(el => el.classList.add('in')); }
+
+function markDone(n){
+  done.add(n);
+  const a = navA[n]; if(a) a.classList.add('done');
+  $('meterFill').style.transform = `scaleX(${done.size/LABS})`;
+  $('meterTxt').textContent = `${done.size} / ${LABS}`;
+  const b = $('done'+n); if(b){ b.textContent = 'Lab done'; b.disabled = true; }
+}
+
+/* ===================== CONNECT PANEL ===================== */
+function validateKey(k){
+  k = k.trim();
+  if(!k) return 'Paste a key first. Demo mode stays on.';
+  if(k.startsWith('sk-ant-')) return 'That is an Anthropic key. This page uses OpenRouter. Create a key at openrouter.ai/keys.';
+  if(!k.startsWith('sk-or-')) return 'OpenRouter keys start with sk-or-. Check for a leading space or truncated paste.';
+  if(k.length < 40) return 'Key is too short. Copy the whole value.';
+  return null;
+}
+function setConnected(on){
+  $('connect').classList.toggle('live', on);
+  $('lampTxt').textContent = on ? 'Live' : 'Demo';
+  $('connBtn').hidden = on; $('discBtn').hidden = !on;
+  $('keyIn').disabled = on;
+}
+function connect(){
+  const err = validateKey($('keyIn').value);
+  const m = $('keyMsg');
+  if(err){ m.textContent = err; m.classList.add('bad'); return; }
+  apiKey = $('keyIn').value.trim();
+  $('keyIn').value = '';
+  m.textContent = 'Connected. Calls go to OpenRouter with your key.'; m.classList.remove('bad');
+  setConnected(true);
+}
+function disconnect(){ apiKey = null; setConnected(false); $('keyMsg').textContent = 'Disconnected. Demo mode is on.'; }
+$('connBtn').addEventListener('click', connect);
+$('discBtn').addEventListener('click', disconnect);
+$('keyIn').addEventListener('keydown', e => { if(e.key === 'Enter') connect(); });
+
+/* ===================== LAB 1: Runtime Quiz ===================== */
+(function(){
+  const SCENARIOS = [
+    {q:'You need an agent that runs long research tasks overnight with automatic recovery if it fails.', a:'api', explain:'The Agents API manages recovery and session persistence.'},
+    {q:'You want full control over where agent state is stored and how tool calls are approved.', a:'sdk', explain:'The Agents SDK gives you control over storage and approval flows.'},
+    {q:'You are building a simple chatbot with no tools, just direct model responses.', a:'responses', explain:'The Responses API is for direct model calls without agent infrastructure.'},
+    {q:'You want to connect to multiple MCP servers and let OpenAI handle the orchestration.', a:'api', explain:'The Agents API supports MCP servers and manages orchestration.'},
+  ];
+  const wrap = $('runtimeQuiz');
+  let answered = 0, correct = 0;
+  SCENARIOS.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<p style="margin-bottom:10px"><strong>Scenario ${i+1}:</strong> ${s.q}</p>
+      <div class="row">
+        <button class="btn sm" data-a="api">Agents API</button>
+        <button class="btn sm" data-a="sdk">Agents SDK</button>
+        <button class="btn sm" data-a="responses">Responses API</button>
+      </div>
+      <div class="note" style="display:none" id="quiz${i}note"></div>`;
+    div.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if(div.dataset.answered) return;
+        div.dataset.answered = '1';
+        answered++;
+        const chose = btn.dataset.a;
+        const isCorrect = chose === s.a;
+        if(isCorrect) correct++;
+        btn.classList.add(isCorrect ? 'on' : '');
+        if(!isCorrect) btn.style.borderColor = 'var(--red)';
+        const note = $('quiz'+i+'note');
+        note.style.display = 'block';
+        note.className = 'note ' + (isCorrect ? 'ok' : 'warn');
+        note.innerHTML = `<b>${isCorrect ? 'Correct' : 'Not quite'}</b>${s.explain}`;
+        $('quizScore').textContent = `${correct} / ${SCENARIOS.length}`;
+        if(answered === SCENARIOS.length) $('done1').disabled = false;
+      });
+    });
+    wrap.appendChild(div);
+  });
+  $('done1').addEventListener('click', () => markDone(1));
+})();
+
+/* ===================== LAB 2: Session Builder ===================== */
+(function(){
+  function render(){
+    const tools = [];
+    if($('toolWeb').checked) tools.push('    {"type": "web_search"}');
+    if($('toolFile').checked) tools.push('    {"type": "file_search", "vector_store_ids": ["vs_..."]}');
+    if($('toolMcp').checked){
+      const url = $('sessMcp').value.trim() || 'https://...';
+      tools.push(`    {
+        "type": "mcp",
+        "server_label": "docs",
+        "transport": {"type": "http", "server_url": "${url}"}
+    }`);
+    }
+    const code = `from openai import OpenAI
+
+client = OpenAI()
+
+session = client.beta.agents.sessions.create(
+    agent={
+        "model": "${$('sessModel').value}",
+        "instructions": """${$('sessInstr').value.trim().replace(/"""/g, '\\"\\"\\"')}""",
+        "tools": [
+${tools.join(',\n')}
+        ],
+    },
+    input="${$('sessTask').value.trim()}",
+)
+print(session.id)`;
+    $('sessCode').textContent = code;
+  }
+  ['sessInstr','sessTask','sessMcp','sessModel'].forEach(id => $(id).addEventListener('input', render));
+  ['toolWeb','toolFile','toolMcp'].forEach(id => $(id).addEventListener('change', render));
+  render();
+  $('done2').addEventListener('click', () => markDone(2));
+})();
+
+/* ===================== LAB 3: Event Stream ===================== */
+(function(){
+  const EVENTS = [
+    {type:'turn', text:'agent.session.turn.started'},
+    {type:'item', text:'agent.session.item.created type=reasoning'},
+    {type:'tool', text:'agent.session.item.created type=tool_call name=web_search'},
+    {type:'tool', text:'agent.session.item.created type=tool_result'},
+    {type:'item', text:'agent.session.item.created type=message'},
+    {type:'done', text:'agent.session.turn.completed'},
+  ];
+  let running = false;
+  function reset(){
+    $('eventStream').innerHTML = '';
+    $('evTurns').textContent = '0';
+    $('evItems').textContent = '0';
+    $('evTools').textContent = '0';
+    running = false;
+  }
+  async function run(){
+    if(running) return;
+    running = true;
+    reset();
+    let turns=0, items=0, tools=0;
+    for(const ev of EVENTS){
+      await new Promise(r => setTimeout(r, 400 + Math.random()*300));
+      if(!running) return;
+      const div = document.createElement('div');
+      div.className = 'ev ' + ev.type;
+      div.textContent = ev.text;
+      $('eventStream').appendChild(div);
+      if(ev.type==='turn') turns++;
+      if(ev.type==='item' || ev.type==='tool' || ev.type==='done') items++;
+      if(ev.type==='tool') tools++;
+      $('evTurns').textContent = turns;
+      $('evItems').textContent = items;
+      $('evTools').textContent = tools;
+    }
+    running = false;
+  }
+  $('runEvents').addEventListener('click', run);
+  $('resetEvents').addEventListener('click', reset);
+  $('done3').addEventListener('click', () => markDone(3));
+})();
+
+/* ===================== LAB 4: Tool Selection ===================== */
+(function(){
+  $('checkTools').addEventListener('click', () => {
+    const t1 = $('t1').checked; // web_search - needed for competitor research
+    const t2 = $('t2').checked; // file_search - not needed
+    const t3 = $('t3').checked; // MCP CRM - not needed for this task
+    const t4 = $('t4').checked; // save_finding - needed to save results
+    const correct = t1 && !t2 && !t3 && t4;
+    const note = $('toolNote');
+    if(correct){
+      note.className = 'note ok';
+      note.innerHTML = '<b>Correct</b>web_search finds competitor info from the web. save_finding stores results for the sales team. file_search and CRM are not needed for this external research task.';
+      $('done4').disabled = false;
+    } else {
+      note.className = 'note warn';
+      let hint = '';
+      if(!t1) hint += 'You need web_search to find competitor info online. ';
+      if(t2) hint += 'file_search is for your own documents, not external research. ';
+      if(t3) hint += 'The CRM MCP is for customer data, not competitor research. ';
+      if(!t4) hint += 'You need save_finding to store results for the sales team. ';
+      note.innerHTML = '<b>Not quite</b>' + hint;
+    }
+  });
+  $('done4').addEventListener('click', () => markDone(4));
+})();
+
+/* ===================== LAB 5: Compaction ===================== */
+(function(){
+  const LIMIT = 128000;
+  const BASE = 8000;
+  const PER_TURN = 9000;
+  const COMPACT_AT = 110000;
+  const COMPACT_TO = 40000;
+  function update(){
+    const turns = +$('compSlider').value;
+    $('compTurns').textContent = turns;
+    let tokens = BASE + turns * PER_TURN;
+    let status = 'growing';
+    if(tokens > COMPACT_AT){
+      tokens = COMPACT_TO + (turns - 12) * (PER_TURN * 0.3);
+      status = 'compacted';
+    }
+    if(turns === 0) status = 'idle';
+    tokens = Math.round(Math.min(tokens, LIMIT - 5000));
+    $('compTokens').textContent = tokens.toLocaleString();
+    $('compStatus').textContent = status;
+    const el = $('compStatus');
+    el.className = status === 'compacted' ? 'g' : (status === 'growing' ? 'c' : '');
+    if(status === 'compacted'){
+      $('compNote').innerHTML = '<b>Compaction triggered</b>Around turn 12, context approached the limit. The harness summarized earlier turns, reducing token count while preserving continuity.';
+    } else if(turns > 8){
+      $('compNote').innerHTML = '<b>Approaching limit</b>Context is growing. A few more turns and compaction will trigger.';
+    } else {
+      $('compNote').innerHTML = '<b>Observation</b>Move the slider to see context grow.';
+    }
+  }
+  $('compSlider').addEventListener('input', update);
+  update();
+  $('done5').addEventListener('click', () => markDone(5));
+})();
+
+/* ===================== LAB 6: Steer ===================== */
+(function(){
+  let state = 'idle'; // idle, working, steered, cancelled
+  let msgs = [];
+  function render(){
+    const v = $('steerMsgs');
+    v.innerHTML = '';
+    msgs.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'msg ' + (m.type || '');
+      div.innerHTML = `<span class="role">${m.role}</span>${m.text}`;
+      v.appendChild(div);
+    });
+    const note = $('steerNote');
+    if(state === 'idle') note.innerHTML = '<b>Status</b>Session idle. Send a message to start work.';
+    else if(state === 'working') note.innerHTML = '<b>Status</b>Agent working. Send a message to steer, or cancel.';
+    else if(state === 'steered') note.innerHTML = '<b>Steered</b>Your message redirected the agent. It will incorporate your guidance.';
+    else if(state === 'cancelled') note.innerHTML = '<b>Cancelled</b>Turn cancelled. Session preserved. Send a new message to start again.';
+  }
+  function reset(){
+    state = 'idle';
+    msgs = [
+      {role:'system', text:'You are a research assistant.', type:'sys'},
+      {role:'user', text:'Research the latest developments in quantum computing.'},
+      {role:'assistant', text:'Starting research on quantum computing developments...', type:''},
+    ];
+    state = 'working';
+    render();
+  }
+  $('steerSend').addEventListener('click', () => {
+    const input = $('steerInput').value.trim();
+    if(!input) return;
+    if(state === 'cancelled'){
+      msgs.push({role:'user', text:input});
+      msgs.push({role:'assistant', text:'Starting new turn based on your request...', type:''});
+      state = 'working';
+    } else {
+      msgs.push({role:'user', text:input + ' (steering message)', type:'event'});
+      msgs.push({role:'assistant', text:'Acknowledged. Adjusting research focus based on your guidance...', type:''});
+      state = 'steered';
+    }
+    $('steerInput').value = '';
+    render();
+  });
+  $('steerCancel').addEventListener('click', () => {
+    if(state === 'idle' || state === 'cancelled') return;
+    msgs.push({role:'system', text:'agent.session.input.cancel sent', type:'event'});
+    msgs.push({role:'system', text:'Turn cancelled. Session preserved.', type:'err'});
+    state = 'cancelled';
+    render();
+  });
+  $('steerReset').addEventListener('click', reset);
+  reset();
+  $('done6').addEventListener('click', () => markDone(6));
+})();
+
+/* ===================== LAB 7: Cost ===================== */
+(function(){
+  const tb = $('priceTable');
+  tb.innerHTML = Object.entries(PRICE).map(([m,p]) => `<tr><td>${m}</td><td class="num mono">$${p.in}</td><td class="num mono">$${p.out}</td><td class="small">${p.note}</td></tr>`).join('');
+  function update(){
+    const turns = +$('costTurns').value || 1;
+    const inTok = +$('costIn').value || 2000;
+    const outTok = +$('costOut').value || 1500;
+    const model = $('costModel').value;
+    const p = PRICE[model] || PRICE['gpt-6-astra'];
+    const costIn = (turns * inTok / 1e6) * p.in;
+    const costOut = (turns * outTok / 1e6) * p.out;
+    const total = costIn + costOut;
+    $('costTotal').textContent = fmt$(total);
+    $('costPerTurn').textContent = fmt$(total / turns);
+  }
+  ['costTurns','costIn','costOut','costModel'].forEach(id => $(id).addEventListener('input', update));
+  update();
+  $('done7').addEventListener('click', () => markDone(7));
+})();
+
+/* ===================== DEBRIEF ===================== */
+(function(){
+  const R = [
+    'The Agents API runs a managed Codex harness. OpenAI handles sessions, orchestration, compaction, and recovery.',
+    'Sessions are durable agent instances. Store the session_id to continue conversations across turns.',
+    'Events stream live progress. Items are saved results. Handle turn.completed, turn.failed, or turn.cancelled.',
+    'Three tool types: hosted (web_search, file_search), function calling, and MCP servers.',
+    'Context compaction summarizes older turns automatically to fit the model\'s context window.',
+    'Send a message to an idle session to start a turn. Send during work to steer. Send cancel to stop.',
+    'Cost = model rates + tool costs. Set spend limits. Compaction helps control long-session costs.',
+    'Sandboxes (code execution) are an advanced topic for a future workshop.',
+  ];
+  const ul = $('recap');
+  R.forEach(t => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="box"></span><div>${t}</div>`;
+    li.addEventListener('click', () => li.classList.toggle('on'));
+    ul.appendChild(li);
+  });
+})();
+
+})();
+</script>
+</body>
+</html>
