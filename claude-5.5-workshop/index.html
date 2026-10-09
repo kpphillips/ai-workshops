@@ -3,9 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Claude 5.5: Opus and Sonnet</title>
-<meta name="description" content="A hands-on workshop on Claude Opus 5.5 and Sonnet 5.5: verified facts, cost per task, effort sweeps, migration linting, and repeatable A/B tests for the opinions.">
+<title>Claude 5.5: Haiku, Sonnet and Opus</title>
+<meta name="description" content="A hands-on workshop on Claude Haiku 5.5, Sonnet 5.5 and Opus 5.5: sourced facts, which model to pick for which job, cost per task, effort sweeps, migration linting, and repeatable A/B tests. Independent project by Kevin Phillips.">
 <meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/claude-5.5-workshop/">
+<meta property="og:title" content="Claude 5.5: Haiku, Sonnet and Opus — an interactive workshop">
+<meta property="og:description" content="A hands-on workshop on Claude Haiku 5.5, Sonnet 5.5 and Opus 5.5: sourced facts, which model to pick for which job, cost per task, effort sweeps, migration linting, and repeatable A/B tests.">
+<meta property="og:url" content="https://www.kpphillips.com/ai-workshops/claude-5.5-workshop/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -135,6 +141,10 @@ td.n,th.n{text-align:right}
 .tag.c{color:var(--ink);border-color:var(--alt);background:color-mix(in srgb,var(--alt) 16%,transparent)}
 .tag.t{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .tag.x{color:var(--ink);border-color:var(--red);background:color-mix(in srgb,var(--red) 14%,transparent)}
+.tag.j{color:var(--ink);border-color:var(--ink-soft);border-style:dashed;background:transparent}
+.pick-list{list-style:none;padding:0;margin:.4rem 0 .8rem;font-size:.9rem}
+.pick-list li{padding:.4rem 0;border-bottom:1px solid var(--line)}
+.pick-list li:last-child{border-bottom:0}
 .callout{border:1px solid var(--line-strong);background:var(--surface-2);border-radius:var(--r);padding:.75rem .95rem;margin:1rem 0;font-size:.93rem}
 .callout .ttl{display:block;font-weight:700;font-size:.82rem;margin-bottom:.2rem;color:var(--ink)}
 .callout.caution{border-color:var(--clay);background:color-mix(in srgb,var(--clay) 10%,var(--surface))}
@@ -221,12 +231,12 @@ footer p{max-width:900px;margin:0 auto .5rem}
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell">
 <nav class="nav" aria-label="Workshop modules">
-  <div class="brand">Claude 5.5<span>Opus and Sonnet, measured</span></div>
+  <div class="brand">Claude 5.5<span>Haiku, Sonnet and Opus, measured</span></div>
   <a href="https://www.kpphillips.com/ai-workshops/" style="align-self:flex-start;font-family:var(--f-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);text-decoration:none;">← All workshops</a>
   <div class="tick" aria-hidden="true"></div>
   <div class="progress">
-    <div class="meter" role="progressbar" aria-label="Modules visited" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
-    <small id="progressLabel">0 of 12 modules visited</small>
+    <div class="meter" role="progressbar" aria-label="Modules visited" aria-valuemin="0" aria-valuemax="13" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
+    <small id="progressLabel">0 of 13 modules visited</small>
   </div>
   <ol class="nav-list" id="navList">
     <li><a href="#m0"><span class="n">0</span>Start here</a></li>
@@ -239,8 +249,9 @@ footer p{max-width:900px;margin:0 auto .5rem}
     <li><a href="#m7"><span class="n">7</span>Thinking lines, refusals</a></li>
     <li><a href="#m8"><span class="n">8</span>Pasted-text injection</a></li>
     <li><a href="#m9"><span class="n">9</span>Frontend defaults</a></li>
-    <li><a href="#m10"><span class="n">10</span>Opus or Sonnet</a></li>
-    <li><a href="#m11"><span class="n">11</span>Ship gate</a></li>
+    <li><a href="#m10"><span class="n">10</span>Route by cost</a></li>
+    <li><a href="#m11"><span class="n">11</span>Pick the model</a></li>
+    <li><a href="#m12"><span class="n">12</span>Ship gate</a></li>
   </ol>
   <div class="nav-foot">
     <span class="lbl" id="palLbl">Palette</span>
@@ -258,31 +269,39 @@ footer p{max-width:900px;margin:0 auto .5rem}
 
 <section class="mod" id="m0" data-mod="0">
   <div class="tick" aria-hidden="true"></div>
-  <h1>Claude 5.5: Opus and Sonnet</h1>
-  <p class="lead">Anthropic shipped Opus 5.5 on September 22, 2026 and Sonnet 5.5 six days later. Every lab below either checks a published number or runs a test you can repeat with your own key.</p>
+  <h1>Claude 5.5: Haiku, Sonnet and Opus</h1>
+  <p class="lead">Anthropic shipped Opus 5.5 on September 22, 2026, Sonnet 5.5 six days later and Haiku 5.5 on October 7. This page covers all three, with Fable 5.1 where it is the tier above. Every lab either checks a published number or runs a test you can repeat with your own key, and <a href="#m11">module 11</a> helps you choose which model to start with.</p>
   <div class="legend" aria-label="Evidence labels">
     <span><span class="tag q">Quoted</span> published by the linked source</span>
     <span><span class="tag d">Derived</span> computed on this page from quoted numbers</span>
     <span><span class="tag i">Illustrative</span> demo data, not measurements</span>
     <span><span class="tag c">Creator claim</span> from a video or post, not verified</span>
+    <span><span class="tag j">Workshop judgment</span> this page's own advice, not from a source</span>
   </div>
   <p class="muted" style="font-size:.92rem">Labs run in demo mode until you connect an OpenRouter key in the <a href="#connect">Live labs panel</a> (right rail; at the bottom on phones).</p>
   <div class="lab">
-    <div class="lab-head"><h3>The two models side by side</h3><span class="tag q">Quoted</span></div>
+    <div class="lab-head"><h3>The lineup side by side</h3><span class="tag q">Quoted</span></div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th scope="col">Spec</th><th scope="col">Opus 5.5</th><th scope="col">Sonnet 5.5</th></tr></thead>
+      <thead><tr><th scope="col">Spec</th><th scope="col">Haiku 5.5</th><th scope="col">Sonnet 5.5</th><th scope="col">Opus 5.5</th><th scope="col">Fable 5.1</th></tr></thead>
       <tbody>
-        <tr><td>API model ID</td><td><code>claude-opus-5-5</code></td><td><code>claude-sonnet-5-5</code></td></tr>
-        <tr><td>Input / output per 1M tokens</td><td class="num">$4 / $20</td><td class="num">$2 / $10</td></tr>
-        <tr><td>Cache read per 1M tokens</td><td class="num">$0.20</td><td class="num">$0.20</td></tr>
-        <tr><td>5-minute cache write per 1M tokens</td><td class="num">$5</td><td class="num">$2.50</td></tr>
-        <tr><td>Default effort on the Claude API</td><td><code>medium</code></td><td><code>high</code> (Medium in Claude Code and the apps)</td></tr>
-        <tr><td>Lowest thinking setting</td><td>Adaptive, always on; lower effort instead</td><td><code>between_tools</code> (no up-front thinking, high effort or below)</td></tr>
-        <tr><td>Context / max output</td><td class="num">1M / 128K</td><td class="num">1M / 128K</td></tr>
-        <tr><td>Anthropic's positioning</td><td>Complex work requiring careful judgment</td><td>Well-scoped everyday tasks, bug fixes, documents, slides, spreadsheets</td></tr>
+        <tr><td>API model ID</td><td><code>claude-haiku-5-5</code></td><td><code>claude-sonnet-5-5</code></td><td><code>claude-opus-5-5</code></td><td><code>claude-fable-5-1</code></td></tr>
+        <tr><td>OpenRouter slug (live labs)</td><td><code>anthropic/claude-haiku-5.5</code></td><td><code>anthropic/claude-sonnet-5.5</code></td><td><code>anthropic/claude-opus-5.5</code></td><td><code>anthropic/claude-fable-5.1</code></td></tr>
+        <tr><td>Input / output per 1M tokens</td><td class="num">$0.10 / $0.50 up to 100K-token prompts; $0.50 / $2.50 over</td><td class="num">$2 / $10</td><td class="num">$4 / $20</td><td class="num">$10 / $50</td></tr>
+        <tr><td>Cache read per 1M tokens</td><td class="num">$0.01 up to 100K; $0.05 over</td><td class="num">$0.10 (was $0.20 until Oct 7)</td><td class="num">$0.20</td><td class="num">$0.25</td></tr>
+        <tr><td>5-minute cache write per 1M tokens</td><td class="num">$0.125 up to 100K; $0.625 over</td><td class="num">$2.50</td><td class="num">$5</td><td class="num">$12.50</td></tr>
+        <tr><td>Default effort on the Claude API</td><td><code>medium</code></td><td><code>high</code> (Medium in Claude Code and the apps)</td><td><code>medium</code></td><td><code>high</code></td></tr>
+        <tr><td>Lowest thinking setting</td><td>Adaptive, on by default; <code>disabled</code> works at high effort or below</td><td><code>between_tools</code> (no up-front thinking, high effort or below)</td><td>Adaptive, always on; lower effort instead</td><td>Adaptive, always on</td></tr>
+        <tr><td>Context / max output</td><td class="num">1M / 128K</td><td class="num">1M / 128K</td><td class="num">1M / 128K</td><td class="num">1M / 128K</td></tr>
+        <tr><td>Latency, Anthropic's comparison</td><td>Fastest</td><td>Fast</td><td>Moderate</td><td>Slower</td></tr>
+        <tr><td>Anthropic's positioning</td><td>High-volume, latency-sensitive tasks such as classification, extraction, and routing</td><td>Well-scoped everyday tasks, bug fixes, documents, slides, spreadsheets; "the best combination of speed and intelligence"</td><td>Complex work requiring careful judgment; long-running agentic coding and knowledge work</td><td>Demanding reasoning and long-horizon agentic work</td></tr>
       </tbody>
     </table></div>
-    <p class="faint" style="font-size:.84rem;margin:0">Sources: <a href="https://www.anthropic.com/claude-opus-5-5">Opus 5.5 announcement</a>, <a href="https://platform.claude.com/docs/en/models/opus-5-5/whats-new-opus-5-5">What's new in Opus 5.5</a>, <a href="https://www.anthropic.com/claude-sonnet-5-5">Sonnet 5.5 announcement</a>, <a href="https://platform.claude.com/docs/en/models/sonnet-5-5/overview">Sonnet 5.5 model page</a>.</p>
+    <p class="faint" style="font-size:.84rem;margin:0 0 .6rem">Sources: <a href="https://platform.claude.com/docs/en/models/overview">Models overview</a>, <a href="https://platform.claude.com/docs/en/models/haiku-5-5/overview">Haiku 5.5 model page</a>, <a href="https://www.anthropic.com/claude-haiku-5-5">Haiku 5.5 announcement</a>, <a href="https://www.anthropic.com/claude-opus-5-5">Opus 5.5 announcement</a>, <a href="https://platform.claude.com/docs/en/models/opus-5-5/whats-new-opus-5-5">What's new in Opus 5.5</a>, <a href="https://www.anthropic.com/claude-sonnet-5-5">Sonnet 5.5 announcement</a>, <a href="https://platform.claude.com/docs/en/models/sonnet-5-5/overview">Sonnet 5.5 model page</a>, <a href="https://platform.claude.com/docs/en/models/fable-5-1/overview">Fable 5.1 model page</a>. OpenRouter slugs: <a href="https://openrouter.ai/api/v1/models">OpenRouter models API</a>, checked October 9, 2026.</p>
+    <p class="faint" style="font-size:.84rem;margin:0">Not published in the sources reviewed, so left out: a Haiku 5.5 price on OpenRouter above the 100K split (its listing shows one rate, $0.10 / $0.50), how Fable 5.1's tokenizer compares with the others, and Haiku 5.5 scores at default effort other than GDPval-AA and AA-Briefcase. Haiku 5.5 does not support Priority Tier or a server-side refusal fallback (<a href="https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide">migration guide</a>).</p>
+  </div>
+  <div class="callout caution">
+    <span class="ttl">A price that changed after launch <span class="tag q">Quoted</span></span>
+    The Sonnet 5.5 launch page (September 28) still lists cache reads at $0.20 per million tokens. The Haiku 5.5 announcement says that from October 7 they cost $0.10, "around 20% cheaper" on most agentic work, and the Sonnet 5.5 model page and OpenRouter now show $0.10. Every Sonnet 5.5 price line is now exactly half the matching Opus 5.5 line. Opus 5.5's cache read is still $0.20.
   </div>
   <div class="callout">
     <span class="ttl">The case study</span>
@@ -354,7 +373,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
 <section class="mod" id="m3" data-mod="3">
   <div class="tick" aria-hidden="true"></div>
   <h2>3. Sweep effort instead of guessing</h2>
-  <p class="intro">Effort is the main control on both models, and the API defaults differ: <code>medium</code> for Opus 5.5 and <code>high</code> for Sonnet 5.5. Run the order-extraction task at each level and read tokens, time and the checker result side by side.</p>
+  <p class="intro">Effort is the main control on all three models, and the API defaults differ: <code>medium</code> for Haiku 5.5 and Opus 5.5, <code>high</code> for Sonnet 5.5. Haiku 5.5 is the first Haiku with effort levels, and it supports all five. Run the order-extraction task at each level and read tokens, time and the checker result side by side.</p>
   <div class="lab">
     <div class="lab-head"><h3>Effort sweep on the Northgate order</h3><span class="lab-kind">Test it yourself</span></div>
     <div class="row">
@@ -373,6 +392,11 @@ footer p{max-width:900px;margin:0 auto .5rem}
     </div>
     <div class="row"><button class="btn" id="swRun" type="button">Run sweep</button><span class="muted" id="swEst" style="font-size:.85rem"></span></div>
     <div class="out" id="swOut" aria-live="polite"></div>
+    <p class="muted" id="swHaikuNote" style="font-size:.86rem;margin:.6rem 0 0" hidden>Haiku 5.5 note: Anthropic's prompting guide says that at <code>xhigh</code> in multi-turn chats the model sometimes writes its whole answer in its thinking and ends the turn with no visible text, so this lab flags an empty reply. It also says <code>thinking: {"type":"disabled"}</code> returns a 400 at <code>xhigh</code> and <code>max</code>; this lab never sends it <span class="tag q">Quoted</span>.</p>
+  </div>
+  <div class="callout">
+    <span class="ttl">Haiku 5.5 reacts to effort more than the larger models <span class="tag q">Quoted</span></span>
+    In the <a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=133">system card (section 8.11.3)</a>, Haiku 5.5's length-adjusted HealthBench Professional score rose from <span class="num">57.9%</span> at low to <span class="num">59.9%</span> at medium (the API default) and <span class="num">64.8%</span> at max, while Sonnet 5.5, Opus 5.5 and Fable 5.1 each moved by less than 2 points across the five levels. Answers took 8 to 21 seconds from low to xhigh and about 110 seconds at max. On GDPval-AA the default medium scored <span class="num">1277</span> Elo using about a tenth of the output tokens that max used, which scored <span class="num">1620</span> (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=131">section 8.10.2</a>). Anthropic's published Haiku 5.5 scores are at max effort, so run your own sweep at the effort you ship.
   </div>
   <div class="callout creator">
     <span class="ttl">Creator claim under test</span>
@@ -383,13 +407,14 @@ footer p{max-width:900px;margin:0 auto .5rem}
 <section class="mod" id="m4" data-mod="4">
   <div class="tick" aria-hidden="true"></div>
   <h2>4. Lint an old request before it returns a 400</h2>
-  <p class="intro">Opus 5.5 has four breaking changes from Opus 5, and Sonnet 5.5 has five from Sonnet 5. Paste a request body and the linter names each problem, links the doc, and writes a fixed request.</p>
+  <p class="intro">Opus 5.5 has four breaking changes from Opus 5, Sonnet 5.5 has five from Sonnet 5, and Haiku 5.5 has five from Haiku 4.5. Paste a request body and the linter names each problem, links the doc, and writes a fixed request.</p>
   <div class="lab">
     <div class="lab-head"><h3>Messages API request linter</h3><span class="lab-kind">Fact check</span></div>
     <div class="row">
-      <label class="field"><span>Target model</span><select id="lnTarget"><option value="opus-5.5">Claude Opus 5.5</option><option value="sonnet-5.5">Claude Sonnet 5.5</option></select></label>
+      <label class="field"><span>Target model</span><select id="lnTarget"><option value="opus-5.5">Claude Opus 5.5</option><option value="sonnet-5.5">Claude Sonnet 5.5</option><option value="haiku-5.5">Claude Haiku 5.5</option></select></label>
       <button class="btn ghost sm" type="button" data-sample="opus">Load an Opus 5 agent request</button>
       <button class="btn ghost sm" type="button" data-sample="sonnet">Load a Sonnet 5 extraction request</button>
+      <button class="btn ghost sm" type="button" data-sample="haiku">Load a Haiku 4.5 classifier request</button>
     </div>
     <label class="field"><span>Request body (JSON)</span><textarea id="lnIn" spellcheck="false" style="min-height:12rem"></textarea></label>
     <div class="row" style="margin-top:.6rem"><button class="btn" id="lnRun" type="button">Lint request</button></div>
@@ -432,7 +457,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
 <section class="mod" id="m6" data-mod="6">
   <div class="tick" aria-hidden="true"></div>
   <h2>6. Keep unattended runs going, and stop them on purpose</h2>
-  <p class="intro">Both models send progress reports that end the turn, so a loop that reads every <code>end_turn</code> as "done" quits early. Configure a harness in the simulator, then test two claims about subagents and mid-run corrections.</p>
+  <p class="intro">Opus 5.5 and Sonnet 5.5 send progress reports that end the turn, so a loop that reads every <code>end_turn</code> as "done" quits early. Configure a harness in the simulator, then test two claims about subagents and mid-run corrections.</p>
   <div class="lab">
     <div class="lab-head"><h3>Harness simulator</h3><span class="lab-kind">Fact check (harness logic)</span></div>
     <div class="row">
@@ -477,7 +502,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
 <section class="mod" id="m7" data-mod="7">
   <div class="tick" aria-hidden="true"></div>
   <h2>7. Drop reflex thinking lines, and handle refusals by category</h2>
-  <p class="intro">Anthropic found that removing "think carefully" from an Opus 5.5 chat prompt made replies start sooner with no clear quality drop, while the Sonnet 5.5 guide adds a think-first line for JSON reasoning tasks. Declines arrive as normal responses with a category, and each category has its own fallback.</p>
+  <p class="intro">Anthropic found that removing "think carefully" from an Opus 5.5 chat prompt made replies start sooner with no clear quality drop, while the Sonnet 5.5 guide adds a think-first line for JSON reasoning tasks. Declines arrive as normal responses with a category, and each category has its own fallback; Haiku 5.5 has none.</p>
   <div class="lab">
     <div class="lab-head"><h3>"Think carefully" A/B</h3><span class="lab-kind">Test it yourself</span></div>
     <p class="muted" style="font-size:.9rem">Question: is $1,124.50 the right total for 60 signs at $14.50 with a 15% rush on signs, plus 1,000 cards at $62 per 500? B adds "Think carefully before responding." to the system prompt.</p>
@@ -492,7 +517,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
   <div class="lab">
     <div class="lab-head"><h3>Refusal router</h3><span class="lab-kind">Fact check</span></div>
     <div class="row">
-      <label class="field"><span>Model</span><select id="rfModel"><option value="opus-5.5">Claude Opus 5.5</option><option value="sonnet-5.5">Claude Sonnet 5.5</option></select></label>
+      <label class="field"><span>Model</span><select id="rfModel"><option value="opus-5.5">Claude Opus 5.5</option><option value="sonnet-5.5">Claude Sonnet 5.5</option><option value="haiku-5.5">Claude Haiku 5.5</option></select></label>
       <label class="field"><span><code>stop_details.category</code></span><select id="rfCat"></select></label>
     </div>
     <div class="out" id="rfOut" aria-live="polite"></div>
@@ -542,10 +567,15 @@ footer p{max-width:900px;margin:0 auto .5rem}
 <section class="mod" id="m10" data-mod="10">
   <div class="tick" aria-hidden="true"></div>
   <h2>10. Route by cost per passing task</h2>
-  <p class="intro">Sonnet 5.5 is two Elo points behind Opus 5.5 on GDPval-AA, yet Anthropic says Opus stays clearly stronger on complex open-ended work. Run both checkable tasks on both models and let the cheapest passing configuration write your routing rule.</p>
+  <p class="intro">Sonnet 5.5 is two Elo points behind Opus 5.5 on GDPval-AA, yet Anthropic says Opus stays clearly stronger on complex open-ended work. For prompts up to 100K tokens Haiku 5.5's input price is one twentieth of Sonnet 5.5's, and Anthropic says it is best for narrowly scoped work. Run both checkable tasks on the models you tick and let the cheapest passing configuration write your routing rule.</p>
   <div class="lab">
     <div class="lab-head"><h3>Cost versus pass rate</h3><span class="lab-kind">Test it yourself</span></div>
     <div class="row">
+      <div class="field"><span class="lbl-sm">Models</span><div class="checks" id="rtModels">
+        <label><input type="checkbox" value="haiku-5.5" checked> Haiku 5.5</label>
+        <label><input type="checkbox" value="sonnet-5.5" checked> Sonnet 5.5</label>
+        <label><input type="checkbox" value="opus-5.5" checked> Opus 5.5</label>
+      </div></div>
       <div class="field"><span class="lbl-sm">Tasks</span><div class="checks" id="rtTasks">
         <label><input type="checkbox" value="order" checked> Order extraction</label>
         <label><input type="checkbox" value="invoice" checked> Invoice fix</label>
@@ -559,18 +589,69 @@ footer p{max-width:900px;margin:0 auto .5rem}
     <div class="row">
       <label class="field"><span>Runs per point</span><input type="number" id="rtRuns" min="1" max="3" value="2"></label>
       <label class="field"><span>Pass-rate bar</span><select id="rtBar"><option value="1">100% of runs</option><option value="0.5">At least 50%</option></select></label>
-      <button class="btn" id="rtRun" type="button">Run both models</button>
+      <button class="btn" id="rtRun" type="button">Run the ticked models</button>
       <span class="muted" id="rtEst" style="font-size:.85rem"></span>
     </div>
     <div class="out" id="rtOut" aria-live="polite"></div>
   </div>
   <div class="callout caution">
     <span class="ttl">Benchmark trap</span>
-    Opus 5.5's Chartography score is <span class="num">89.0%</span> on its own launch page, measured with tools. The Sonnet 5.5 page lists Opus 5.5 at <span class="num">64.4%</span> without tools, next to Sonnet 5.5 at <span class="num">61.6%</span> <span class="tag q">Quoted</span>. Only compare rows run under the same conditions.
+    Opus 5.5's Chartography score is <span class="num">89.0%</span> on its own launch page, measured with tools. The Sonnet 5.5 page lists Opus 5.5 at <span class="num">64.4%</span> without tools, next to Sonnet 5.5 at <span class="num">61.6%</span> <span class="tag q">Quoted</span>. The Haiku 5.5 launch table has the same trap: it shows FrontierCode Main at <span class="num">46.4%</span> for Haiku 5.5 beside <span class="num">52.1%</span> for Sonnet 5.5, but 52.1% is Sonnet's best score, at xhigh. At max, the effort Haiku 5.5 was run at, Sonnet 5.5 scored <span class="num">46.2%</span> (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=113">system card, section 8.3</a>) <span class="tag q">Quoted</span>. Only compare rows run under the same conditions.
   </div>
 </section>
 
 <section class="mod" id="m11" data-mod="11">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>11. Pick the model for the job</h2>
+  <p class="intro">Anthropic's model guide gives two ways to start: efficiency-first, beginning with Haiku 5.5 and moving up only where it falls short, or capability-first, beginning with Opus 5.5 and moving down as your evals allow. It adds that tuning effort "is often a better lever than switching models." Choose a model for each task below, then see what the sources say. There is no score: several picks are defensible, and the point is to see what each one buys and risks.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Pick the model</h3><span class="lab-kind">Think it through</span></div>
+    <div class="row">
+      <label class="field grow"><span>Task</span><select id="pkTask"></select></label>
+    </div>
+    <p class="muted" id="pkScenario" style="font-size:.93rem;margin:0 0 .8rem"></p>
+    <fieldset class="field" style="border:0;padding:0;margin:0 0 .8rem"><legend class="lbl-sm">Your pick</legend>
+      <div class="checks" id="pkModels">
+        <label><input type="radio" name="pkModel" value="haiku-5.5"> Haiku 5.5</label>
+        <label><input type="radio" name="pkModel" value="sonnet-5.5"> Sonnet 5.5</label>
+        <label><input type="radio" name="pkModel" value="opus-5.5"> Opus 5.5</label>
+        <label><input type="radio" name="pkModel" value="fable-5.1"> Fable 5.1</label>
+      </div>
+    </fieldset>
+    <div class="row"><button class="btn" id="pkRun" type="button">Compare with the sources</button></div>
+    <div class="out" id="pkOut" aria-live="polite"></div>
+  </div>
+  <div class="lab">
+    <div class="lab-head"><h3>When to use each</h3><span class="lab-kind">Reference</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th scope="col">Model</th><th scope="col">Anthropic's positioning <span class="tag q">Quoted</span></th><th scope="col">Reach for it when <span class="tag j">Workshop judgment</span></th><th scope="col">Watch for</th></tr></thead>
+      <tbody>
+        <tr><td>Haiku 5.5</td><td>"High-volume, latency-sensitive tasks such as classification, extraction, and routing." Best suited to "narrowly scoped tasks" such as compaction, summarization and subagent work.</td><td>Volume and speed set your budget, the task is narrow, and you can check its output on a sample. Also as a helper under a larger lead model.</td><td>Complex agentic coding: Terminal-Bench 4.0 <span class="num">39.2%</span> against <span class="num">70.6%</span> for Sonnet 5.5 <span class="tag q">Quoted</span>. In the system card's audit it over-refused more than any other model tested and hallucinated more than other recent models. Published scores are at max effort. No server-side refusal fallback.</td></tr>
+        <tr><td>Sonnet 5.5</td><td>"The best combination of speed and intelligence." Strongest at "well-scoped everyday tasks, fixing bugs, and creating polished documents, slides, and spreadsheets."</td><td>Everyday coding, document and agent work where you want strong results at half Opus 5.5's list price on every price line.</td><td>Anthropic: Opus 5.5 "remains clearly stronger at complex, open-ended work requiring sustained judgment." At max effort Sonnet 5.5 can launch review subagents and make out-of-scope edits <span class="tag q">Quoted</span>.</td></tr>
+        <tr><td>Opus 5.5</td><td>"Long-running agentic coding and knowledge work"; "complex work requiring careful judgment." The models overview says to start here for most workloads.</td><td>Unattended multi-hour agents, large refactors, open-ended judgment calls, or the capability-first baseline you optimize down from.</td><td>List price $4 / $20 against $2 / $10 for Sonnet 5.5. Its system card flags "asserting unverified inferences as established fact," so keep a verification step.</td></tr>
+        <tr><td>Fable 5.1</td><td>"Demanding reasoning and long-horizon agentic work," for when "your evals on Claude Opus 5.5 at higher effort still fall short."</td><td>Only after Opus 5.5 at xhigh or max misses your bar on your own evals.</td><td>List price $10 / $50 and Anthropic's latency comparison says "Slower." This workshop reviewed no Fable 5.1 system card.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="faint" style="font-size:.84rem;margin:0">Sources: <a href="https://platform.claude.com/docs/en/models/overview">Models overview</a>, <a href="https://platform.claude.com/docs/en/about-claude/models/choosing-a-model">Choosing the right model</a>, <a href="https://www.anthropic.com/claude-haiku-5-5">Haiku 5.5 announcement</a>, <a href="https://www.anthropic.com/claude-sonnet-5-5">Sonnet 5.5 announcement</a>, <a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf">Haiku 5.5 system card</a>, <a href="https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf">Opus 5.5 system card</a>.</p>
+  </div>
+  <div class="lab">
+    <div class="lab-head"><h3>What the published scores say</h3><span class="tag q">Quoted</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th scope="col">Benchmark</th><th scope="col" class="n">Haiku 5.5</th><th scope="col" class="n">Sonnet 5.5</th><th scope="col" class="n">Opus 5.5</th></tr></thead>
+      <tbody>
+        <tr><td>Terminal-Bench 4.0, agentic coding (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=115">p. 115</a>)</td><td class="n num">39.2%</td><td class="n num">70.6%</td><td class="n num">66.4% (xhigh, its best)</td></tr>
+        <tr><td>ProgramBench, long-context coding (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=117">p. 117</a>)</td><td class="n num">82.0%</td><td class="n num">79.7%</td><td class="n num">91.2%</td></tr>
+        <tr><td>PhysicianBench, share of attempts passed (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=133">p. 133</a>)</td><td class="n num">43.0%</td><td class="n num">63.2%</td><td class="n num">68.4%</td></tr>
+        <tr><td>GDPval-AA v2.1, Elo (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=111">p. 111</a>)</td><td class="n num">1620</td><td class="n num">1840</td><td class="n">not listed</td></tr>
+        <tr><td>OSWorld 2.1, offline subset (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=111">p. 111</a>)</td><td class="n num">72.4%</td><td class="n num">83.9%</td><td class="n">not listed</td></tr>
+        <tr><td>Humanity's Last Exam, no tools (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=111">p. 111</a>)</td><td class="n num">45.9%</td><td class="n num">56.9%</td><td class="n">not listed</td></tr>
+      </tbody>
+    </table></div>
+    <p class="faint" style="font-size:.84rem;margin:0">Haiku 5.5 rows are at max effort, the system card's standard setting. The card does not state the effort used for Sonnet 5.5 and Opus 5.5 on ProgramBench, so treat that row as indicative; it is also the one row where Haiku 5.5 is ahead of Sonnet 5.5. "Not listed" means the Haiku 5.5 sources give no Opus 5.5 figure for that row.</p>
+  </div>
+</section>
+
+<section class="mod" id="m12" data-mod="12">
   <div class="tick" aria-hidden="true"></div>
   <h2>Ship gate</h2>
   <p class="intro">Tick an item once you have done it on your own workload, not just in this page.</p>
@@ -579,6 +660,10 @@ footer p{max-width:900px;margin:0 auto .5rem}
   <div class="callout caution">
     <span class="ttl">From Anthropic's Opus 5.5 publications <span class="tag q">Quoted</span></span>
     The <a href="https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf">system card</a> says that in internal use "the top subcategory of flagged behavior was asserting unverified inferences as established fact." The <a href="https://www.anthropic.com/claude-opus-5-5">launch post</a> reports "signs that Opus 5.5 often suspects it is being evaluated," which limits how well any test, including the ones on this page, predicts real-world behavior. The Sonnet 5.5 system card was not reviewed for this workshop; Sonnet facts here come from its announcement and docs.
+  </div>
+  <div class="callout caution">
+    <span class="ttl">From Anthropic's Haiku 5.5 publications <span class="tag q">Quoted</span></span>
+    The <a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf">system card</a> reports that in its automated audit Haiku 5.5 "over-refused more than any other model we tested," that it "hallucinated more than other recent models," and that it used a leaked answer without telling the user 17% of the time, against 2% for Haiku 4.5 (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=56">section 6.1.2</a>). Its published benchmark scores are at max effort, and the default is medium. <span class="tag j">Workshop judgment</span> Verify Haiku 5.5 on a sample of your own tasks before you let it run unattended.
   </div>
 </section>
 
@@ -614,7 +699,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
 <footer>
   <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, OpenRouter, OpenAI, Search Engine Journal, Medium, or any creator named here. Product names belong to their owners.</p>
   <p>Live labs call paid models through your own OpenRouter key and cost real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys">openrouter.ai/keys</a> before connecting. Use is subject to <a href="https://www.anthropic.com/legal/aup">Anthropic's Usage Policy</a> and <a href="https://openrouter.ai/terms">OpenRouter's Terms</a>.</p>
-  <p>Facts checked against primary sources on September 30, 2026. Prices and benchmarks change; re-check before relying on them.</p>
+  <p>Facts checked against primary sources on October 9, 2026. Prices and benchmarks change; re-check before relying on them.</p>
 </footer>
 
 <script>
@@ -624,10 +709,14 @@ footer p{max-width:900px;margin:0 auto .5rem}
 
   // ---------- Prices (quoted, USD per million tokens) ----------
   // Opus 5.5 + Opus 5: anthropic.com/claude-opus-5-5 pricing table.
-  // Sonnet 5.5: platform.claude.com/docs/en/models/sonnet-5-5/overview. Sonnet 5: "same prices as Sonnet 5" (whats-new-sonnet-5-5).
+  // Sonnet 5.5: platform.claude.com/docs/en/models/sonnet-5-5/overview (cache read $0.10 since Oct 7, 2026; $0.20 at launch). Sonnet 5: "same prices as Sonnet 5" (whats-new-sonnet-5-5).
+  // Haiku 5.5: platform.claude.com/docs/en/models/haiku-5-5/overview. Higher rates in `long` apply to prompts over 100,000 tokens.
+  // Fable 5.1: platform.claude.com/docs/en/models/fable-5-1/overview. Slugs checked against openrouter.ai/api/v1/models on Oct 9, 2026.
   var MODELS = {
-    'sonnet-5.5': { label: 'Claude Sonnet 5.5', slug: 'anthropic/claude-sonnet-5.5', apiId: 'claude-sonnet-5-5', input: 2, output: 10, cacheRead: 0.2, cacheWrite: 2.5, apiDefaultEffort: 'high', live: true },
+    'haiku-5.5': { label: 'Claude Haiku 5.5', slug: 'anthropic/claude-haiku-5.5', apiId: 'claude-haiku-5-5', input: 0.1, output: 0.5, cacheRead: 0.01, cacheWrite: 0.125, long: { input: 0.5, output: 2.5, cacheRead: 0.05, cacheWrite: 0.625 }, apiDefaultEffort: 'medium', live: true },
+    'sonnet-5.5': { label: 'Claude Sonnet 5.5', slug: 'anthropic/claude-sonnet-5.5', apiId: 'claude-sonnet-5-5', input: 2, output: 10, cacheRead: 0.1, cacheWrite: 2.5, apiDefaultEffort: 'high', live: true },
     'opus-5.5': { label: 'Claude Opus 5.5', slug: 'anthropic/claude-opus-5.5', apiId: 'claude-opus-5-5', input: 4, output: 20, cacheRead: 0.2, cacheWrite: 5, apiDefaultEffort: 'medium', live: true },
+    'fable-5.1': { label: 'Claude Fable 5.1', slug: 'anthropic/claude-fable-5.1', apiId: 'claude-fable-5-1', input: 10, output: 50, cacheRead: 0.25, cacheWrite: 12.5, apiDefaultEffort: 'high', live: false },
     'opus-5': { label: 'Claude Opus 5', slug: 'anthropic/claude-opus-5', apiId: 'claude-opus-5', input: 5, output: 25, cacheRead: 0.5, cacheWrite: 6.25, apiDefaultEffort: 'high', live: false },
     'sonnet-5': { label: 'Claude Sonnet 5', slug: 'anthropic/claude-sonnet-5', apiId: 'claude-sonnet-5', input: 2, output: 10, cacheRead: 0.2, cacheWrite: 2.5, apiDefaultEffort: null, live: false }
   };
@@ -639,27 +728,37 @@ footer p{max-width:900px;margin:0 auto .5rem}
     'GPT-5.6 Sol': 1588, 'GPT-6 Astra': 1542, 'GPT-6 Sol': 1487, 'Claude Sonnet 5': 1449
   };
 
+  // GDPval-AA v2.1 Elo as listed on the Haiku 5.5 launch page and system card (section 8.10.2), at max effort.
+  // Sonnet 5.5 reads 1840 there and 1844 on its own launch page, so comparisons stay inside one table.
+  var GDPVAL_HAIKU = { 'Claude Haiku 5.5': 1620, 'Claude Sonnet 5.5': 1840, 'GPT-6 Luna': 1437, 'Claude Haiku 4.5': 735 };
+  var GDPVAL_HAIKU_MEDIUM = 1277; // Haiku 5.5 at its default effort, system card section 8.10.2
+
   function round(n, d) { var p = Math.pow(10, d == null ? 2 : d); return Math.round(n * p) / p; }
 
   // usage: {input, cacheRead, cacheWrite, output} in tokens
+  // usage.promptTokens: size of one request's prompt, used to pick Haiku 5.5's rate tier. Defaults to input + cache tokens.
   function costOf(modelKey, usage, batch) {
     var m = MODELS[modelKey];
     if (!m) throw new Error('Unknown model ' + modelKey);
     var u = usage || {};
+    var prompt = u.promptTokens != null ? u.promptTokens : (u.input || 0) + (u.cacheRead || 0) + (u.cacheWrite || 0);
+    var r = m.long && prompt > 100000 ? m.long : m;
     var mult = batch ? 0.5 : 1; // batch halves input and output (docs); cache rates left as listed
-    var c = ((u.input || 0) * m.input * mult + (u.output || 0) * m.output * mult +
-      (u.cacheRead || 0) * m.cacheRead + (u.cacheWrite || 0) * m.cacheWrite) / 1e6;
+    var c = ((u.input || 0) * r.input * mult + (u.output || 0) * r.output * mult +
+      (u.cacheRead || 0) * r.cacheRead + (u.cacheWrite || 0) * r.cacheWrite) / 1e6;
     return c;
   }
+  function longTier(modelKey, promptTokens) { var m = MODELS[modelKey]; return !!(m && m.long && promptTokens > 100000); }
 
   // Per-task comparison. p: {baseline, candidate, freshInput, cachedInput, output, turns, tokenRatio}
   function compareTask(p) {
     var turns = Math.max(1, p.turns || 1);
     var ratio = p.tokenRatio == null ? 1 : p.tokenRatio;
-    var base = { input: p.freshInput * turns, cacheRead: p.cachedInput * turns, output: p.output * turns };
-    var cand = { input: base.input * ratio, cacheRead: base.cacheRead * ratio, output: base.output * ratio };
+    var promptPerTurn = p.freshInput + p.cachedInput;
+    var base = { input: p.freshInput * turns, cacheRead: p.cachedInput * turns, output: p.output * turns, promptTokens: promptPerTurn };
+    var cand = { input: base.input * ratio, cacheRead: base.cacheRead * ratio, output: base.output * ratio, promptTokens: promptPerTurn * ratio };
     var cb = costOf(p.baseline, base), cc = costOf(p.candidate, cand);
-    return { baselineCost: cb, candidateCost: cc, change: cb === 0 ? 0 : (cc - cb) / cb, baseUsage: base, candUsage: cand };
+    return { baselineCost: cb, candidateCost: cc, change: cb === 0 ? 0 : (cc - cb) / cb, baseUsage: base, candUsage: cand, baseLong: longTier(p.baseline, base.promptTokens), candLong: longTier(p.candidate, cand.promptTokens) };
   }
 
   // Token ratio the candidate needs to hit a target change vs the baseline at the same token mix.
@@ -673,6 +772,20 @@ footer p{max-width:900px;margin:0 auto .5rem}
     if (!(a in GDPVAL) || !(b in GDPVAL)) return null;
     return GDPVAL[a] - GDPVAL[b];
   }
+  // Returns {a, b, gap, table} using one table that lists both names, or null when no source ranks them together.
+  function eloCompare(a, b) {
+    var tables = [['launch', GDPVAL], ['haiku', GDPVAL_HAIKU]];
+    for (var i = 0; i < tables.length; i++) {
+      var t = tables[i][1];
+      if (a in t && b in t) return { a: t[a], b: t[b], gap: t[a] - t[b], table: tables[i][0] };
+    }
+    return null;
+  }
+  function eloNames() {
+    var seen = {}, out = [];
+    Object.keys(GDPVAL).concat(Object.keys(GDPVAL_HAIKU)).forEach(function (n) { if (!seen[n]) { seen[n] = 1; out.push(n); } });
+    return out;
+  }
 
   // ---------- Migration linter ----------
   var DOCS = {
@@ -680,7 +793,11 @@ footer p{max-width:900px;margin:0 auto .5rem}
     sonnetNew: 'https://platform.claude.com/docs/en/models/sonnet-5-5/whats-new-sonnet-5-5',
     opusPrompt: 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5',
     sonnetPrompt: 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5-5',
-    sonnetOverview: 'https://platform.claude.com/docs/en/models/sonnet-5-5/overview'
+    sonnetOverview: 'https://platform.claude.com/docs/en/models/sonnet-5-5/overview',
+    haikuNew: 'https://platform.claude.com/docs/en/models/haiku-5-5/whats-new-haiku-5-5',
+    haikuMig: 'https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide',
+    haikuPrompt: 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5',
+    haikuOverview: 'https://platform.claude.com/docs/en/models/haiku-5-5/overview'
   };
 
   function lintRequest(text, target) {
@@ -689,20 +806,32 @@ footer p{max-width:900px;margin:0 auto .5rem}
     try { req = JSON.parse(text); } catch (e) { out.parseError = 'This is not valid JSON: ' + e.message + '. Paste the request body only, without the endpoint or headers.'; return out; }
     if (!req || typeof req !== 'object' || Array.isArray(req)) { out.parseError = 'Expected a JSON object (the Messages API request body).'; return out; }
     var isOpus = target === 'opus-5.5';
+    var isHaiku = target === 'haiku-5.5';
     var m = MODELS[target];
-    var ref = isOpus ? DOCS.opusNew : DOCS.sonnetNew;
+    var ref = isHaiku ? DOCS.haikuNew : isOpus ? DOCS.opusNew : DOCS.sonnetNew;
+    var promptRef = isHaiku ? DOCS.haikuPrompt : isOpus ? DOCS.opusPrompt : DOCS.sonnetPrompt;
     var fix = JSON.parse(JSON.stringify(req));
     function add(level, rule, msg, link) { out.issues.push({ level: level, rule: rule, msg: msg, ref: link || ref }); }
 
     if (fix.model !== m.apiId) {
-      add('fix', 'model-id', 'Model is "' + (req.model || '(missing)') + '". Set it to "' + m.apiId + '".');
+      add('fix', 'model-id', 'Model is "' + (req.model || '(missing)') + '". Set it to "' + m.apiId + '".', isHaiku ? DOCS.haikuMig : undefined);
       fix.model = m.apiId;
+    }
+    if (isHaiku && /haiku-4-5/.test(String(req.model || ''))) {
+      add('info', 'recount-tokens', 'The same text counts as roughly 30% more tokens on Haiku 5.5 than on Haiku 4.5. Recount prompts, and revisit max_tokens and cost estimates.', DOCS.haikuMig);
     }
 
     var t = req.thinking;
     var effort = req.output_config && req.output_config.effort;
     if (t && t.type === 'disabled') {
-      if (isOpus) {
+      if (isHaiku) {
+        if (effort === 'xhigh' || effort === 'max') {
+          add('error', 'thinking-disabled', 'thinking.type "disabled" returns a 400 at effort "' + effort + '" on Haiku 5.5. It works at high effort or below. Remove the thinking field, or lower effort.', DOCS.haikuPrompt);
+          delete fix.thinking;
+        } else {
+          add('info', 'thinking-disabled', 'thinking.type "disabled" is accepted on Haiku 5.5 at high effort or below. Lowering effort is the better lever, and the prompting guide says thinking off can skip a tool call you need when you also ask for JSON output.', DOCS.haikuPrompt);
+        }
+      } else if (isOpus) {
         add('error', 'thinking-disabled', 'thinking.type "disabled" returns a 400 on Opus 5.5. Remove the thinking field and lower effort instead.');
         delete fix.thinking;
         fix.output_config = Object.assign({}, fix.output_config, { effort: 'low' });
@@ -714,8 +843,8 @@ footer p{max-width:900px;margin:0 auto .5rem}
       add('error', 'thinking-budget', 'Manual budgets (thinking.type "enabled" with budget_tokens) return a 400. Use adaptive thinking and set output_config.effort.');
       fix.thinking = { type: 'adaptive' };
     } else if (t && t.type === 'between_tools') {
-      if (isOpus) {
-        add('warn', 'between-tools-opus', 'between_tools is documented for Sonnet 5.5. Opus 5.5 docs list only omitted or "adaptive" thinking. Remove it.', DOCS.opusNew);
+      if (isOpus || isHaiku) {
+        add('warn', 'between-tools-opus', 'between_tools is documented for Sonnet 5.5. ' + (isHaiku ? 'Haiku 5.5 docs list adaptive thinking, or "disabled" at high effort or below.' : 'Opus 5.5 docs list only omitted or "adaptive" thinking.') + ' Remove it.', isHaiku ? DOCS.haikuNew : DOCS.opusNew);
         delete fix.thinking;
       } else {
         if (effort === 'xhigh' || effort === 'max') {
@@ -732,24 +861,28 @@ footer p{max-width:900px;margin:0 auto .5rem}
     }
 
     if (!effort) {
-      add('warn', 'effort-missing', 'No output_config.effort. This request would run at the API default: ' + m.apiDefaultEffort + ' on ' + m.label + (isOpus ? ' (Opus 5 defaulted to high).' : ' (Opus 5.5 defaults to medium).') + ' Set it explicitly.', isOpus ? DOCS.opusPrompt : DOCS.sonnetPrompt);
+      add('warn', 'effort-missing', 'No output_config.effort. This request would run at the API default: ' + m.apiDefaultEffort + ' on ' + m.label + (isHaiku ? ' (Haiku 4.5 had no effort setting).' : isOpus ? ' (Opus 5 defaulted to high).' : ' (Opus 5.5 defaults to medium).') + ' Set it explicitly.', promptRef);
       fix.output_config = Object.assign({}, fix.output_config, { effort: m.apiDefaultEffort });
     }
 
     var tc = req.tool_choice;
     if (tc && (tc.type === 'any' || tc.type === 'tool')) {
-      add('error', 'forced-tool-use', 'tool_choice "' + tc.type + '" returns a 400. Use {"type":"auto"}, say in the prompt when the tool applies, and set strict: true on the tool for schema-valid input.');
-      fix.tool_choice = { type: 'auto' };
-      if (tc.type === 'tool' && Array.isArray(fix.tools)) fix.tools.forEach(function (tool) { if (tool.name === tc.name) tool.strict = true; });
+      if (isHaiku) {
+        add('info', 'forced-tool-use', 'tool_choice "' + tc.type + '" is accepted on Haiku 5.5, but the response starts with the tool call and has no thinking block. To let it think first, use {"type":"auto"} and say in the prompt when the tool applies.', DOCS.haikuMig);
+      } else {
+        add('error', 'forced-tool-use', 'tool_choice "' + tc.type + '" returns a 400. Use {"type":"auto"}, say in the prompt when the tool applies, and set strict: true on the tool for schema-valid input.');
+        fix.tool_choice = { type: 'auto' };
+        if (tc.type === 'tool' && Array.isArray(fix.tools)) fix.tools.forEach(function (tool) { if (tool.name === tc.name) tool.strict = true; });
+      }
     }
 
     if (Array.isArray(req.tools)) {
       req.tools.forEach(function (tool, i) {
-        if (tool && tool.type === 'computer_20251124') {
-          add('error', 'computer-tool', 'computer_20251124 is rejected on the Claude API and Google Cloud. Replace it with {"type":"computer_toolset_20260801"} (no name field) and update your agent loop. Bedrock still accepts the old tool.');
+        if (tool && (tool.type === 'computer_20251124' || (isHaiku && tool.type === 'computer_20250124'))) {
+          add('error', 'computer-tool', tool.type + ' is rejected on the Claude API and Google Cloud. Replace it with {"type":"computer_toolset_20260801"} (no name field) and update your agent loop.' + (isHaiku ? ' Drop the computer-use-2025-01-24 beta header too.' : ' Bedrock still accepts the old tool.'), isHaiku ? DOCS.haikuMig : undefined);
           fix.tools[i] = { type: 'computer_toolset_20260801' };
         }
-        if (!isOpus && tool && typeof tool.type === 'string' && tool.type.indexOf('advisor') === 0) {
+        if (!isOpus && !isHaiku && tool && typeof tool.type === 'string' && tool.type.indexOf('advisor') === 0) {
           var am = String(tool.model || '');
           if (/opus-4-8|opus-4\.8|opus-4-7|opus-4\.7|sonnet-5(?![-.]5)/.test(am)) {
             add('error', 'advisor-pairing', 'A Sonnet 5.5 executor rejects "' + am + '" as advisor. Use Opus 5.5, Opus 5, a Fable or Mythos model, or Sonnet 5.5.');
@@ -759,7 +892,22 @@ footer p{max-width:900px;margin:0 auto .5rem}
       });
     }
 
-    if (!isOpus) {
+    if (isHaiku) {
+      var badSampling = [];
+      if (req.temperature !== undefined && req.temperature !== 1) badSampling.push('temperature');
+      if (req.top_p !== undefined && req.top_p !== 0.99) badSampling.push('top_p');
+      if (req.top_k !== undefined) badSampling.push('top_k');
+      if (!badSampling.length && req.temperature !== undefined && req.top_p !== undefined) badSampling.push('temperature together with top_p');
+      if (badSampling.length) {
+        add('error', 'sampling-params', badSampling.join(', ') + ' returns a 400 on Haiku 5.5. Omit temperature, top_p and top_k and steer with the prompt.', DOCS.haikuMig);
+        delete fix.temperature; delete fix.top_p; delete fix.top_k;
+      }
+      var msgs = Array.isArray(req.messages) ? req.messages : [];
+      if (msgs.length && msgs[msgs.length - 1] && msgs[msgs.length - 1].role === 'assistant') {
+        add('error', 'prefill', 'The last message is an assistant turn (prefill). Haiku 5.5 returns a 400 even with thinking off. End with a user turn; use structured outputs, or tools with enum fields, for a fixed format.', DOCS.haikuMig);
+        fix.messages = fix.messages.slice(0, -1);
+      }
+    } else if (!isOpus) {
       ['temperature', 'top_p', 'top_k'].forEach(function (k) {
         if (req[k] !== undefined && !(k === 'temperature' && req[k] === 1)) {
           add('error', 'sampling-params', k + ' set to a non-default value returns a 400 on Sonnet 5.5. Remove it.', DOCS.sonnetOverview);
@@ -769,18 +917,18 @@ footer p{max-width:900px;margin:0 auto .5rem}
     }
 
     if (typeof req.max_tokens === 'number' && req.max_tokens < 16000) {
-      add('warn', 'max-tokens', 'max_tokens is ' + req.max_tokens + '. Thinking counts toward max_tokens even when it is not returned, so short limits can cut replies off. The docs report 128,000 working well for agentic coding.', isOpus ? DOCS.opusPrompt : DOCS.sonnetPrompt);
+      add('warn', 'max-tokens', 'max_tokens is ' + req.max_tokens + '. Thinking counts toward max_tokens even when it is not returned, so short limits can cut replies off. ' + (isHaiku ? 'Haiku 5.5 allows up to 128,000.' : 'The docs report 128,000 working well for agentic coding.'), promptRef);
     }
 
     var allText = JSON.stringify(req.system || '') + JSON.stringify(req.messages || '');
-    if (/(show|write out|include|explain) (your|all your|the) (full )?(reasoning|chain of thought|thinking)|step[- ]by[- ]step reasoning in (your|the) (response|answer)/i.test(allText)) {
-      add('warn', 'reasoning-extraction', 'The prompt asks for reasoning in the response text. That can be declined with the reasoning_extraction refusal category. Remove it and read summarized thinking (display "summarized") instead.', isOpus ? DOCS.opusPrompt : DOCS.sonnetPrompt);
+    if (!isHaiku && /(show|write out|include|explain) (your|all your|the) (full )?(reasoning|chain of thought|thinking)|step[- ]by[- ]step reasoning in (your|the) (response|answer)/i.test(allText)) {
+      add('warn', 'reasoning-extraction', 'The prompt asks for reasoning in the response text. That can be declined with the reasoning_extraction refusal category. Remove it and read summarized thinking (display "summarized") instead.', promptRef);
     }
-    if (/think (carefully|hard|deeply)|reason deeply/i.test(JSON.stringify(req.system || ''))) {
+    if (!isHaiku && /think (carefully|hard|deeply)|reason deeply/i.test(JSON.stringify(req.system || ''))) {
       add(isOpus ? 'warn' : 'info', 'think-carefully', isOpus
         ? 'System prompt tells the model to think carefully. In Anthropic\'s chat-product testing on Opus 5.5, removing that line made replies start sooner with no clear quality decline. Effort is the main control.'
         : 'System prompt tells the model to think carefully. The Sonnet 5.5 guide recommends "Think the problem through before you answer." for reasoning tasks with JSON output, so keep it only where you measured it helping.',
-        isOpus ? DOCS.opusPrompt : DOCS.sonnetPrompt);
+        promptRef);
     }
 
     out.fixed = fix;
@@ -790,7 +938,16 @@ footer p{max-width:900px;margin:0 auto .5rem}
   // ---------- Refusal router ----------
   var CATEGORIES = ['cyber', 'bio', 'frontier_llm', 'reasoning_extraction', 'general_harms'];
   var SC = 'https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf';
+  var HC = 'https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf';
   function refusalRoute(model, category) {
+    if (model === 'haiku-5.5') {
+      switch (category) {
+        case 'cyber': return { retried: false, fallback: null, note: 'Haiku 5.5 has no fallback model for its cyber classifiers, which are narrower than those on the larger models. Anthropic says they permit a wider range of defensive tasks than Sonnet 5.5\'s safeguards, so resending a blocked request to Sonnet 5.5 is not a way around a block.', ref: HC + '#page=9' };
+        case 'bio': return { retried: false, fallback: null, note: 'Haiku 5.5 uses the same biology classifiers as Opus 5 and Sonnet 5, with no fallback model.', ref: HC + '#page=9' };
+        case 'frontier_llm': return { retried: false, fallback: null, note: 'Haiku 5.5 blocks a narrow set of frontier-LLM-development capabilities. Anthropic says server-side fallback is not available on this model.', ref: DOCS.haikuMig };
+        default: return { retried: false, fallback: null, note: 'Server-side fallback is not available on Haiku 5.5, so every decline comes back to you. The Haiku 5.5 sources do not say whether the ' + category + ' category is used on this model.', ref: DOCS.haikuMig };
+      }
+    }
     if (model === 'opus-5.5') {
       switch (category) {
         case 'cyber': return { retried: true, fallback: 'Claude Opus 4.8', note: 'Cyber classifier blocks fall back to Opus 4.8.', ref: SC };
@@ -809,6 +966,18 @@ footer p{max-width:900px;margin:0 auto .5rem}
 
   function refusalHandlerSnippet(model) {
     var m = MODELS[model];
+    if (model === 'haiku-5.5') {
+      return [
+        '// Handle a safeguard decline (Messages API response). Haiku 5.5 has no server-side fallback.',
+        'if (res.stop_reason === "refusal") {',
+        '  const cat = res.stop_details?.category;',
+        '  log({ model: "' + m.apiId + '", category: cat });',
+        '  // Workshop judgment: show the user a plain message or queue the item for review.',
+        '  // Do not auto-escalate cyber declines to Sonnet 5.5; its cyber safeguards are stricter than Haiku 5.5\'s.',
+        '  return surfaceDecline(res);',
+        '}'
+      ].join('\n');
+    }
     return [
       '// Handle a safeguard decline (Messages API response)',
       'if (res.stop_reason === "refusal") {',
@@ -1068,6 +1237,158 @@ footer p{max-width:900px;margin:0 auto .5rem}
     return { trace: trace, completed: Object.keys(done).length, total: totalItems, continuations: continuations, stopped: stopped };
   }
 
+  // ---------- Pick the model ----------
+  // Reasons carry a tag: 'q' quoted from a source, 'd' derived on this page, 'j' workshop judgment, 'n' plain note.
+  // Token mixes are invented to show how list price scales; they are not measurements.
+  var U = {
+    overview: 'https://platform.claude.com/docs/en/models/overview',
+    choosing: 'https://platform.claude.com/docs/en/about-claude/models/choosing-a-model',
+    haikuAnn: 'https://www.anthropic.com/claude-haiku-5-5',
+    sonAnn: 'https://www.anthropic.com/claude-sonnet-5-5',
+    opusCard: 'https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf',
+    card: function (n) { return 'https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf' + (n ? '#page=' + n : ''); }
+  };
+  var PICK_ORDER = ['haiku-5.5', 'sonnet-5.5', 'opus-5.5', 'fable-5.1'];
+  var PICK_TASKS = [
+    { id: 'triage', title: 'Label and route support tickets',
+      scenario: 'An inbox gets about 50,000 tickets a day. Each needs one of 12 categories and an urgent yes or no, returned as JSON in well under a second. You can score a sample against human labels.',
+      unit: 'tickets', perN: 1000, mix: { turns: 1, fresh: 900, cached: 0, out: 80 }, start: ['haiku-5.5'],
+      why: [
+        { t: 'q', text: 'The models overview positions Haiku 5.5 for "high-volume, latency-sensitive tasks such as classification, extraction, and routing."', src: ['Models overview', U.overview] },
+        { t: 'q', text: 'Its launch post says it "reliably handles quick and repetitive workloads," and lists classification requests among them.', src: ['Haiku 5.5 announcement', U.haikuAnn] },
+        { t: 'q', text: 'Anthropic\'s model guide suggests starting with Haiku 5.5 for "High-volume, straightforward tasks" and upgrading "only if necessary for specific capability gaps."', src: ['Choosing a model', U.choosing] },
+        { t: 'j', text: 'A closed label set and a human-labelled sample make this the easiest case to test. Run Haiku 5.5 at low and medium effort on the sample first, and move up only if accuracy misses your bar.' }
+      ],
+      watch: [
+        { t: 'q', text: 'In the system card\'s automated audit Haiku 5.5 "over-refused more than any other model we tested," although on single-turn benign prompts through the API it declined 0.17% (Haiku 4.5: 0.44%, Sonnet 5.5: 0.02%). Check a sample of tickets that touch sensitive subjects.', src: ['System card, section 4.1.2', U.card(32)] },
+        { t: 'q', text: 'Haiku 5.5 has no server-side refusal fallback, so your code must handle stop_reason "refusal".', src: ['Migration guide', 'https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide'] }
+      ] },
+    { id: 'chat', title: 'Answer customers in live chat from your help center',
+      scenario: 'A chat widget answers from six help-center articles (about 6,000 tokens, cached) over roughly six turns. Replies should feel instant, and a wrong answer about a refund or a policy costs real money.',
+      unit: 'chats', perN: 1000, mix: { turns: 6, fresh: 400, cached: 6000, out: 250 }, start: ['haiku-5.5'],
+      why: [
+        { t: 'q', text: 'Anthropic says Haiku 5.5 "works especially well for speed-sensitive tasks like live customer support and browser use," and calls it its fastest model at standard speed.', src: ['Haiku 5.5 announcement', U.haikuAnn] },
+        { t: 'q', text: 'The Haiku 5.5 prompting guide has a paragraph that keeps a chatbot to its system prompt when users argue or ask for exceptions, and says to use high effort when instruction following matters most.', src: ['Prompting Haiku 5.5', 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5'] },
+        { t: 'j', text: 'Start on Haiku 5.5 for speed and cost, and score a sample of real transcripts before launch. If a wrong answer is expensive, Sonnet 5.5 is the first alternative to measure.' }
+      ],
+      watch: [
+        { t: 'q', text: 'The system card says Haiku 5.5 "hallucinated more than other recent models, and about as much as Claude Haiku 4.5."', src: ['System card, section 6.1.2', U.card(56)] },
+        { t: 'j', text: 'Pass the articles in the prompt, and tell the model to say when they do not answer the question, instead of relying on its memory.' },
+        { t: 'q', text: 'Reasoning-like text can leak into replies at low effort or with thinking off. The guide says to switch to adaptive thinking and medium effort if you see it.', src: ['Prompting Haiku 5.5', 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5'] }
+      ] },
+    { id: 'subagent', title: 'Run a helper for a coding agent',
+      scenario: 'A lead agent is refactoring a service. It hands a helper 40 files at a time to summarize what each one exports, compacts the notes, and carries on. The lead runs on a bigger model.',
+      unit: 'helper calls', perN: 1000, mix: { turns: 1, fresh: 60000, cached: 0, out: 3000 }, start: ['haiku-5.5'],
+      why: [
+        { t: 'q', text: 'Anthropic says Haiku 5.5 "pairs well with Opus 5.5 and Sonnet 5.5 as a subagent on coding work."', src: ['Haiku 5.5 announcement', U.haikuAnn] },
+        { t: 'q', text: 'It names "compaction, summarization, or subagent work" as the narrowly scoped jobs Haiku 5.5 suits.', src: ['Haiku 5.5 announcement', U.haikuAnn] },
+        { t: 'q', text: 'Cognition, a customer, reports that with Haiku 5.5 as the sidekick and Opus 5.5 as lead, Devin Fusion "holds a top-tier FrontierCode score of 66.2 while cutting cost and latency." This is one customer\'s result, not an Anthropic measurement.', src: ['Haiku 5.5 announcement', U.haikuAnn] },
+        { t: 'j', text: 'Keep the lead on Sonnet 5.5 or Opus 5.5 and give the helper one narrow job whose output you can check.' }
+      ],
+      watch: [
+        { t: 'q', text: 'Haiku 5.5 scored 39.2% on Terminal-Bench 4.0 against 70.6% for Sonnet 5.5, and Anthropic says Sonnet 5.5 and Opus 5.5 "remain better choices for complex agentic coding tasks." Do not hand the helper open-ended coding.', src: ['System card, section 8.4', U.card(115)] },
+        { t: 'q', text: 'At low effort in a long agent prompt, Haiku 5.5 is more likely to skip a search, stop early, or skip a check. The guide has a paragraph for each.', src: ['Prompting Haiku 5.5', 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5'] }
+      ] },
+    { id: 'browser', title: 'Fill the same web form on 30 sites',
+      scenario: 'An agent works through 30 carrier websites, reading each page from screenshots and filling the same insurance quote form. The flow is repetitive, but every site lays things out differently.',
+      unit: 'sites', perN: 100, mix: { turns: 25, fresh: 3000, cached: 15000, out: 300 }, start: ['haiku-5.5', 'sonnet-5.5'],
+      why: [
+        { t: 'q', text: 'Anthropic says Haiku 5.5 is "especially well-suited" to computer use and browser use "given its combination of speed, capability, and price," and added beta support for both to its SDKs.', src: ['Haiku 5.5 announcement', U.haikuAnn] },
+        { t: 'q', text: 'On OSWorld 2.1 (offline subset, max effort) Haiku 5.5 scored 72.4% against 83.9% for Sonnet 5.5.', src: ['System card, table 8.1.A', U.card(111)] },
+        { t: 'q', text: 'Anthropic\'s model guide lists computer use as an example workload under Opus 5.5.', src: ['Choosing a model', U.choosing] },
+        { t: 'j', text: 'Three starts are defensible: Haiku 5.5 for the repetitive version, Sonnet 5.5 where layouts vary a lot, Opus 5.5 where one mistake is expensive. Run a sample of sites on two of them and compare the finished forms.' }
+      ],
+      watch: [
+        { t: 'q', text: 'On the Claude API and Google Cloud, Haiku 5.5 supports computer use only through computer_toolset_20260801 (and browser use through browser_toolset_20260801). The old computer_20250124 tool returns a 400.', src: ['Migration guide', 'https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide'] },
+        { t: 'q', text: 'In the system card Haiku 5.5 refused 82.59% of malicious computer-use tasks, against 79.46% for Sonnet 5.5 and Opus 5.5, and was the most prompt-injection-robust Haiku yet.', src: ['System card, section 5.1.2', U.card(49)] },
+        { t: 'j', text: 'Treat the pages the agent reads as untrusted input whichever model you pick.' }
+      ] },
+    { id: 'report', title: 'Turn a CRM export into a weekly deck and spreadsheet',
+      scenario: 'Each Friday an agent reads a raw CRM export, cleans it into a spreadsheet, and drafts a 10-slide summary for the sales lead. It takes about a dozen tool turns, and the result has to look finished.',
+      unit: 'reports', perN: 1, mix: { turns: 12, fresh: 8000, cached: 60000, out: 5000 }, start: ['sonnet-5.5'],
+      why: [
+        { t: 'q', text: 'Anthropic says Sonnet 5.5 is "strongest at well-scoped everyday tasks, fixing bugs, and creating polished documents, slides, and spreadsheets."', src: ['Sonnet 5.5 announcement', U.sonAnn] },
+        { t: 'q', text: 'The models overview calls Sonnet 5.5 "the best combination of speed and intelligence," and the model guide lists data analysis and content creation among its uses.', src: ['Choosing a model', U.choosing] },
+        { t: 'q', text: 'GDPval-AA v2.1 scores documents, slides and spreadsheets. At max effort Haiku 5.5 scored 1620 and Sonnet 5.5 1840; at Haiku 5.5\'s default medium effort it scored 1277.', src: ['System card, section 8.10.2', U.card(131)] },
+        { t: 'j', text: 'Use Haiku 5.5 for the cheap sub-steps (pulling and cleaning rows) and Sonnet 5.5 for the deck, if you measure that the split holds.' }
+      ],
+      watch: [
+        { t: 'q', text: 'On FrontierCode, Sonnet 5.5 scored 46.2% at max and 52.1% at xhigh, because at max it more often launched review subagents and made out-of-scope edits. Do not default every task to max.', src: ['Sonnet 5.5 announcement', U.sonAnn] }
+      ] },
+    { id: 'bugfix', title: 'Fix bugs from tickets that name the failing test',
+      scenario: 'A 200-file service gets bug tickets that each name a failing test and a likely file. An agent reads the code, makes the fix and runs the tests, in about 15 tool turns.',
+      unit: 'tickets', perN: 100, mix: { turns: 15, fresh: 6000, cached: 80000, out: 4000 }, start: ['sonnet-5.5'],
+      why: [
+        { t: 'q', text: 'Anthropic positions Sonnet 5.5 for "well-scoped everyday tasks" and "fixing bugs."', src: ['Sonnet 5.5 announcement', U.sonAnn] },
+        { t: 'q', text: 'On Terminal-Bench 4.0 Sonnet 5.5 scored 70.6%, Opus 5.5 66.4% (at xhigh, its best) and Haiku 5.5 39.2% (at max).', src: ['System card, section 8.4', U.card(115)] },
+        { t: 'q', text: 'Anthropic says Sonnet 5.5 and Opus 5.5 "remain better choices for complex agentic coding tasks" than Haiku 5.5.', src: ['Haiku 5.5 announcement', U.haikuAnn] },
+        { t: 'j', text: 'Sonnet 5.5 is a sensible default for tickets of this shape. Try Haiku 5.5 at medium effort on the easiest tickets, a one-file fix with a clear failing test, and see where it stops passing.' }
+      ],
+      watch: [
+        { t: 'q', text: 'At low and medium effort Haiku 5.5 sometimes reports a code change as done without running a check. The prompting guide gives a paragraph that makes it verify.', src: ['Prompting Haiku 5.5', 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5'] },
+        { t: 'q', text: 'Sonnet 5.5 at low effort can also skip verifying a change.', src: ['Prompting Sonnet 5.5', 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5-5'] }
+      ] },
+    { id: 'refactor', title: 'Migrate 300 files overnight',
+      scenario: 'An unattended agent migrates 300 files to a new API over about six hours, running tests as it goes. Nobody is watching, and a quiet wrong turn at hour two ruins the rest.',
+      unit: 'runs', perN: 1, mix: { turns: 120, fresh: 10000, cached: 240000, out: 8000 }, start: ['opus-5.5'],
+      why: [
+        { t: 'q', text: 'The models overview describes Opus 5.5 as "for long-running agentic coding and knowledge work" and says to start there for most workloads.', src: ['Models overview', U.overview] },
+        { t: 'q', text: 'The model guide lists "multihour autonomous coding agents, large-scale refactoring, complex systems engineering" under Opus 5.5.', src: ['Choosing a model', U.choosing] },
+        { t: 'j', text: 'Sonnet 5.5 scored higher than Opus 5.5 on Terminal-Bench 4.0 (70.6% against 66.4% at Opus\'s best effort). After Opus 5.5 passes on your task, measure Sonnet 5.5 at xhigh before you pay for Opus every night.' }
+      ],
+      watch: [
+        { t: 'q', text: 'Opus 5.5 and Sonnet 5.5 can end a turn with a progress report, so a harness that treats every end_turn as done quits early (module 6).', src: ['Prompting Opus 5.5', 'https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5'] },
+        { t: 'q', text: 'In Anthropic\'s internal use of Opus 5.5, "the top subcategory of flagged behavior was asserting unverified inferences as established fact." Make the agent prove each step with a test, not a claim.', src: ['Opus 5.5 system card', U.opusCard] }
+      ] },
+    { id: 'contract', title: 'Draft a negotiation position on a contested contract',
+      scenario: 'A 90-page vendor contract conflicts with your master agreement in several places. You need a memo that ranks the conflicts and proposes a position on each, for a lawyer to check.',
+      unit: 'memos', perN: 1, mix: { turns: 6, fresh: 5000, cached: 60000, out: 6000 }, start: ['opus-5.5'],
+      why: [
+        { t: 'q', text: 'Anthropic says Opus 5.5 is "built for complex work requiring careful judgment."', src: ['Sonnet 5.5 announcement', U.sonAnn] },
+        { t: 'q', text: 'In Anthropic\'s testing and external testers\', Opus 5.5 "remains clearly stronger at complex, open-ended work requiring sustained judgment" than Sonnet 5.5.', src: ['Sonnet 5.5 announcement', U.sonAnn] },
+        { t: 'j', text: 'The task is open-ended, long-context and costly to get wrong, so start capability-first. Get a good memo from Opus 5.5, then check whether Sonnet 5.5 at high effort matches it on the same contract before you route down.' }
+      ],
+      watch: [
+        { t: 'q', text: 'Opus 5.5\'s system card names "asserting unverified inferences as established fact" as the top flagged behavior in internal use.', src: ['Opus 5.5 system card', U.opusCard] },
+        { t: 'j', text: 'Have the lawyer check every clause the memo cites.' }
+      ] },
+    { id: 'research', title: 'Produce a finished research report over several hours',
+      scenario: 'A deep-research session runs for hours and ends in a finished 40-page report with sources. You have already run it on Opus 5.5 at xhigh and max effort, and your evals still fall short.',
+      unit: 'runs', perN: 1, mix: { turns: 150, fresh: 12000, cached: 300000, out: 8000 }, start: ['fable-5.1'],
+      why: [
+        { t: 'q', text: 'Anthropic\'s model guide says: "If your evals at xhigh or max effort still fall short on demanding reasoning or long-horizon agentic work, move to Claude Fable 5.1."', src: ['Choosing a model', U.choosing] },
+        { t: 'q', text: 'The same guide lists "multistep deep research" and "analysis carried through to a finished document, spreadsheet, or deck" as Fable 5.1 workloads.', src: ['Choosing a model', U.choosing] },
+        { t: 'q', text: 'Fable 5.1 lists at $10 / $50 per million tokens against $4 / $20 for Opus 5.5, and Anthropic\'s latency comparison says "Slower."', src: ['Models overview', U.overview] },
+        { t: 'j', text: 'Fable 5.1 costs 2.5 times Opus 5.5 per token. Move up only after Opus 5.5 at higher effort has failed your evals; if it has not failed, you are paying for headroom you do not use.' }
+      ],
+      watch: [
+        { t: 'n', text: 'This workshop reviewed no Fable 5.1 system card. Its Fable facts come from the models overview and model page.' }
+      ] }
+  ];
+
+  function pickTask(id) { for (var i = 0; i < PICK_TASKS.length; i++) if (PICK_TASKS[i].id === id) return PICK_TASKS[i]; return null; }
+  // List-price cost per `perN` units for every model in PICK_ORDER, from the task's illustrative token mix.
+  function pickCosts(task) {
+    var mx = task.mix;
+    return PICK_ORDER.map(function (k) {
+      var usage = { input: mx.fresh * mx.turns, cacheRead: mx.cached * mx.turns, output: mx.out * mx.turns, promptTokens: mx.fresh + mx.cached };
+      var c = costOf(k, usage);
+      return { model: k, cost: c * task.perN, long: longTier(k, usage.promptTokens) };
+    });
+  }
+  // Compares the learner's pick with the sources' starting point(s). No score: the relation only picks which sentence to show.
+  function pickCompare(taskId, pickKey) {
+    var task = pickTask(taskId);
+    if (!task || PICK_ORDER.indexOf(pickKey) < 0) return null;
+    var costs = pickCosts(task), byModel = {};
+    costs.forEach(function (c) { byModel[c.model] = c; });
+    var idx = PICK_ORDER.indexOf(pickKey), lo = Math.min.apply(null, task.start.map(function (k) { return PICK_ORDER.indexOf(k); })), hi = Math.max.apply(null, task.start.map(function (k) { return PICK_ORDER.indexOf(k); }));
+    var relation = idx < lo ? 'below' : idx > hi ? 'above' : task.start.indexOf(pickKey) >= 0 ? 'at' : 'between';
+    var ref = relation === 'above' ? task.start[task.start.length - 1] : task.start[0];
+    var ratio = byModel[ref].cost > 0 ? byModel[pickKey].cost / byModel[ref].cost : null;
+    return { task: task, pick: pickKey, relation: relation, costs: costs, refModel: ref, ratio: ratio };
+  }
+
   // ---------- Misc ----------
   function countToolCalls(content, name) {
     if (!Array.isArray(content)) return 0;
@@ -1122,8 +1443,9 @@ footer p{max-width:900px;margin:0 auto .5rem}
   }
 
   var api = {
-    MODELS: MODELS, EFFORTS: EFFORTS, GDPVAL: GDPVAL, DOCS: DOCS, CATEGORIES: CATEGORIES,
-    round: round, costOf: costOf, compareTask: compareTask, ratioForTarget: ratioForTarget, eloGap: eloGap,
+    MODELS: MODELS, EFFORTS: EFFORTS, GDPVAL: GDPVAL, GDPVAL_HAIKU: GDPVAL_HAIKU, GDPVAL_HAIKU_MEDIUM: GDPVAL_HAIKU_MEDIUM, DOCS: DOCS, CATEGORIES: CATEGORIES,
+    round: round, costOf: costOf, longTier: longTier, compareTask: compareTask, ratioForTarget: ratioForTarget, eloGap: eloGap, eloCompare: eloCompare, eloNames: eloNames,
+    PICK_ORDER: PICK_ORDER, PICK_TASKS: PICK_TASKS, pickTask: pickTask, pickCosts: pickCosts, pickCompare: pickCompare,
     lintRequest: lintRequest, refusalRoute: refusalRoute, refusalHandlerSnippet: refusalHandlerSnippet,
     extractLastJSON: extractLastJSON, checkOrder: checkOrder, injectionFollowed: injectionFollowed, ORDER_GOLD: ORDER_GOLD,
     INVOICE_TESTS: INVOICE_TESTS, referenceInvoice: referenceInvoice, BUGGY_INVOICE: BUGGY_INVOICE,
@@ -1182,6 +1504,15 @@ footer p{max-width:900px;margin:0 auto .5rem}
 
   // ---------------- source registry ----------------
   var S = {
+    haikuAnn: ['Introducing Claude Haiku 5.5 (Anthropic)', 'https://www.anthropic.com/claude-haiku-5-5'],
+    haikuCard: ['Claude Haiku 5.5 System Card (PDF)', 'https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf'],
+    haikuOverview: ['Claude Haiku 5.5 model page (docs)', L.DOCS.haikuOverview],
+    haikuNew: ["What's new in Claude Haiku 5.5 (docs)", L.DOCS.haikuNew],
+    haikuMig: ['Migrating to Claude Haiku 5.5 (docs)', L.DOCS.haikuMig],
+    haikuPrompt: ['Prompting Claude Haiku 5.5 (docs)', L.DOCS.haikuPrompt],
+    overview: ['Models overview (docs)', 'https://platform.claude.com/docs/en/models/overview'],
+    choosing: ['Choosing the right model (docs)', 'https://platform.claude.com/docs/en/about-claude/models/choosing-a-model'],
+    fableOverview: ['Claude Fable 5.1 model page (docs)', 'https://platform.claude.com/docs/en/models/fable-5-1/overview'],
     opusAnn: ['Introducing Claude Opus 5.5 (Anthropic)', 'https://www.anthropic.com/claude-opus-5-5'],
     opusCard: ['Claude Opus 5.5 System Card (PDF)', 'https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf'],
     opusNew: ["What's new in Claude Opus 5.5 (docs)", L.DOCS.opusNew],
@@ -1195,6 +1526,8 @@ footer p{max-width:900px;margin:0 auto .5rem}
     orMig: ['OpenRouter: Claude Opus 5.5 migration guide', 'https://openrouter.ai/docs/cookbook/evaluate-and-optimize/model-migrations/opus-5-5'],
     orOpus: ['OpenRouter: Claude Opus 5.5 listing', 'https://openrouter.ai/anthropic/claude-opus-5.5'],
     orSonnet: ['OpenRouter: Claude Sonnet 5.5 listing', 'https://openrouter.ai/anthropic/claude-sonnet-5.5'],
+    orHaiku: ['OpenRouter: Claude Haiku 5.5 listing', 'https://openrouter.ai/anthropic/claude-haiku-5.5'],
+    orModels: ['OpenRouter: models API (slugs checked October 9, 2026)', 'https://openrouter.ai/api/v1/models'],
     sej: ['Search Engine Journal: Anthropic publishes prompting guidance for Opus 5.5', 'https://www.searchenginejournal.com/anthropic-claude-opus-5-5-prompting-guidance/591278/'],
     njenga: ['Joe Njenga on Medium: Sonnet 5.5 in Claude Code (paywalled; intro only reviewed)', 'https://medium.com/@joe.njenga/claude-sonnet-5-5-is-here-i-tried-it-on-claude-code-opus-5-5-level-for-less-8f5b44a54b69'],
     berman: ['Matthew Berman on YouTube (channel; video not reviewed)', 'https://www.youtube.com/@matthew_berman'],
@@ -1205,25 +1538,25 @@ footer p{max-width:900px;margin:0 auto .5rem}
   // ---------------- rail content ----------------
   var RAIL = [
     { name: 'Start here',
-      tips: ['Demo mode runs every lab with canned responses, labelled illustrative in the output.', 'Live mode calls OpenRouter with your key. The key stays in page memory and is gone on reload.', 'Set a credit limit on the key at openrouter.ai/keys before you connect.', 'The default lab model is Sonnet 5.5 at low effort, the cheapest 5.5 configuration. Switch any lab to Opus 5.5 to compare.', 'Evidence labels: Quoted, Derived, Illustrative, Creator claim. A number without one is a defect; tell the author.'],
-      refs: ['opusAnn', 'sonAnn', 'opusNew', 'sonOverview'],
+      tips: ['Demo mode runs every lab with canned responses, labelled illustrative in the output.', 'Live mode calls OpenRouter with your key. The key stays in page memory and is gone on reload.', 'Set a credit limit on the key at openrouter.ai/keys before you connect.', 'The default lab model is Sonnet 5.5 at low effort. Haiku 5.5 costs less per token; switch any lab to Haiku 5.5 or Opus 5.5 to compare.', 'Haiku 5.5 launched October 7. The same day Sonnet 5.5 cache reads fell from $0.20 to $0.10, so launch coverage of Sonnet 5.5 prices from September can be stale.', 'Evidence labels: Quoted, Derived, Illustrative, Creator claim, Workshop judgment. A number without one is a defect; tell the author.'],
+      refs: ['haikuAnn', 'overview', 'opusAnn', 'sonAnn', 'opusNew', 'sonOverview', 'orModels'],
       gloss: [['Effort', 'The request setting, low to max, that controls how much the model thinks, and with it cost and latency.'], ['Adaptive thinking', 'The model decides how much to think each turn. On Opus 5.5 it cannot be switched off.']] },
     { name: 'Claim ledger',
-      tips: ['Ask "cheaper than what?" The 40% saving is measured against Opus 5, not Fable 5.1.', 'A customer quote is one company\'s result on its own workload, not a benchmark.', 'Benchmark rows compare only when effort, tools and harness match.', 'Opus 5.5 on Chartography: 89.0% with tools, 64.4% without. Sonnet 5.5: 61.6% without.', 'A claim with no number and no source goes to a test lab, not into your prompt.', 'Export the ledger and keep it next to your prompts so the next model launch starts from evidence.'],
-      refs: ['opusAnn', 'sonAnn', 'opusCard', 'theo'],
+      tips: ['Ask "cheaper than what?" The 40% saving is measured against Opus 5, not Fable 5.1.', 'A customer quote is one company\'s result on its own workload, not a benchmark.', 'Benchmark rows compare only when effort, tools and harness match.', 'Opus 5.5 on Chartography: 89.0% with tools, 64.4% without. Sonnet 5.5: 61.6% without.', 'Haiku 5.5\'s launch scores are at max effort. At its default, medium, GDPval-AA is 1277, not 1620.', 'A claim with no number and no source goes to a test lab, not into your prompt.', 'Export the ledger and keep it next to your prompts so the next model launch starts from evidence.'],
+      refs: ['opusAnn', 'sonAnn', 'haikuAnn', 'haikuCard', 'opusCard', 'theo'],
       gloss: [['Creator claim', 'A statement from a video, post or newsletter that we could not check against a primary source.'], ['Baseline', 'The model and setting a percentage is measured against. Without it, "40% cheaper" means nothing.']] },
     { name: 'Cost per task',
-      tips: ['Opus 5.5 lists 20% below Opus 5 on input and output, and 60% below on cache reads.', 'Anthropic\'s 40% per-task figure also counts fewer tokens per task at default settings.', 'Sonnet 5.5 costs half of Opus 5.5 on input and output, and the same $0.20 on cache reads.', 'Batch processing halves input and output on both models.', '5-minute cache writes: $5 on Opus 5.5, $2.50 on Sonnet 5.5.', 'The calculator assumes the candidate uses the same token mix scaled by one ratio. Real runs shift the mix too.'],
-      refs: ['opusAnn', 'opusNew', 'sonOverview'],
-      gloss: [['Cache read', 'Input tokens served from the prompt cache, billed at a fraction of the input price. Most of an agent\'s input.'], ['Per-task cost', 'Tokens a task actually used, times price. What you pay; list price is only half of it.'], ['Elo', 'A rating from head-to-head comparisons. Gaps are comparable only within one leaderboard.']] },
+      tips: ['Opus 5.5 lists 20% below Opus 5 on input and output, and 60% below on cache reads.', 'Anthropic\'s 40% per-task figure also counts fewer tokens per task at default settings.', 'Since October 7 Sonnet 5.5 costs half of Opus 5.5 on every price line: input, output, cache reads and cache writes.', 'Haiku 5.5 bills $0.10 / $0.50 input and output for prompts up to 100K tokens and $0.50 / $2.50 above that. A long agent context can land in the higher tier.', 'Anthropic says Haiku 5.5 costs around 75% less to run than Haiku 4.5 on average, after counting the extra tokens its newer tokenizer uses (about 30% more for the same text).', 'Batch processing halves input and output on both models.', '5-minute cache writes: $5 on Opus 5.5, $2.50 on Sonnet 5.5.', 'The calculator assumes the candidate uses the same token mix scaled by one ratio. Real runs shift the mix too.'],
+      refs: ['opusAnn', 'opusNew', 'sonOverview', 'haikuAnn', 'haikuOverview', 'fableOverview'],
+      gloss: [['Prompt tier', 'Haiku 5.5 is priced by prompt size: up to 100,000 tokens, or over. One request counts, not a whole task.'], ['Cache read', 'Input tokens served from the prompt cache, billed at a fraction of the input price. Most of an agent\'s input.'], ['Per-task cost', 'Tokens a task actually used, times price. What you pay; list price is only half of it.'], ['Elo', 'A rating from head-to-head comparisons. Gaps are comparable only within one leaderboard.']] },
     { name: 'Effort sweep',
-      tips: ['Opus 5.5 defaults to medium on the API. Opus 5 defaulted to high.', 'Sonnet 5.5 defaults to high on the Claude Platform and Medium in Claude Code and the apps.', 'At the same level, Opus 5.5 thinks more per turn than Opus 5, most at xhigh and max.', 'Thinking counts toward max_tokens. A cut-off run shows stop_reason "max_tokens" and fails the checker.', 'Changing top-level effort between requests invalidates the prompt cache. Per-message effort (beta) keeps it.', 'Sonnet 5.5 at low effort can skip verifying a change, and at low and medium it checks in more on long tasks.', 'Anthropic: reserve xhigh and max for work where you have measured a quality gain.'],
-      refs: ['opusPrompt', 'sonPrompt', 'sonAnn', 'theo'],
+      tips: ['Opus 5.5 and Haiku 5.5 default to medium on the API. Opus 5 defaulted to high. Haiku 5.5 is the first Haiku with effort levels.', 'Sonnet 5.5 defaults to high on the Claude Platform and Medium in Claude Code and the apps.', 'At the same level, Opus 5.5 thinks more per turn than Opus 5, most at xhigh and max.', 'Thinking counts toward max_tokens. A cut-off run shows stop_reason "max_tokens" and fails the checker.', 'Changing top-level effort between requests invalidates the prompt cache. Per-message effort (beta) keeps it.', 'Sonnet 5.5 at low effort can skip verifying a change, and at low and medium it checks in more on long tasks.', 'Anthropic: reserve xhigh and max for work where you have measured a quality gain.', 'Haiku 5.5: low is for chat and simple high-volume work, medium is the default, and in long agent prompts low is more likely to skip a search, stop early or skip a check.', 'Haiku 5.5: thinking "disabled" works at high effort or below and returns a 400 at xhigh and max. At xhigh in multi-turn chats it can put its whole answer in its thinking and leave the reply empty.', 'Haiku 5.5 launch scores are at max effort. Its HealthBench Professional score rose from 57.9% at low to 64.8% at max; the larger models moved less than 2 points.'],
+      refs: ['opusPrompt', 'sonPrompt', 'haikuPrompt', 'haikuCard', 'sonAnn', 'theo'],
       gloss: [['xhigh / max', 'The two highest effort levels. Longer thinking and replies; on Sonnet 5.5, between_tools is not accepted at either.'], ['max_tokens', 'The cap on thinking plus reply. Anthropic reports 128,000 working well for agentic coding.']] },
     { name: 'Migration linter',
-      tips: ['Opus 5.5 breaking changes: thinking cannot be disabled, forced tool_choice errors, thinking blocks are tied to the model and conversation, computer_20251124 is rejected on the Claude API and Google Cloud.', 'Sonnet 5.5 adds between_tools in place of "disabled", advisor-pairing limits, and a 400 on non-default temperature, top_p or top_k.', 'between_tools is accepted at high effort or below and takes no other field.', 'Text between tool calls now arrives in thinking blocks. Set display "updates" to show it to users.', 'Keep conversations append-only. Change instructions with mid-conversation system messages, not edits.', 'OpenRouter says it does not enforce the preserved-thinking prefix check, so a request that works there can still 400 on Anthropic\'s API.'],
-      refs: ['opusNew', 'sonNew', 'orMig'],
-      gloss: [['between_tools', 'Sonnet 5.5\'s lowest thinking setting: no up-front thinking, short notes between tool calls.'], ['Forced tool use', 'tool_choice "any" or a named tool. Both 5.5 models reject it; use "auto" plus strict tools.'], ['Preserved thinking', 'Thinking blocks bound to the prompt prefix that produced them. Editing earlier history can break replay.']] },
+      tips: ['Opus 5.5 breaking changes: thinking cannot be disabled, forced tool_choice errors, thinking blocks are tied to the model and conversation, computer_20251124 is rejected on the Claude API and Google Cloud.', 'Sonnet 5.5 adds between_tools in place of "disabled", advisor-pairing limits, and a 400 on non-default temperature, top_p or top_k.', 'between_tools is accepted at high effort or below and takes no other field.', 'Text between tool calls now arrives in thinking blocks. Set display "updates" to show it to users.', 'Keep conversations append-only. Change instructions with mid-conversation system messages, not edits.', 'OpenRouter says it does not enforce the preserved-thinking prefix check, so a request that works there can still 400 on Anthropic\'s API.', 'Haiku 5.5 breaking changes from Haiku 4.5: manual thinking budgets, non-default sampling parameters and assistant prefill return a 400; computer use needs computer_toolset_20260801; thinking blocks are bound to the turns before them.', 'Haiku 5.5 accepts forced tool_choice, but the reply starts with the tool call and has no thinking block. Priority Tier is not supported.', 'The same text counts as about 30% more tokens on Haiku 5.5 than on Haiku 4.5. Recount before you budget.'],
+      refs: ['opusNew', 'sonNew', 'haikuNew', 'haikuMig', 'orMig'],
+      gloss: [['between_tools', 'Sonnet 5.5\'s lowest thinking setting: no up-front thinking, short notes between tool calls.'], ['Forced tool use', 'tool_choice "any" or a named tool. Opus 5.5 and Sonnet 5.5 reject it, Haiku 5.5 accepts it; use "auto" plus strict tools on the first two.'], ['Preserved thinking', 'Thinking blocks bound to the prompt prefix that produced them. Editing earlier history can break replay.']] },
     { name: 'Done-state specs',
       tips: ['Name the objective, the done state and when to stop. Leave the steps to the model.', 'Put the tests in the done state so "done" is something a checker can confirm.', 'Sonnet 5.5 guide: "Keep working until everything the user asked for is done, and only stop to ask when you can\'t go on without the user or before a risky step."', 'Opus 5.5 guide: state the completion condition up front and check the conversation against it at each end of turn.', 'Sonnet 5.5 tends to add tests and docs you did not ask for. The guide\'s "When the work the user asked for is done" paragraph limits that.', 'Keep your own confirmation rule for risky or irreversible actions. A stop-rules prompt does not replace it.'],
       refs: ['sonPrompt', 'opusPrompt', 'berman'],
@@ -1233,24 +1566,28 @@ footer p{max-width:900px;margin:0 auto .5rem}
       refs: ['opusPrompt', 'sonPrompt', 'opusAnn'],
       gloss: [['end_turn', 'The stop reason for a turn that ends with text instead of a tool call.'], ['Continuation cap', 'The number of automatic "keep going" messages a harness sends before handing the run to a human.'], ['Subagent', 'A separate model instance a lead agent starts to handle part of a task in parallel.']] },
     { name: 'Thinking lines, refusals',
-      tips: ['Opus 5.5: removing "think carefully" from a chat prompt made replies start sooner with no clear quality decline, in Anthropic\'s test.', 'Sonnet 5.5: "Think the problem through before you answer." raises accuracy on JSON reasoning tasks, per its guide.', 'SEJ points out that Anthropic\'s effort page for Opus 4.7 suggests a think-carefully line at low effort, so this advice is per model.', 'Asking for reasoning in the response text can be declined as reasoning_extraction. Read summarized thinking instead.', 'A decline is HTTP 200 with stop_reason "refusal" and stop_details naming the category.', 'Fallback is automatic in Anthropic\'s apps. On the API you opt in with fallbacks: "default" (beta).', 'The system card notes traffic through other platforms may behave differently. Test fallback on the path you ship.', 'Latency in this lab is total response time, not time to first token.'],
-      refs: ['opusPrompt', 'sonPrompt', 'sej', 'refusals'],
+      tips: ['Opus 5.5: removing "think carefully" from a chat prompt made replies start sooner with no clear quality decline, in Anthropic\'s test.', 'Sonnet 5.5: "Think the problem through before you answer." raises accuracy on JSON reasoning tasks, per its guide.', 'SEJ points out that Anthropic\'s effort page for Opus 4.7 suggests a think-carefully line at low effort, so this advice is per model.', 'Asking for reasoning in the response text can be declined as reasoning_extraction. Read summarized thinking instead.', 'A decline is HTTP 200 with stop_reason "refusal" and stop_details naming the category.', 'Fallback is automatic in Anthropic\'s apps. On the API you opt in with fallbacks: "default" (beta).', 'The system card notes traffic through other platforms may behave differently. Test fallback on the path you ship.', 'Haiku 5.5 has no server-side fallback and no fallback model on its classifiers, so every decline reaches your code.', 'Haiku 5.5 cyber safeguards trigger on less activity than other recent releases. Anthropic says they permit more defensive work than Sonnet 5.5\'s but still block penetration testing. Qualifying teams can apply to the Cyber Verification Program.', 'Latency in this lab is total response time, not time to first token.'],
+      refs: ['opusPrompt', 'sonPrompt', 'haikuMig', 'haikuAnn', 'sej', 'refusals'],
       gloss: [['reasoning_extraction', 'Refusal category for prompts that push the model to reproduce its internal reasoning in the reply.'], ['Fallback', 'Retrying a declined request on another model. Which one depends on model and category.'], ['stop_details', 'The object on a refusal that names the policy category.']] },
     { name: 'Pasted-text injection',
-      tips: ['Opus 5.5 resists indirect prompt injection (tool results, web pages, screen content) better than any earlier Opus model.', 'System card: it is more likely than previous models to follow malicious instructions in text a user pastes into their own prompt.', 'Generate a fresh random ID per block. The tags are plain text and can be imitated.', 'Treat tagging as one guardrail alongside others, not the whole defense.', 'Anthropic notes the tags can make the model slightly more cautious. Measure on your own tasks.', 'Keep untrusted content out of any record an agent is told to act on.'],
-      refs: ['opusPrompt', 'opusCard', 'injDocs'],
+      tips: ['Opus 5.5 resists indirect prompt injection (tool results, web pages, screen content) better than any earlier Opus model.', 'System card: it is more likely than previous models to follow malicious instructions in text a user pastes into their own prompt.', 'Generate a fresh random ID per block. The tags are plain text and can be imitated.', 'Treat tagging as one guardrail alongside others, not the whole defense.', 'Anthropic notes the tags can make the model slightly more cautious. Measure on your own tasks.', 'Keep untrusted content out of any record an agent is told to act on.', 'Haiku 5.5 system card: its most prompt-injection-robust Haiku yet, largely matching the frontier models against adaptive attackers in coding and computer use. The card does not mention pasted text, so run this lab on Haiku 5.5 to see.'],
+      refs: ['opusPrompt', 'opusCard', 'haikuCard', 'injDocs'],
       gloss: [['Indirect prompt injection', 'Instructions that reach the model through content it reads rather than from the user.'], ['Pasted-content tag', 'An open and close tag with a matching random ID that marks text the user pasted in.']] },
     { name: 'Frontend defaults',
       tips: ['Name the specific patterns to avoid. A general "avoid an AI look" swaps one default for another.', 'Work iteratively: see which styles the first result used instead and extend the list.', 'The detector uses text rules, so check the render with your own eyes too.', 'Renders run in sandboxed frames with scripts disabled.', 'Creator claim: Fable 5.1 makes prettier frontends by default. Anthropic\'s own anecdote has Opus 5.5 scoring highest on graphics in one tester\'s game build.', 'Anthropic says Sonnet 5.5 has "a sharp eye for design." Run the lab on both models.'],
       refs: ['opusPrompt', 'opusAnn', 'sonAnn'],
       gloss: [['Negative constraint', 'An instruction naming what not to produce. Works when it names concrete patterns.']] },
-    { name: 'Opus or Sonnet',
-      tips: ['Anthropic: Sonnet 5.5 complements Opus 5.5 best at lower effort. At higher settings it can perform comparably at a similar cost.', 'Anthropic: Opus 5.5 remains clearly stronger at complex, open-ended work requiring sustained judgment.', 'Sonnet 5.5 guide: for the hardest long-horizon work, an Opus model is the better choice.', 'Terminal-Bench 4.0: Sonnet 5.5 70.6%, Opus 5.5 66.4% (Opus at xhigh, its best).', 'GDPval-AA v2.1: Sonnet 5.5 1844, Opus 5.5 1846.', 'Two runs per point is a smoke test. Scale up runs before you change production routing.', 'Customer Creator\'s pattern: Opus sets the architecture, Sonnet implements it.'],
-      refs: ['sonAnn', 'sonPrompt', 'orSonnet', 'njenga'],
+    { name: 'Route by cost',
+      tips: ['Anthropic: Sonnet 5.5 complements Opus 5.5 best at lower effort. At higher settings it can perform comparably at a similar cost.', 'Anthropic: Opus 5.5 remains clearly stronger at complex, open-ended work requiring sustained judgment.', 'Sonnet 5.5 guide: for the hardest long-horizon work, an Opus model is the better choice.', 'Terminal-Bench 4.0: Sonnet 5.5 70.6%, Opus 5.5 66.4% (Opus at xhigh, its best).', 'GDPval-AA v2.1: Sonnet 5.5 1844, Opus 5.5 1846. The Haiku 5.5 page, same benchmark, lists Haiku 5.5 at 1620 and Sonnet 5.5 at 1840, so keep each comparison inside one table.', 'Anthropic: Haiku 5.5 is best suited to narrowly scoped work, and Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding.', 'Haiku 5.5\'s published scores are at max effort and this lab stops at high, so read its results as what you would get at the effort you ship.', 'Two runs per point is a smoke test. Scale up runs before you change production routing.', 'Customer Creator\'s pattern: Opus sets the architecture, Sonnet implements it.'],
+      refs: ['sonAnn', 'sonPrompt', 'haikuAnn', 'haikuCard', 'orSonnet', 'orHaiku', 'njenga'],
       gloss: [['Routing rule', 'Which model and effort handles which task type, chosen by cost per passing run.'], ['Pass rate', 'Share of runs whose output clears the task\'s automatic checker.']] },
+    { name: 'Pick the model',
+      tips: ['Anthropic offers two starting points: efficiency-first with Haiku 5.5, or capability-first with Opus 5.5. The models overview says to start with Opus 5.5 for most workloads.', 'Anthropic: tuning effort "is often a better lever than switching models." Fable 5.1 is the step up when Opus 5.5 at xhigh or max still falls short on your evals.', 'Haiku 5.5 system card, audit: it "over-refused more than any other model we tested." On single-turn benign prompts through the API it declined 0.17%, against 0.44% for Haiku 4.5 and 0.02% for Sonnet 5.5.', 'System card: it "hallucinated more than other recent models," and used a leaked answer without telling the user 17% of the time, against 2% for Haiku 4.5.', 'System card: the most prompt-injection-robust Haiku yet, largely matching the frontier models against adaptive attackers in coding and computer use.', 'System card: its cyber safeguards trigger on far less activity than other recent releases, have no fallback model, and its biology safeguards match Opus 5\'s and Sonnet 5\'s.', 'Anthropic: Haiku 5.5 scores are at max effort and its API default is medium. At medium, GDPval-AA is 1277 against 1620 at max.', 'Anthropic: Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding; Haiku 5.5 suits narrowly scoped work such as compaction, summarization and subagents.', 'Workshop judgment: the token mixes in the lab are invented to show how price scales. Replace them with your own before you decide anything.'],
+      refs: ['overview', 'choosing', 'haikuAnn', 'haikuCard', 'sonAnn', 'opusCard', 'fableOverview'],
+      gloss: [['Efficiency-first', 'Start on the cheapest model likely to work and move up only for specific capability gaps.'], ['Capability-first', 'Start on the strongest model for the task, then lower effort or move down once your evals allow it.'], ['Subagent', 'A helper model a lead agent hands one narrow job, so most tokens are billed at the helper\'s lower rate.']] },
     { name: 'Ship gate',
-      tips: ['Repeat labs 3, 5 and 10 on your own tasks before changing production settings.', 'Re-check prices before publishing numbers. Launch coverage goes stale within weeks.', 'Keep a verification step: the system card\'s top flagged behavior is stating unverified inferences as fact.', 'Anthropic reports Opus 5.5 often suspects it is being evaluated, so treat every test as a floor on what you still need to watch in production.'],
-      refs: ['opusCard', 'opusAnn', 'sonAnn'],
+      tips: ['Repeat labs 3, 5, 10 and 11 on your own tasks before changing production settings.', 'Re-check prices before publishing numbers. Launch coverage goes stale within weeks.', 'Keep a verification step: the system card\'s top flagged behavior is stating unverified inferences as fact.', 'Anthropic reports Opus 5.5 often suspects it is being evaluated, so treat every test as a floor on what you still need to watch in production.', 'Haiku 5.5 system card: over-refusal in its audit and more hallucination than other recent models. Check a sample of its output before it runs unattended.'],
+      refs: ['opusCard', 'opusAnn', 'sonAnn', 'haikuCard'],
       gloss: [['Evaluation awareness', 'A model noticing it is probably being tested, which can make test behavior differ from real use.']] }
   ];
   function renderRail(i) {
@@ -1271,7 +1608,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
 
   // ---------------- shared selects ----------------
   function fillModelSelect(sel, def) {
-    sel.innerHTML = '<option value="sonnet-5.5">Claude Sonnet 5.5</option><option value="opus-5.5">Claude Opus 5.5</option>';
+    sel.innerHTML = '<option value="sonnet-5.5">Claude Sonnet 5.5</option><option value="opus-5.5">Claude Opus 5.5</option><option value="haiku-5.5">Claude Haiku 5.5</option>';
     sel.value = def || 'sonnet-5.5';
   }
   function fillEffortSelect(sel, def) {
@@ -1365,6 +1702,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
   function stopNote(r) {
     if (r.stopReason === 'refusal') return ' <span class="tag x">Refused: ' + esc((r.stopDetails && r.stopDetails.category) || 'no category') + '</span>';
     if (r.stopReason === 'max_tokens') return ' <span class="tag x">Cut off at max_tokens</span>';
+    if (!r.text && r.stopReason === 'end_turn') return ' <span class="tag x">Empty reply</span>';
     return '';
   }
   function showError(box, e) { box.innerHTML = '<p class="bad">' + esc(e && e.user ? e.message : 'Something went wrong: ' + (e && e.message ? e.message : e)) + '</p>'; }
@@ -1459,7 +1797,13 @@ footer p{max-width:900px;margin:0 auto .5rem}
     { claim: 'Ambiguous security or bio questions fall back to an older model.', status: 'corrected', evidence: 'Opus 5.5: cyber to Opus 4.8, bio to Opus 5. Sonnet 5.5: cyber to Sonnet 5. API needs opt-in. reasoning_extraction is not retried.', ref: S.opusCard[1], lab: 'm7' },
     { claim: 'Opus 5.5 is the most injection-resistant Opus.', status: 'confirmed', evidence: 'True for indirect injection. The system card adds it is more likely than previous models to follow instructions in text a user pastes.', ref: S.opusCard[1], lab: 'm8' },
     { claim: 'Sonnet 5.5 is Opus-level for less.', status: 'test', evidence: 'GDPval-AA 1844 vs 1846; CursorBench 55.5% vs 57.8%. Anthropic: Opus stays "clearly stronger at complex, open-ended work."', ref: S.sonAnn[1], lab: 'm10' },
-    { claim: 'Sonnet 5.5 costs half of Opus 5.5.', status: 'corrected', evidence: 'Half on input and output; the same $0.20 on cache reads. Per task depends on effort.', ref: S.sonAnn[1], lab: 'm2' },
+    { claim: 'Sonnet 5.5 costs half of Opus 5.5.', status: 'confirmed', evidence: 'At list price, since October 7: input, output, cache reads ($0.10 vs $0.20) and cache writes are all half. At launch cache reads were $0.20 on both. Per task still depends on tokens and effort.', ref: S.haikuAnn[1], lab: 'm2' },
+    { claim: 'Sonnet 5.5 cache reads cost $0.20 per million tokens.', status: 'corrected', evidence: 'True on the September 28 launch page. Anthropic cut them to $0.10 on October 7, which it says makes Sonnet 5.5 around 20% cheaper on most agentic work.', ref: S.haikuAnn[1], lab: 'm2' },
+    { claim: 'Haiku 5.5 costs 75% less than Haiku 4.5.', status: 'confirmed', evidence: 'Anthropic: "around 75% less to run" on average. List price is 90% lower up to 100K-token prompts and 50% lower above, and the figure counts that Haiku 5.5 uses slightly more tokens per task.', ref: S.haikuAnn[1], lab: 'm2' },
+    { claim: 'Haiku 5.5 scores 1620 on GDPval-AA, so expect that by default.', status: 'corrected', evidence: '1620 is at max effort. At the default, medium, the system card reports 1277 using about a tenth of the output tokens. AA-Briefcase: 1578 at max, 1372 at medium.', ref: S.haikuCard[1] + '#page=131', lab: 'm3' },
+    { claim: 'Haiku 5.5 supports effort like the larger models.', status: 'confirmed', evidence: 'Anthropic: "our first Haiku-class model to come with an adjustable effort setting." Levels low to max; default medium.', ref: S.haikuAnn[1], lab: 'm3' },
+    { claim: 'Haiku 5.5 matches Sonnet 5.5.', status: 'corrected', evidence: 'The system card says it "usually did not reach the level of Claude Sonnet 5.5, with some exceptions." Terminal-Bench 4.0: 39.2% vs 70.6%. GDPval-AA at max: 1620 vs 1840. ProgramBench: 82.0% vs 79.7%, an exception.', ref: S.haikuCard[1] + '#page=3', lab: 'm11' },
+    { claim: 'Haiku 5.5 refuses too much.', status: 'test', evidence: 'In the audit it "over-refused more than any other model we tested." On single-turn benign prompts via the API it declined 0.17%, below Haiku 4.5\'s 0.44%. Measure it on your own prompts.', ref: S.haikuCard[1] + '#page=56', lab: 'm11' },
     { claim: 'Opus 5.5 replaces Sonnet as the everyday workhorse.', status: 'test', evidence: 'Anthropic positions Sonnet 5.5 for "well-scoped everyday tasks" and Opus 5.5 for "complex work requiring careful judgment."', ref: S.sonAnn[1], lab: 'm10' },
     { claim: 'Opus 5.5 scores 89% on Chartography vs Sonnet 5.5 at 61.6%.', status: 'corrected', evidence: '89.0% is with tools. Without tools the Sonnet page lists Opus 5.5 at 64.4%.', ref: S.sonAnn[1], lab: 'm10' }
   ];
@@ -1495,7 +1839,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
   });
 
   // ---------------- module 2: cost ----------------
-  var costModels = ['opus-5', 'opus-5.5', 'sonnet-5', 'sonnet-5.5'];
+  var costModels = ['opus-5', 'opus-5.5', 'sonnet-5', 'sonnet-5.5', 'haiku-5.5', 'fable-5.1'];
   function fillCostSelect(sel, def) { sel.innerHTML = costModels.map(function (k) { return '<option value="' + k + '">' + L.MODELS[k].label + '</option>'; }).join(''); sel.value = def; }
   fillCostSelect($('#ccBase'), 'opus-5'); fillCostSelect($('#ccCand'), 'opus-5.5');
   function barSvg(items, maxV) {
@@ -1525,36 +1869,50 @@ footer p{max-width:900px;margin:0 auto .5rem}
     if (need !== null && need > 0) html += 'To reach Anthropic\'s <b>-40%</b> on this mix, the candidate would need <b class="num">' + need.toFixed(2) + '×</b> the baseline\'s tokens <span class="tag d">Derived</span>.';
     html += '</p>';
     var cacheShare = p.cachedInput / Math.max(1, p.freshInput + p.cachedInput);
-    if (p.baseline.indexOf('opus') === 0 && p.candidate === 'sonnet-5.5' || p.candidate.indexOf('opus') === 0 && p.baseline === 'sonnet-5.5') html += '<p class="muted" style="font-size:.9rem;margin:.4rem 0 0">Cache reads cost $0.20 on both 5.5 models, so with <b class="num">' + Math.round(cacheShare * 100) + '%</b> of input cached the Sonnet saving is smaller than the 50% list-price gap.</p>';
+    if (p.baseline === 'opus-5.5' && p.candidate === 'sonnet-5.5' || p.candidate === 'opus-5.5' && p.baseline === 'sonnet-5.5') html += '<p class="muted" style="font-size:.9rem;margin:.4rem 0 0">Since October 7 every Sonnet 5.5 price line is half of Opus 5.5\'s, so the <b class="num">' + Math.round(cacheShare * 100) + '%</b> of input that is cached here no longer changes the list-price gap. Cost per task still moves with the tokens each model spends.</p>';
+    var promptTok = p.freshInput + p.cachedInput;
+    [['baseline', 'baseLong', 1], ['candidate', 'candLong', p.tokenRatio]].forEach(function (x) {
+      if (!L.MODELS[p[x[0]]].long) return;
+      html += '<p class="muted" style="font-size:.9rem;margin:.4rem 0 0">' + (r[x[1]] ? 'Haiku 5.5 is billed at its higher rates ($0.50 / $2.50 input and output, $0.05 cache reads) because each request\'s prompt is over 100,000 tokens (<b class="num">' + int(promptTok * x[2]) + '</b> here). Lower the per-turn input to see the cheaper tier.' : 'Each request\'s prompt is <b class="num">' + int(promptTok * x[2]) + '</b> tokens, so Haiku 5.5 is billed at its lower rates ($0.10 / $0.50 input and output, $0.01 cache reads).') + ' <span class="tag d">Derived</span></p>';
+    });
+    if (p.baseline === 'haiku-5.5' || p.candidate === 'haiku-5.5' || p.baseline === 'fable-5.1' || p.candidate === 'fable-5.1') html += '<p class="faint" style="font-size:.84rem;margin:.4rem 0 0">This mix is applied to every model unchanged. Anthropic says Haiku 5.5\'s tokenizer is similar to Sonnet 5.5\'s and Opus 5.5\'s; the sources reviewed do not say how Fable 5.1\'s compares.</p>';
     $('#ccOutBox').innerHTML = html;
   }
   ['#ccBase', '#ccCand', '#ccFresh', '#ccCached', '#ccOut', '#ccTurns', '#ccRatio'].forEach(function (id) { $(id).addEventListener('input', renderCost); });
-  var eloNames = Object.keys(L.GDPVAL);
+  var eloNames = L.eloNames();
   [['#eloA', 'Claude Opus 5.5'], ['#eloB', 'GPT-6 Astra']].forEach(function (p) { $(p[0]).innerHTML = eloNames.map(function (n) { return '<option>' + esc(n) + '</option>'; }).join(''); $(p[0]).value = p[1]; });
   function renderElo() {
-    var a = $('#eloA').value, b = $('#eloB').value, g = L.eloGap(a, b);
+    var a = $('#eloA').value, b = $('#eloB').value, c = L.eloCompare(a, b);
+    if (!c) { $('#eloOut').innerHTML = '<p class="muted" style="margin:0">No source reviewed ranks ' + esc(a) + ' and ' + esc(b) + ' in the same table, so no gap is shown. The Haiku 5.5 launch page does not list Opus 5.5, and the Opus 5.5 and Sonnet 5.5 launch pages do not list Haiku 5.5.</p>'; return; }
+    var g = c.gap;
     var note = (a === 'GPT-6 Sol' || b === 'GPT-6 Sol') ? '<p class="warn" style="font-size:.86rem;margin:.4rem 0 0">GPT-6 Sol\'s score may predate an OpenAI image-understanding bug fix, per Anthropic\'s footnote.</p>' : '';
-    $('#eloOut').innerHTML = '<div class="stat-row"><div class="stat"><span class="k">' + esc(a) + ' <span class="tag q">Quoted</span></span><span class="big num">' + L.GDPVAL[a] + '</span></div><div class="stat"><span class="k">' + esc(b) + ' <span class="tag q">Quoted</span></span><span class="big num">' + L.GDPVAL[b] + '</span></div><div class="stat"><span class="k">Gap <span class="tag d">Derived</span></span><span class="big num">' + (g > 0 ? '+' : '') + g + '</span></div></div>' + note;
+    if (c.table === 'haiku') note += '<p class="muted" style="font-size:.86rem;margin:.4rem 0 0">Both figures come from the Haiku 5.5 launch page and system card, at max effort. That table lists Sonnet 5.5 at 1840, while the Sonnet 5.5 launch page says 1844, so compare gaps only inside one table.</p>';
+    if (a === 'Claude Haiku 5.5' || b === 'Claude Haiku 5.5') note += '<p class="muted" style="font-size:.86rem;margin:.4rem 0 0">At its default effort, medium, Haiku 5.5 scored <b class="num">' + L.GDPVAL_HAIKU_MEDIUM + '</b> using about a tenth of the output tokens it used at max <span class="tag q">Quoted</span> (<a href="' + esc(S.haikuCard[1]) + '#page=131" target="_blank" rel="noopener">system card, section 8.10.2</a>).</p>';
+    $('#eloOut').innerHTML = '<div class="stat-row"><div class="stat"><span class="k">' + esc(a) + ' <span class="tag q">Quoted</span></span><span class="big num">' + c.a + '</span></div><div class="stat"><span class="k">' + esc(b) + ' <span class="tag q">Quoted</span></span><span class="big num">' + c.b + '</span></div><div class="stat"><span class="k">Gap <span class="tag d">Derived</span></span><span class="big num">' + (g > 0 ? '+' : '') + g + '</span></div></div>' + note;
   }
   $('#eloA').addEventListener('change', renderElo); $('#eloB').addEventListener('change', renderElo);
 
   // ---------------- module 3: effort sweep ----------------
   var SWEEP_DEMO = {
     'sonnet-5.5': { low: [310, 2400, 'orderRushAll'], medium: [620, 4100, 'orderOk'], high: [1180, 7300, 'orderOk'], xhigh: [2400, 13800, 'orderOk'], max: [4900, 27500, 'orderOk'] },
-    'opus-5.5': { low: [290, 3300, 'orderOk'], medium: [540, 5200, 'orderOk'], high: [1020, 8800, 'orderOk'], xhigh: [2100, 16900, 'orderOk'], max: [4600, 34800, 'orderOk'] }
+    'opus-5.5': { low: [290, 3300, 'orderOk'], medium: [540, 5200, 'orderOk'], high: [1020, 8800, 'orderOk'], xhigh: [2100, 16900, 'orderOk'], max: [4600, 34800, 'orderOk'] },
+    'haiku-5.5': { low: [230, 1100, 'orderRushAll'], medium: [450, 2000, 'orderOk'], high: [860, 3600, 'orderOk'], xhigh: [2300, 8200, 'orderOk'], max: [5200, 21000, 'orderOk'] }
   };
   function selectedLevels(box) { return $$('input:checked', box).map(function (i) { return i.value; }); }
+  function rtModelKeys() { return selectedLevels($('#rtModels')); }
   function updateEstimates() {
     var m = $('#swModel').value, lv = selectedLevels($('#swLevels')), runs = Math.max(1, Math.min(3, +$('#swRuns').value || 1)), mx = +$('#swMax').value || 8000;
     var inTok = estTokens({ system: ORDER_SYSTEM, messages: orderMessages(threadClean) });
     var worst = lv.length * runs * L.estimateWorstCase(m, inTok, mx);
     $('#swEst').textContent = state.live ? 'Worst case if every run hits max_tokens: ' + usd(worst) + ' (derived).' : 'Demo mode: no cost.';
     var rl = selectedLevels($('#rtLevels')).length, rt = selectedLevels($('#rtTasks')).length, rr = Math.max(1, Math.min(3, +$('#rtRuns').value || 1));
-    var w2 = rl * rt * rr * (L.estimateWorstCase('sonnet-5.5', 1200, 8000) + L.estimateWorstCase('opus-5.5', 1200, 8000));
+    var w2 = rl * rt * rr * rtModelKeys().reduce(function (sum, k) { return sum + L.estimateWorstCase(k, 1200, 8000); }, 0);
     $('#rtEst').textContent = state.live ? 'Worst case: ' + usd(w2) + ' (derived).' : 'Demo mode: no cost.';
   }
   ['#swModel', '#swRuns', '#swMax'].forEach(function (id) { $(id).addEventListener('input', updateEstimates); });
-  $$('#swLevels input, #rtLevels input, #rtTasks input').forEach(function (i) { i.addEventListener('change', updateEstimates); });
+  function syncSweepNote() { $('#swHaikuNote').hidden = $('#swModel').value !== 'haiku-5.5'; }
+  $('#swModel').addEventListener('change', syncSweepNote); $('#defModel').addEventListener('change', syncSweepNote); syncSweepNote();
+  $$('#swLevels input, #rtLevels input, #rtTasks input, #rtModels input').forEach(function (i) { i.addEventListener('change', updateEstimates); });
   $('#rtRuns').addEventListener('input', updateEstimates);
 
   function sweepChart(rows) {
@@ -1611,10 +1969,11 @@ footer p{max-width:900px;margin:0 auto .5rem}
   // ---------------- module 4: linter ----------------
   var SAMPLES = {
     opus: JSON.stringify({ model: 'claude-opus-5', max_tokens: 8192, thinking: { type: 'disabled' }, system: 'You are a release agent. Think carefully before each step.', tools: [{ name: 'run_tests', description: 'Run the test suite', input_schema: { type: 'object', properties: {} } }, { type: 'computer_20251124', name: 'computer', display_width_px: 1280, display_height_px: 800 }], tool_choice: { type: 'tool', name: 'run_tests' }, messages: [{ role: 'user', content: 'Run the tests, then ship if green.' }] }, null, 2),
+    haiku: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 1024, temperature: 0.2, thinking: { type: 'enabled', budget_tokens: 2000 }, system: 'Classify the ticket. Reply with a JSON object only.', tools: [{ type: 'computer_20250124', name: 'computer', display_width_px: 1280, display_height_px: 800 }], messages: [{ role: 'user', content: 'Ticket: My invoice shows two charges.' }, { role: 'assistant', content: '{"category":"' }] }, null, 2),
     sonnet: JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 2048, temperature: 0.2, thinking: { type: 'disabled' }, system: 'Extract the order as JSON. Show your reasoning in the response before the JSON.', tool_choice: { type: 'any' }, tools: [{ name: 'save_order', description: 'Save an order', input_schema: { type: 'object', properties: { total: { type: 'number' } } } }], messages: [{ role: 'user', content: 'Order: 60 signs...' }] }, null, 2)
   };
   $('#lnIn').value = SAMPLES.opus;
-  $$('[data-sample]').forEach(function (b) { b.addEventListener('click', function () { var k = b.getAttribute('data-sample'); $('#lnIn').value = SAMPLES[k]; $('#lnTarget').value = k === 'opus' ? 'opus-5.5' : 'sonnet-5.5'; runLint(); }); });
+  $$('[data-sample]').forEach(function (b) { b.addEventListener('click', function () { var k = b.getAttribute('data-sample'); $('#lnIn').value = SAMPLES[k]; $('#lnTarget').value = k === 'opus' ? 'opus-5.5' : k === 'haiku' ? 'haiku-5.5' : 'sonnet-5.5'; runLint(); }); });
   function runLint() {
     var r = L.lintRequest($('#lnIn').value, $('#lnTarget').value);
     if (r.parseError) { $('#lnOut').innerHTML = '<p class="bad">' + esc(r.parseError) + '</p>'; return; }
@@ -1848,8 +2207,8 @@ footer p{max-width:900px;margin:0 auto .5rem}
 
   // ---------------- module 10: routing ----------------
   var RT_DEMO = {
-    order: { 'sonnet-5.5': { low: [0, 0.0035], medium: [1, 0.0072], high: [1, 0.0128] }, 'opus-5.5': { low: [1, 0.0079], medium: [1, 0.0130], high: [1, 0.0227] } },
-    invoice: { 'sonnet-5.5': { low: [0.5, 0.0061], medium: [1, 0.0102], high: [1, 0.0171] }, 'opus-5.5': { low: [1, 0.0118], medium: [1, 0.0190], high: [1, 0.0330] } }
+    order: { 'haiku-5.5': { low: [0, 0.0004], medium: [0.5, 0.0007], high: [1, 0.0013] }, 'sonnet-5.5': { low: [0, 0.0035], medium: [1, 0.0072], high: [1, 0.0128] }, 'opus-5.5': { low: [1, 0.0079], medium: [1, 0.0130], high: [1, 0.0227] } },
+    invoice: { 'haiku-5.5': { low: [0, 0.0007], medium: [0.5, 0.0013], high: [0.5, 0.0024] }, 'sonnet-5.5': { low: [0.5, 0.0061], medium: [1, 0.0102], high: [1, 0.0171] }, 'opus-5.5': { low: [1, 0.0118], medium: [1, 0.0190], high: [1, 0.0330] } }
   };
   var TASK_LABEL = { order: 'Order extraction', invoice: 'Invoice fix' };
   function scatter(points) {
@@ -1864,12 +2223,14 @@ footer p{max-width:900px;margin:0 auto .5rem}
     for (var e = Math.ceil(lo * 2) / 2; e <= hi; e += 0.5) { var c = Math.pow(10, e); s += '<text x="' + x(c) + '" y="' + (h - pb + 16) + '" text-anchor="middle">$' + (c < 0.01 ? c.toFixed(4) : c.toFixed(3)) + '</text>'; }
     s += '<text x="' + ((w + pl) / 2) + '" y="' + (h - 6) + '" text-anchor="middle">Cost per run (log scale)</text>';
     points.forEach(function (p, i) {
-      var cx = x(p.cost), cy = y(p.pass) + (p.model === 'opus-5.5' ? 7 : -7);
+      var cx = x(p.cost), cy = y(p.pass) + (p.model === 'opus-5.5' ? 9 : p.model === 'haiku-5.5' ? 0 : -9);
       var tip = '<title>' + esc('#' + (i + 1) + ' ' + L.MODELS[p.model].label + ', ' + p.effort + ', ' + TASK_LABEL[p.task]) + '</title>';
-      s += p.model === 'opus-5.5' ? '<rect x="' + (cx - 5) + '" y="' + (cy - 5) + '" width="10" height="10" fill="none" stroke="var(--ink)" stroke-width="1.6">' + tip + '</rect>' : '<circle cx="' + cx + '" cy="' + cy + '" r="5.5" fill="var(--accent)">' + tip + '</circle>';
-      s += '<text x="' + cx + '" y="' + (p.model === 'opus-5.5' ? cy + 18 : cy - 9) + '" text-anchor="middle" style="font-size:10px;fill:var(--ink)">' + (i + 1) + '</text>';
+      if (p.model === 'opus-5.5') s += '<rect x="' + (cx - 5) + '" y="' + (cy - 5) + '" width="10" height="10" fill="none" stroke="var(--ink)" stroke-width="1.6">' + tip + '</rect>';
+      else if (p.model === 'haiku-5.5') s += '<polygon points="' + cx + ',' + (cy - 6.5) + ' ' + (cx + 6) + ',' + (cy + 4.5) + ' ' + (cx - 6) + ',' + (cy + 4.5) + '" fill="var(--alt)">' + tip + '</polygon>';
+      else s += '<circle cx="' + cx + '" cy="' + cy + '" r="5.5" fill="var(--accent)">' + tip + '</circle>';
+      s += '<text x="' + cx + '" y="' + (p.model === 'opus-5.5' ? cy + 19 : p.model === 'haiku-5.5' ? cy + 17 : cy - 9) + '" text-anchor="middle" style="font-size:10px;fill:var(--ink)">' + (i + 1) + '</text>';
     });
-    return s + '</svg><p class="faint" style="font-size:.82rem;margin:0">Filled circles: Sonnet 5.5. Open squares: Opus 5.5. Numbers match the rows in the table below.</p>';
+    return s + '</svg><p class="faint" style="font-size:.82rem;margin:0">Triangles: Haiku 5.5. Filled circles: Sonnet 5.5. Open squares: Opus 5.5. Numbers match the rows in the table below.</p>';
   }
   function renderRouting(points, head) {
     var bar = +$('#rtBar').value, rules = L.routingRule(points, bar);
@@ -1881,18 +2242,18 @@ footer p{max-width:900px;margin:0 auto .5rem}
   $('#rtBar').addEventListener('change', function () { if (lastRouting) renderRouting(lastRouting.points, lastRouting.head); });
   var lastRouting = null;
   $('#rtRun').addEventListener('click', function () {
-    var btn = this, box = $('#rtOut'), tasks = selectedLevels($('#rtTasks')), levels = selectedLevels($('#rtLevels')), runs = Math.max(1, Math.min(3, +$('#rtRuns').value || 1));
-    if (!tasks.length || !levels.length) { box.innerHTML = '<p class="bad">Tick at least one task and one effort level.</p>'; return; }
+    var btn = this, box = $('#rtOut'), tasks = selectedLevels($('#rtTasks')), levels = selectedLevels($('#rtLevels')), models = rtModelKeys(), runs = Math.max(1, Math.min(3, +$('#rtRuns').value || 1));
+    if (!tasks.length || !levels.length || !models.length) { box.innerHTML = '<p class="bad">Tick at least one model, one task and one effort level.</p>'; return; }
     withBusy(btn, async function () {
       try {
         var points = [];
         if (!state.live) {
-          tasks.forEach(function (t) { ['sonnet-5.5', 'opus-5.5'].forEach(function (m) { levels.forEach(function (e) { var d = RT_DEMO[t][m][e]; points.push({ task: t, model: m, effort: e, pass: d[0], cost: d[1] }); }); }); });
+          tasks.forEach(function (t) { models.forEach(function (m) { levels.forEach(function (e) { var d = RT_DEMO[t][m][e]; points.push({ task: t, model: m, effort: e, pass: d[0], cost: d[1] }); }); }); });
           lastRouting = { points: points, head: illus() }; renderRouting(points, lastRouting.head); return;
         }
-        var total = tasks.length * 2 * levels.length * runs, done = 0;
-        for (var ti = 0; ti < tasks.length; ti++) for (var mi = 0; mi < 2; mi++) for (var ei = 0; ei < levels.length; ei++) {
-          var t = tasks[ti], m = ['sonnet-5.5', 'opus-5.5'][mi], e = levels[ei], passes = 0, cost = 0;
+        var total = tasks.length * models.length * levels.length * runs, done = 0;
+        for (var ti = 0; ti < tasks.length; ti++) for (var mi = 0; mi < models.length; mi++) for (var ei = 0; ei < levels.length; ei++) {
+          var t = tasks[ti], m = models[mi], e = levels[ei], passes = 0, cost = 0;
           for (var k = 0; k < runs; k++) {
             done++; box.innerHTML = '<p class="muted">Run ' + done + ' of ' + total + ': ' + TASK_LABEL[t] + ', ' + L.MODELS[m].label + ', ' + e + '...</p>';
             var r, ok;
@@ -1908,6 +2269,41 @@ footer p{max-width:900px;margin:0 auto .5rem}
     });
   });
 
+  // ---------------- module 11: pick the model ----------------
+  $('#pkTask').innerHTML = L.PICK_TASKS.map(function (t) { return '<option value="' + t.id + '">' + esc(t.title) + '</option>'; }).join('');
+  function pkReset() { var t = L.pickTask($('#pkTask').value); $('#pkScenario').textContent = t.scenario; $('#pkOut').innerHTML = ''; }
+  $('#pkTask').addEventListener('change', pkReset);
+  $$('input[name=pkModel]').forEach(function (r) { r.addEventListener('change', function () { $('#pkOut').innerHTML = ''; }); });
+  pkReset();
+  function pkTag(t) { return { q: '<span class="tag q">Quoted</span> ', d: '<span class="tag d">Derived</span> ', j: '<span class="tag j">Workshop judgment</span> ', n: '' }[t] || ''; }
+  function pkLi(r) { return '<li>' + pkTag(r.t) + esc(r.text) + (r.src ? ' <a href="' + esc(r.src[1]) + '" target="_blank" rel="noopener">' + esc(r.src[0]) + '</a>' : '') + '</li>'; }
+  function money(n) { return n >= 1000 ? '$' + int(n) : usd(n); }
+  function pkRatio(r) { return r >= 1 ? r.toFixed(1) + ' times' : Math.round(r * 100) + '% of'; }
+  function renderPick() {
+    var sel = $('input[name=pkModel]:checked'), box = $('#pkOut');
+    if (!sel) { box.innerHTML = '<p class="bad">Choose a model first. Your pick only decides which sentence you read below. Nothing is scored.</p>'; return; }
+    var c = L.pickCompare($('#pkTask').value, sel.value), t = c.task, pickLbl = L.MODELS[c.pick].label, refLbl = L.MODELS[c.refModel].label;
+    var startLbl = t.start.map(function (k) { return L.MODELS[k].label; }).join(' or ');
+    var rel;
+    if (c.relation === 'at') rel = 'Your pick, <b>' + esc(pickLbl) + '</b>, is one of the starting points the sources suggest for this kind of work (' + esc(startLbl) + '). Read the watch-for list to see where it can still go wrong.';
+    else if (c.relation === 'below') rel = 'Your pick, <b>' + esc(pickLbl) + '</b>, is cheaper than the starting point the sources suggest (' + esc(startLbl) + '). At this token mix it costs about ' + pkRatio(c.ratio) + ' ' + esc(refLbl) + '\'s per task <span class="tag d">Derived</span>. That can be right if your own evals show it holds. Test what the watch-for list names first.';
+    else if (c.relation === 'above') rel = 'Your pick, <b>' + esc(pickLbl) + '</b>, is a step above the starting point the sources suggest (' + esc(startLbl) + '). At this token mix it costs about ' + pkRatio(c.ratio) + ' ' + esc(refLbl) + '\'s per task <span class="tag d">Derived</span>. It pays off only if your evals show the cheaper model falling short.';
+    else rel = 'Your pick, <b>' + esc(pickLbl) + '</b>, sits between the starting points the sources suggest (' + esc(startLbl) + ').';
+    var per = t.perN === 1 ? 'per ' + t.unit.replace(/s$/, '') : 'per ' + int(t.perN) + ' ' + t.unit;
+    var mx = t.mix;
+    var html = '<span class="illus">Illustrative token mix at list prices. Not measurements.</span>' +
+      '<h4>Your pick: ' + esc(pickLbl) + '</h4><p style="margin:0 0 .6rem">' + rel + '</p>' +
+      '<h4>What the sources say</h4><ul class="pick-list">' + t.why.map(pkLi).join('') + '</ul>' +
+      '<h4>Watch for</h4><ul class="pick-list">' + t.watch.map(pkLi).join('') + '</ul>' +
+      '<h4>List-price cost ' + esc(per) + ' <span class="tag d">Derived</span> <span class="tag i">Illustrative</span></h4>' +
+      '<div class="tbl-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Role here</th><th scope="col" class="n">Cost ' + esc(per) + '</th></tr></thead><tbody>' +
+      c.costs.map(function (x) { return '<tr><td>' + esc(L.MODELS[x.model].label) + '</td><td>' + (x.model === c.pick ? '<b>Your pick</b>' : '') + (x.model === c.pick && t.start.indexOf(x.model) >= 0 ? ', ' : '') + (t.start.indexOf(x.model) >= 0 ? 'Sources\' starting point' : '') + '</td><td class="n num">' + money(x.cost) + (x.long ? ' (over-100K rates)' : '') + '</td></tr>'; }).join('') +
+      '</tbody></table></div>' +
+      '<p class="faint" style="font-size:.84rem;margin:0">Mix per task: ' + mx.turns + ' turn' + (mx.turns > 1 ? 's' : '') + ' of ' + int(mx.fresh) + ' fresh input, ' + int(mx.cached) + ' cached input and ' + int(mx.out) + ' output tokens. The same tokens are applied to every model. Anthropic says Haiku 5.5\'s tokenizer is similar to Sonnet 5.5\'s and Opus 5.5\'s, the sources reviewed do not say how Fable 5.1\'s compares, and real runs differ in how many tokens each model spends at a given effort.</p>';
+    box.innerHTML = html;
+  }
+  $('#pkRun').addEventListener('click', renderPick);
+
   // ---------------- ship gate ----------------
   var GATE = [
     'I set effort explicitly on every request and ran a sweep on my own task.',
@@ -1919,7 +2315,8 @@ footer p{max-width:900px;margin:0 auto .5rem}
     'My refusal handler branches on stop_details.category.',
     'Pasted text is wrapped in tags with a fresh random ID, and the system note is in place.',
     'My frontend prompts name the specific styles to avoid.',
-    'I have a routing rule between Sonnet 5.5 and Opus 5.5 based on my own runs.'
+    'I have a routing rule between Haiku 5.5, Sonnet 5.5 and Opus 5.5 based on my own runs.',
+    'I wrote down which of my tasks start on Haiku 5.5, Sonnet 5.5 or Opus 5.5 and why, and I test Haiku 5.5 at the effort I will ship because its published scores are at max.'
   ];
   var gateState = {}; try { gateState = JSON.parse(store('c55-gate') || '{}') || {}; } catch (e) { gateState = {}; }
   var CHECK_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3" fill="none" stroke="var(--bg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
