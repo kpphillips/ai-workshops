@@ -262,6 +262,46 @@ aside.rail .connect.live{border-color:var(--green);background:color-mix(in srgb,
 .rail .srcs a{word-break:break-word}
 .rail .cost-line{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-soft)}
 </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain}
+   card_click {workshop} is set on the hub with data-umami-event attributes. */
+window.wsTrack=(function(){
+  var WS='fable-5.1-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -565,6 +605,7 @@ urgency:string</textarea>
   <p>Independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, OpenAI, xAI, OpenRouter, or Artificial Analysis. Model names are their owners' trademarks; benchmark figures are quoted from the sources listed in the rail with the date they were read.</p>
   <p>Live labs make paid API calls with your key through OpenRouter. Set a spend limit on the key before you connect it, and read the <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener">Anthropic Usage Policy</a> and <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter terms</a>. The key is held in memory for this tab only and is never written to storage.</p>
   <p>Source read date: September 1, 2026. Vendor pricing and benchmark tables change; re-check the linked pages before relying on a number here.</p>
+  <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data.</p>
 </footer>
 </main>
 
@@ -766,12 +807,18 @@ function setRail(id){
 $('srcList').innerHTML = Object.values(SRC).map(s => `<li><a href="${s.u}" target="_blank" rel="noopener">${s.t}</a></li>`).join('');
 setRail('m0');
 
+wsTrack.gate('#recap li', function(li){ return li.classList.contains('on'); });
+wsTrack.labs({
+  '#done1':'m1-chart', '#done2':'m2-budget', '#runSweep':['m3-sweep','modelSweep'], '#addTurn':'m3-turns',
+  '#runAudit':'m4-audit', '#done5':'m5-harness', '#done6':'m6-forced', '#done7':'m7-turns', '#done8':'m8-migrate'
+});
+
 /* ===================== SCROLL SPY + REVEAL ===================== */
 const mods = [...document.querySelectorAll('section.mod')];
 const navA = [...document.querySelectorAll('#navLinks a')];
 if('IntersectionObserver' in window){
   const spy = new IntersectionObserver(es => {
-    es.forEach(e => { if(e.isIntersecting){ const id = e.target.id; navA.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+id)); setRail(id); } });
+    es.forEach(e => { if(e.isIntersecting){ const id = e.target.id; wsTrack.module(+id.slice(1)); navA.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+id)); setRail(id); } });
   }, {rootMargin:'-35% 0px -55% 0px'});
   mods.forEach(m => spy.observe(m));
   const rev = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); rev.unobserve(e.target); } }), {threshold:.08});
@@ -804,6 +851,7 @@ function setConnected(on){
   $('keyIn').disabled = on;
 }
 function connect(){
+  wsTrack('connect_click');
   const err = validateKey($('keyIn').value);
   const m = $('keyMsg');
   if(err){ m.textContent = err; m.classList.add('bad'); return; }
@@ -811,6 +859,7 @@ function connect(){
   $('keyIn').value = '';   // clear the field immediately; key lives in the closure only
   m.textContent = 'Connected. Calls go to OpenRouter with your key; spend is estimated below from returned usage.'; m.classList.remove('bad');
   setConnected(true);
+  wsTrack('connected');
 }
 function disconnect(){ apiKey = null; setConnected(false); $('keyMsg').textContent = 'Disconnected. Demo mode is on.'; }
 $('connBtn').addEventListener('click', connect);

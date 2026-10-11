@@ -35,6 +35,25 @@ The landing page has its own small token set in `:root` (`--ink`, `--muted`, `--
 
 New workshops should follow the Field Guide system for consistency with the two current ones. Preserve palette-switching and theme-switching when editing.
 
+## Analytics (Umami Cloud, cookie-free)
+
+Every page (hub, each workshop, `privacy/`) carries the same Umami `<script defer ... data-website-id=...>` tag in `<head>`; nothing else loads besides Google Fonts. Each workshop also has a small inline `window.wsTrack` helper right after that tag (no-op when the script is blocked). A new workshop must copy the tag and helper, set its folder slug in `WS`, wire the hooks below, and add a footer link to `../privacy/` plus a `sitemap.xml` entry if it is a new page. Never send keys, prompts, lab inputs, model output, or any typed text; properties are fixed slugs and ids only.
+
+Events (all carry `workshop` = folder slug):
+
+| Event | Fires when | Extra properties |
+|---|---|---|
+| `module` | module first reached per page view (scroll-spy, or tab open in Opus 4.8) | `module` (number) |
+| `lab_run` | a lab's run/submit button is clicked (`wsTrack.labs({selector: 'lab-id' or ['lab-id', 'modelSelectId']})`) | `lab`, optional `model` (from a fixed `<select>`) |
+| `connect_click` | Connect pressed | none |
+| `connected` | live mode switched on | none |
+| `gate_item` | a ship gate or recap item is ticked, once per item (`wsTrack.gate(selector, isOn)`) | `item` (1-based) |
+| `gate_done` | every item on that list is ticked | none |
+| `card_click` | hub card opened (`data-umami-event` attributes on the hub link) | `workshop` = clicked slug |
+| `ref_click` | link to another site (delegated, automatic) | `domain` (hostname only) |
+
+`privacy/index.html` lists these for readers; keep it in sync if events change.
+
 ## Design standard for all work in this repo
 
 Hold every change — landing page and workshop pages — to the `/impeccable` design standard. When doing non-trivial UI work, run the skill (`/impeccable`, or a specific sub-command like `/impeccable critique`, `/impeccable audit`, `/impeccable polish`).

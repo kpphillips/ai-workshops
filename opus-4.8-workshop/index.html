@@ -355,6 +355,46 @@
   .vs-col p { font-size:12.5px; color:var(--text-dim); line-height:1.65; }
   .vs-col .vc-tag { font-family:var(--mono); font-size:8px; letter-spacing:1px; text-transform:uppercase; display:inline-block; margin-bottom:8px; }
 </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain}
+   card_click {workshop} is set on the hub with data-umami-event attributes. */
+window.wsTrack=(function(){
+  var WS='opus-4.8-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -1088,6 +1128,7 @@ client = anthropic.<span class="f">AsyncAnthropic</span>()
   <footer style="border-top:1px solid var(--border);margin-top:48px;padding:24px 0;font-size:12px;color:var(--text-dim);line-height:1.7">
     <p>Independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, OpenRouter, or OpenAI. "Claude" and "Opus" are marks of Anthropic; this workshop discusses their publicly announced product.</p>
     <p style="margin-top:12px">Live labs make paid API calls with your key through OpenRouter. Set a spend limit on your key before connecting. Review the <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener" style="color:var(--accent)">Anthropic Usage Policy</a> and <a href="https://openrouter.ai/terms" target="_blank" rel="noopener" style="color:var(--accent)">OpenRouter terms</a>. The key is held in memory for this tab only and is never written to storage.</p>
+    <p style="margin-top:12px"><a href="../privacy/" style="color:var(--accent)">Privacy</a>: cookie-free analytics, no personal data.</p>
   </footer>
 
 </div>
@@ -1226,6 +1267,7 @@ function copyRaw(bodyId){
 
 // ═══════════════ API ═══════════════
 function saveKey(){
+  wsTrack('connect_click');
   const val = document.getElementById('apiKeyInput').value.trim();
   const statusEl = document.getElementById('keyStatus');
   if(!val.startsWith('sk-or-')){
@@ -1234,9 +1276,10 @@ function saveKey(){
   apiKey = val;
   document.getElementById('apiKeyInput').value = '';
   statusEl.textContent = '✓ AUTHENTICATED'; statusEl.className='key-status ok'; statusEl.style.display='inline-block';
+  wsTrack('connected');
 }
 function getKey(){
-  if(!apiKey){ const v=document.getElementById('apiKeyInput').value.trim(); if(v.startsWith('sk-or-')) apiKey=v; }
+  if(!apiKey){ const v=document.getElementById('apiKeyInput').value.trim(); if(v.startsWith('sk-or-')){ apiKey=v; wsTrack('connected'); } }
   return apiKey;
 }
 function requireKey(){
@@ -1291,10 +1334,16 @@ function setLoading(spinnerId, thinkingId, btnId, state){
 }
 
 // ═══════════════ NAV (no scroll-to-top) ═══════════════
+wsTrack.module(0);
+wsTrack.labs({
+  '#effortRunBtn':['m2-effort'], '#effortCmpBtn':'m2-effort', '#honestyRunBtn':'m3-honesty', '#agentRunBtn':'m4-agent',
+  '#routingRunBtn':'m5-routing', '#simRunBtn':'m6-build', '[onclick="generateDebrief()"]':'m8-debrief'
+});
 function goTab(n){
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active', i===n));
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', i===n));
   currentTab = n;
+  wsTrack.module(n);
   // intentionally NOT scrolling — keep the user's scroll position
 }
 function toggleCollapse(id){ document.getElementById(id).classList.toggle('open'); }

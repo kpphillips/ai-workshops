@@ -226,6 +226,46 @@ footer p{max-width:900px;margin:0 auto .5rem}
  .meter span,.rail-body,.connect{transition:none}
 }
 </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain}
+   card_click {workshop} is set on the hub with data-umami-event attributes. */
+window.wsTrack=(function(){
+  var WS='claude-5.5-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -700,6 +740,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
   <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, OpenRouter, OpenAI, Search Engine Journal, Medium, or any creator named here. Product names belong to their owners.</p>
   <p>Live labs call paid models through your own OpenRouter key and cost real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys">openrouter.ai/keys</a> before connecting. Use is subject to <a href="https://www.anthropic.com/legal/aup">Anthropic's Usage Policy</a> and <a href="https://openrouter.ai/terms">OpenRouter's Terms</a>.</p>
   <p>Facts checked against primary sources on October 9, 2026. Prices and benchmarks change; re-check before relying on them.</p>
+  <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data.</p>
 </footer>
 
 <script>
@@ -1636,6 +1677,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
   }
   async function connect() {
     var input = $('#keyIn'), msg = $('#connectMsg');
+    wsTrack('connect_click');
     if (window.__PREVIEW_ONLY) { input.value = ''; setMsg(msg, 'This hosted preview blocks outside requests, so live labs cannot reach OpenRouter here. Open the published workshop or a local copy of index.html to run them. Demo mode works here.', 'warnm'); return; }
     var candidate = input.value.trim();
     var problem = L.validateKeyFormat(candidate);
@@ -1649,6 +1691,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
       var data = null; try { data = await res.json(); } catch (e) { data = null; }
       apiKey = candidate; candidate = null;
       setLive(true);
+      wsTrack('connected');
       var info = data && data.data;
       if (info && (info.limit === null || info.limit === undefined)) setMsg(msg, 'Connected. This key has no credit limit. Set one at openrouter.ai/keys before running labs.', 'warnm');
       else if (info && typeof info.limit === 'number') setMsg(msg, 'Connected. Key credit limit: $' + info.limit.toFixed(2) + (typeof info.usage === 'number' ? ', used so far: $' + info.usage.toFixed(2) : '') + '.', 'okm');
@@ -2325,10 +2368,19 @@ footer p{max-width:900px;margin:0 auto .5rem}
     b.addEventListener('click', function () { var i = b.getAttribute('data-g'); gateState[i] = !gateState[i]; b.setAttribute('aria-pressed', String(!!gateState[i])); store('c55-gate', JSON.stringify(gateState)); });
   });
 
+  wsTrack.gate('#gate button', function (b) { return b.getAttribute('aria-pressed') === 'true'; });
+  wsTrack.labs({
+    '#swRun': ['m3-sweep', 'swModel'], '#lnRun': ['m4-lint', 'lnTarget'], '#dsRun': ['m5-spec', 'dsModel'],
+    '#saRun': ['m6-subagent', 'saModel'], '#stRun': ['m6-steer', 'stModel'], '#tkRun': ['m7-think', 'tkModel'],
+    '#injRun': ['m8-inject', 'injModel'], '#feRun': ['m9-frontend', 'feModel'], '#feCheck': 'm9-detect',
+    '#rtRun': 'm10-route', '#pkRun': 'm11-pick'
+  });
+
   // ---------------- scroll spy, reveal, progress ----------------
   var mods = $$('.mod'), links = $$('#navList a'), seen = {};
   function setActive(i) {
     links.forEach(function (a, j) { a.classList.toggle('active', j === i); if (j === i) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+    wsTrack.module(i);
     seen[i] = true;
     links.forEach(function (a, j) { a.classList.toggle('seen', !!seen[j]); });
     var n = Object.keys(seen).length;

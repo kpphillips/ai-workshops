@@ -260,6 +260,46 @@ svg.chart .lbl{font-weight:600;fill:var(--ink)}
 .back-top{font-size:.84rem}
 input[type=date]{font:inherit;font-size:.92rem;background:var(--bg);color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r);padding:.45rem .6rem;min-width:0;max-width:100%}
 </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain}
+   card_click {workshop} is set on the hub with data-umami-event attributes. */
+window.wsTrack=(function(){
+  var WS='skills-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -636,6 +676,7 @@ input[type=date]{font:inherit;font-size:.92rem;background:var(--bg);color:var(--
   <p>Live labs call paid models through your own OpenRouter key and cost real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a> before connecting, and set the session budget in the Live labs panel. A repeated eval makes many calls, so check the plan line in module 5 before you run.</p>
   <p>Usage policies and terms: <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener">Anthropic Usage Policy</a>, <a href="https://openai.com/policies/usage-policies/" target="_blank" rel="noopener">OpenAI Usage Policies</a>, <a href="https://chat.qwen.ai/legal-agreement/terms-of-use" target="_blank" rel="noopener">Qwen Terms of Use</a> (the open weights carry their own license on <a href="https://huggingface.co/Qwen/Qwen3.8-27B" target="_blank" rel="noopener">Hugging Face</a>), <a href="https://docs.z.ai/legal-agreement/terms-of-use" target="_blank" rel="noopener">Z.ai Terms of Use</a>, and <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter Terms</a>.</p>
   <p>Facts checked against primary sources on October 4, 2026. Model slugs, prices and docs change; re-check them before relying on them. Illustrative outputs are labelled "illustrative, not measurements".</p>
+  <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data.</p>
 </footer>
 <script>
 /* Pure lab logic. No DOM access. Tested in Node before assembly. */
@@ -1568,6 +1609,7 @@ var REF_TEXT = [
   }
   async function connect() {
     var input = $('#keyIn'), msg = $('#connectMsg');
+    wsTrack('connect_click');
     var candidate = input.value.trim();
     var problem = L.validateKeyFormat(candidate);
     if (problem) { setMsg(msg, problem, 'err'); return; }
@@ -1580,6 +1622,7 @@ var REF_TEXT = [
       var data = null; try { data = await res.json(); } catch (e) { data = null; }
       apiKey = candidate; candidate = null;
       setLive(true);
+      wsTrack('connected');
       var info = data && data.data;
       if (info && (info.limit === null || info.limit === undefined)) setMsg(msg, 'Connected. This key has no credit limit. Set one at openrouter.ai/keys before running a repeated eval.', 'warnm');
       else if (info && typeof info.limit === 'number') setMsg(msg, 'Connected. Key credit limit: $' + info.limit.toFixed(2) + (typeof info.usage === 'number' ? ', used so far: $' + info.usage.toFixed(2) : '') + '.', 'okm');
@@ -2330,10 +2373,19 @@ var REF_TEXT = [
   });
   gateCount();
 
+  wsTrack.gate('#gate button', function (b) { return b.getAttribute('aria-pressed') === 'true'; });
+  wsTrack.labs({
+    '#rosterCheck': 'm0-roster', '#trUse': 'm1-trim', '#rfAdd': 'm1-contents', '#dfRun': ['m2-freedom', 'dfModel'],
+    '#fmUse': 'm3-frontmatter', '#evRun': 'm5-eval', '#jgRun': 'm6-judge', '#auDraw': 'm6-audit',
+    '#rwTrain': 'm7-export', '#rwHeld': 'm7-export', '#rwAll': 'm7-export', '#dcCut': 'm8-decide',
+    '#cdGo': 'm9-retest', '#cdCanon': 'm9-canon'
+  });
+
   // ---------------- scroll spy, reveal, progress ----------------
   var mods = $$('.mod'), links = $$('#navList a'), seen = {};
   function setActive(i) {
     links.forEach(function (a, j) { a.classList.toggle('active', j === i); if (j === i) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+    wsTrack.module(i);
     seen[i] = true;
     links.forEach(function (a, j) { a.classList.toggle('seen', !!seen[j]); });
     var n = Object.keys(seen).length;
