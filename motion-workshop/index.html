@@ -1,0 +1,2245 @@
+<!doctype html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Directing motion as code with Opus 5.5 — an interactive workshop</title>
+<meta name="description" content="A hands-on workshop on directing a model that writes animation code: motion briefs, beat timelines, easing and spring numbers, sandboxed live previews, frame-check loops and CSV-to-chart motion, with Opus 5.5 via OpenRouter. Independent project by Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/motion-workshop/">
+<!-- Open Graph -->
+<meta property="og:title" content="Directing motion as code with Opus 5.5 — an interactive workshop">
+<meta property="og:description" content="Direct a model that writes animation code with beats, durations, easing and springs, then frame-check and revise it. Live sandboxed previews, a demo mode for every lab, and Opus 5.5 via OpenRouter.">
+<meta property="og:url" content="https://www.kpphillips.com/ai-workshops/motion-workshop/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Directing motion as code with Opus 5.5">
+<meta name="twitter:description" content="Direct a model that writes animation code with beats, durations, easing and springs, then frame-check and revise it. Live sandboxed previews and a demo mode for every lab.">
+<meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Directing motion as code with Opus 5.5",
+  "description": "Direct a model that writes animation code with beats, durations, easing and springs, then frame-check and revise it. Eight hands-on labs with sandboxed live previews and a demo mode.",
+  "url": "https://www.kpphillips.com/ai-workshops/motion-workshop/",
+  "author": {
+    "@type": "Person",
+    "name": "Kevin Phillips"
+  },
+  "educationalLevel": "Intermediate",
+  "learningResourceType": "Interactive workshop"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--nav-w:236px;--rail-w:328px;--r:6px;--f-display:'Fraunces',Georgia,serif;--f-body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace}
+html,html[data-palette="tide"]{--bg:#0b1620;--surface:#102130;--surface-2:#162a3b;--ink:#e6eef5;--ink-soft:#b5c5d3;--ink-faint:#93a8ba;--line:#24394c;--line-strong:#3a536a;--accent:#5cc8e6;--accent-ink:#04141c;--green:#5fd39a;--clay:#e8b75e;--red:#f28b85;--alt:#bcaaf4}
+html[data-palette="tide"][data-theme="light"]{--bg:#f3f6f8;--surface:#ffffff;--surface-2:#e8eef2;--ink:#0e1d29;--ink-soft:#34495a;--ink-faint:#4e6376;--line:#cfd9e1;--line-strong:#9fb0bd;--accent:#0a6583;--accent-ink:#ffffff;--green:#136b45;--clay:#835406;--red:#ad2a22;--alt:#5a3eae}
+html[data-palette="ember"]{--bg:#17110c;--surface:#211811;--surface-2:#2c2118;--ink:#f3ebe3;--ink-soft:#d0c2b4;--ink-faint:#ad9e8f;--line:#3b2d21;--line-strong:#5a4634;--accent:#f0a34a;--accent-ink:#1c1005;--green:#72d39b;--clay:#ebc56e;--red:#f38c7d;--alt:#a3bbf2}
+html[data-palette="ember"][data-theme="light"]{--bg:#faf5ef;--surface:#ffffff;--surface-2:#f1e8dd;--ink:#24170c;--ink-soft:#4d3b2b;--ink-faint:#67533f;--line:#e2d4c3;--line-strong:#b9a58f;--accent:#94490a;--accent-ink:#ffffff;--green:#1d6a42;--clay:#7a5500;--red:#aa2b20;--alt:#3a51a4}
+html[data-palette="iris"]{--bg:#120f1e;--surface:#1a1629;--surface-2:#231e36;--ink:#ece8f7;--ink-soft:#c5bedc;--ink-faint:#a39bbd;--line:#322b4b;--line-strong:#4c4370;--accent:#b99eff;--accent-ink:#150d2b;--green:#72d6a3;--clay:#e8c070;--red:#f39191;--alt:#82cbea}
+html[data-palette="iris"][data-theme="light"]{--bg:#f6f5fb;--surface:#ffffff;--surface-2:#ece9f6;--ink:#1a1530;--ink-soft:#433b63;--ink-faint:#5a537c;--line:#d9d4eb;--line-strong:#aaa2c9;--accent:#5732c4;--accent-ink:#ffffff;--green:#18693f;--clay:#785300;--red:#a8262a;--alt:#0a5f7a}
+*{box-sizing:border-box}
+html{color-scheme:dark;scroll-behavior:smooth;scrollbar-color:var(--line-strong) var(--bg)}
+html[data-theme="light"]{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--f-body);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--accent-ink)}
+input,textarea,select{caret-color:var(--accent)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:6px;border:2px solid var(--bg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-0.02em;line-height:1.15;margin:0 0 .6rem;color:var(--ink)}
+h1{font-size:clamp(2rem,4vw,3rem)}
+h2{font-size:clamp(1.5rem,2.6vw,2rem)}
+h3{font-size:1.15rem;margin-top:1.4rem}
+p{margin:0 0 .9rem}
+code,pre,kbd,.mono{font-family:var(--f-mono);font-size:.88em}
+code{background:var(--surface-2);padding:.08em .35em;border-radius:4px}
+pre{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;overflow:auto;margin:0 0 1rem;line-height:1.5;font-size:.82rem;white-space:pre-wrap;word-break:break-word}
+pre code{background:none;padding:0}
+.skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:var(--accent-ink);padding:.5rem 1rem;z-index:10}
+.skip:focus{left:1rem}
+
+/* shell */
+.shell{display:grid;grid-template-columns:var(--nav-w) minmax(0,1fr) var(--rail-w);min-height:100vh}
+@media (max-width:1180px){:root{--nav-w:200px;--rail-w:292px}}
+@media (max-width:900px){:root{--nav-w:170px;--rail-w:250px}}
+.nav,.rail{position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;background:var(--surface);scrollbar-width:thin}
+.nav{border-right:1px solid var(--line);padding:1.25rem 1rem;display:flex;flex-direction:column;gap:.9rem}
+.rail{border-left:1px solid var(--line);padding:1rem}
+main{padding:2rem clamp(1rem,3.5vw,3rem) 4rem;min-width:0}
+.content{max-width:860px;margin:0 auto}
+
+.brand{font-weight:700;font-size:1.05rem;letter-spacing:-.01em;line-height:1.25}
+.brand span{display:block;font-weight:400;font-size:.85rem;color:var(--ink-soft)}
+.nav-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.nav-list a{display:grid;grid-template-columns:1.6rem 1fr;gap:.25rem;padding:.38rem .5rem;border-radius:5px;color:var(--ink-soft);text-decoration:none;font-size:.9rem;line-height:1.3;border:1px solid transparent}
+.nav-list a .n{color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.nav-list a:hover{background:var(--surface-2);color:var(--ink)}
+.nav-list a.active{background:var(--surface-2);color:var(--ink);border-color:var(--line-strong)}
+.nav-list a.active .n{color:var(--accent)}
+.nav-list a.seen .n{color:var(--ink-soft)}
+.nav-foot{margin-top:auto;display:flex;flex-direction:column;gap:.6rem;padding-top:.8rem;border-top:1px solid var(--line)}
+.nav-foot .lbl{font-size:.78rem;color:var(--ink-soft)}
+.swatches{display:flex;gap:.45rem;align-items:center}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);cursor:pointer;padding:0;display:grid;place-items:center}
+.swatch[data-p="tide"]{background:#2f9ec0}.swatch[data-p="ember"]{background:#d98a2e}.swatch[data-p="iris"]{background:#8a6ce6}
+.swatch[aria-pressed="true"]{border-color:var(--ink)}
+.swatch[aria-pressed="true"]::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--bg)}
+
+/* tick rule signature */
+.tick{height:12px;margin:0 0 1rem;background:
+ linear-gradient(var(--line-strong),var(--line-strong)) left bottom/100% 1px no-repeat,
+ repeating-linear-gradient(90deg,var(--line-strong) 0 1px,transparent 1px 48px) left bottom/100% 11px no-repeat,
+ repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 8px) left bottom/100% 6px no-repeat}
+.meter{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--line)}
+.meter span{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform .4s ease}
+.progress{display:flex;flex-direction:column;gap:.35rem}
+.progress small{color:var(--ink-soft);font-size:.78rem}
+
+/* the one authored motion moment: the accent line draws along the tick rule once */
+.sweep{position:relative;margin:.2rem 0 .3rem}
+.sweep .tick{margin:0}
+.sweep b{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--accent);transform-origin:left center}
+@media (prefers-reduced-motion:no-preference){
+ .sweep b{animation:sweep 1.2s cubic-bezier(.16,1,.3,1) .3s both}
+}
+@keyframes sweep{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.sweep-cap{font-size:.84rem;color:var(--ink-soft);margin:0 0 1rem}
+
+/* modules */
+.mod{padding:2.4rem 0 1.2rem;scroll-margin-top:1rem}
+.lead{font-size:1.1rem;color:var(--ink-soft);max-width:62ch}
+.intro{color:var(--ink-soft);max-width:66ch}
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.2rem;margin:1rem 0 1.2rem}
+.lab-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:.5rem;margin-bottom:.8rem}
+.lab-head h3{margin:0;font-size:1.08rem}
+.lab-kind{font-size:.78rem;font-weight:600;padding:.12rem .5rem;border-radius:4px;border:1px solid var(--line-strong);color:var(--ink-soft)}
+.row{display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;margin-bottom:.8rem}
+.field{display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.field>span,.field>label,.lbl-sm{font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.grow{flex:1 1 220px}
+input[type=text],input[type=number],input[type=password],input[type=url],select,textarea{font:inherit;font-size:.92rem;background:var(--bg);color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r);padding:.45rem .6rem;min-width:0;max-width:100%}
+textarea{width:100%;min-height:7rem;resize:vertical;font-family:var(--f-mono);font-size:.82rem;line-height:1.5}
+textarea.prose{font-family:var(--f-body);font-size:.9rem;min-height:4.2rem}
+input[type=number]{width:7.5rem}
+input::placeholder,textarea::placeholder{color:var(--ink-faint)}
+input[type=range]{accent-color:var(--accent);width:100%}
+input[type=color]{width:2.6rem;height:2.2rem;padding:.1rem;border:1px solid var(--line-strong);border-radius:var(--r);background:var(--bg);cursor:pointer}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:1rem;height:1rem;margin:0}
+.checks{display:flex;flex-wrap:wrap;gap:.35rem .9rem}
+.checks label{display:flex;gap:.35rem;align-items:center;font-size:.9rem;cursor:pointer}
+.btn{font:600 .9rem var(--f-body);background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:var(--r);padding:.5rem .95rem;cursor:pointer;line-height:1.2}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:progress}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{padding:.3rem .6rem;font-size:.82rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.8rem}
+.chip{font:500 .84rem var(--f-body);background:transparent;color:var(--ink-soft);border:1px solid var(--line-strong);border-radius:5px;padding:.28rem .65rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--surface-2);color:var(--ink);border-color:var(--accent)}
+.chip:disabled{opacity:.5;cursor:not-allowed}
+.out{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;margin-top:.8rem;font-size:.92rem;font-variant-numeric:tabular-nums;min-height:2.6rem}
+.out:empty::before{content:"Output appears here.";color:var(--ink-faint)}
+.out h4{margin:.2rem 0 .5rem;font:600 .95rem var(--f-body)}
+.muted{color:var(--ink-soft)}
+.faint{color:var(--ink-faint)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.6rem;font-weight:600;line-height:1.1}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin:.6rem 0}
+.stat{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.6rem .75rem}
+.stat .k{font-size:.78rem;font-weight:600;color:var(--ink-soft);display:block}
+.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--clay)}
+.tbl-wrap{overflow-x:auto;margin:.6rem 0 1rem}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-soft);font-size:.8rem;background:var(--surface-2)}
+td.n,th.n{text-align:right}
+
+/* evidence labels */
+.tag{display:inline-block;font:600 .72rem/1.3 var(--f-body);padding:.08rem .42rem;border-radius:4px;border:1px solid;white-space:nowrap;vertical-align:.08em}
+.tag.q{color:var(--ink);border-color:var(--green);background:color-mix(in srgb,var(--green) 16%,transparent)}
+.tag.d{color:var(--ink);border-color:var(--line-strong);background:var(--surface-2)}
+.tag.i{color:var(--ink);border-color:var(--clay);background:color-mix(in srgb,var(--clay) 16%,transparent)}
+.tag.c{color:var(--ink);border-color:var(--alt);background:color-mix(in srgb,var(--alt) 16%,transparent)}
+.tag.t{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.tag.x{color:var(--ink);border-color:var(--red);background:color-mix(in srgb,var(--red) 14%,transparent)}
+.tag.m{color:var(--ink);border-style:dashed;border-color:var(--ink-soft);background:var(--surface-2)}
+.callout{border:1px solid var(--line-strong);background:var(--surface-2);border-radius:var(--r);padding:.75rem .95rem;margin:1rem 0;font-size:.93rem}
+.callout .ttl{display:block;font-weight:700;font-size:.82rem;margin-bottom:.2rem;color:var(--ink)}
+.callout.caution{border-color:var(--clay);background:color-mix(in srgb,var(--clay) 10%,var(--surface))}
+.callout.creator{border-color:var(--alt);background:color-mix(in srgb,var(--alt) 10%,var(--surface))}
+.illus{display:block;font-size:.8rem;font-weight:600;color:var(--clay);margin-bottom:.4rem}
+.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem}
+.ab>div{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.7rem .85rem;min-width:0}
+.ab h4{margin:0 0 .4rem;font:600 .9rem var(--f-body)}
+.ab pre{margin:0;font-size:.78rem;max-height:17rem;overflow:auto}
+.checklist-res{list-style:none;padding:0;margin:.3rem 0}
+.checklist-res li{display:grid;grid-template-columns:1.2rem 1fr;gap:.35rem;align-items:start;font-size:.88rem;padding:.12rem 0}
+.mark{width:14px;height:14px;margin-top:.22rem}
+.quote{margin:.5rem 0;padding:.55rem .8rem;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);font-size:.92rem}
+.quote cite{display:block;font-style:normal;font-size:.78rem;color:var(--ink-soft);margin-top:.25rem}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem .9rem;margin:.6rem 0 1rem;font-size:.86rem;color:var(--ink-soft)}
+
+/* rail */
+.connect{border:1px solid var(--line-strong);border-radius:10px;padding:.8rem;background:var(--surface-2);transition:background-color .3s,border-color .3s}
+.connect.live{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--surface))}
+.connect h2{font:700 .95rem var(--f-body);letter-spacing:0;margin:0}
+.lamp-row{display:flex;align-items:center;gap:.45rem;justify-content:space-between;margin-bottom:.5rem}
+.lamp{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.lamp i{width:10px;height:10px;border-radius:50%;background:var(--ink-faint);display:inline-block;box-shadow:0 0 0 3px color-mix(in srgb,var(--ink-faint) 25%,transparent)}
+.connect.live .lamp i{background:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 30%,transparent)}
+.connect .row{margin-bottom:.5rem;gap:.4rem}
+.connect input[type=password]{flex:1 1 120px;width:100%}
+.connect select{width:100%}
+.msg{font-size:.8rem;margin:.3rem 0 .4rem;color:var(--ink-soft);min-height:1rem}
+.msg.err{color:var(--red)}.msg.okm{color:var(--green)}.msg.warnm{color:var(--clay)}
+.spend{font-size:.82rem;color:var(--ink-soft);display:flex;align-items:center;justify-content:space-between;gap:.4rem;flex-wrap:wrap}
+.spend input{width:5.2rem;padding:.25rem .4rem}
+details{margin-top:.5rem}
+summary{cursor:pointer;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
+details .field{margin-top:.45rem}
+details input{width:100%}
+.rail-body{transition:opacity .22s ease}
+.rail-body.fade{opacity:0}
+.rail h3{font:700 .8rem var(--f-body);letter-spacing:0;color:var(--ink-soft);margin:1rem 0 .4rem}
+.rail ul{margin:0;padding-left:1.05rem;font-size:.86rem;line-height:1.5}
+.rail li{margin-bottom:.4rem}
+.rail dl{margin:0;font-size:.85rem}
+.rail dt{font-weight:700;margin-top:.45rem}
+.rail dd{margin:0;color:var(--ink-soft)}
+.rail .mod-name{font:600 1rem var(--f-display);letter-spacing:-.02em;margin:.2rem 0 0}
+.all-src ul{max-height:260px;overflow:auto}
+
+.gate{list-style:none;padding:0;margin:.5rem 0}
+.gate li{margin:.35rem 0}
+.gate button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1.4rem 1fr;gap:.55rem;align-items:start;width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer;font-size:.93rem;line-height:1.45}
+.gate button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gate button[aria-pressed="true"]{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface))}
+.box{width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:4px;display:grid;place-items:center;margin-top:.1rem}
+.gate button[aria-pressed="true"] .box{border-color:var(--green);background:var(--green)}
+.box svg{width:12px;height:12px;opacity:0}
+.gate button[aria-pressed="true"] .box svg{opacity:1}
+
+footer{border-top:1px solid var(--line);padding:1.5rem clamp(1rem,3.5vw,3rem) 2.5rem;font-size:.84rem;color:var(--ink-soft);background:var(--surface)}
+footer p{max-width:900px;margin:0 auto .5rem}
+
+/* sandboxed players, transports, contact sheets */
+.pl{margin:.6rem 0}
+.stages{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr))}
+.stagecol{min-width:0}
+.stagecap{font-size:.8rem;font-weight:600;color:var(--ink-soft);margin:0 0 .25rem;display:flex;justify-content:space-between;gap:.5rem}
+.sw{position:relative;aspect-ratio:16/9;overflow:hidden;background:#101826;border:1px solid var(--line-strong);border-radius:var(--r)}
+.sw iframe{position:absolute;left:0;top:0;width:640px;height:360px;border:0;transform-origin:0 0;background:#101826;pointer-events:none}
+.sw .empty{position:absolute;inset:0;display:grid;place-items:center;color:#9db0c8;font-size:.85rem;padding:1rem;text-align:center}
+.tp{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:.55rem}
+.tp .scrub{flex:1 1 200px;min-width:130px}
+.tp .readout{font-family:var(--f-mono);font-size:.8rem;color:var(--ink-soft);min-width:15ch;text-align:right}
+.tp label{display:flex;gap:.35rem;align-items:center;font-size:.84rem;color:var(--ink-soft)}
+.errbox{border:1px solid var(--red);background:color-mix(in srgb,var(--red) 10%,var(--surface));border-radius:var(--r);padding:.65rem .85rem;font-size:.88rem;margin:.6rem 0}
+.errbox ul{margin:.3rem 0 0;padding-left:1.1rem}
+.errbox .ttl{font-weight:700}
+.warnbox{border:1px solid var(--clay);background:color-mix(in srgb,var(--clay) 10%,var(--surface));border-radius:var(--r);padding:.5rem .8rem;font-size:.86rem;margin:.5rem 0}
+.sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:.6rem;margin-top:.6rem}
+.tile{min-width:0}
+.tile .f{display:block;width:100%;margin-top:.25rem;font:500 .76rem var(--f-mono);color:var(--ink-soft);background:transparent;border:1px solid var(--line);border-radius:4px;padding:.18rem .3rem;cursor:pointer;text-align:center}
+.tile .f:hover{background:var(--surface-2);color:var(--ink)}
+.tile.cur .f{border-color:var(--accent);color:var(--ink)}
+.sheet-row{margin-top:.5rem}
+.sheet-row .lbl-sm{display:block;margin-bottom:.2rem}
+.sheet.six{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:700px){.sheet.six{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* timeline */
+.tl{position:relative;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);padding:.4rem .6rem .6rem;margin:.6rem 0}
+.tl-ruler{margin-left:8.4rem;position:relative;height:1.4rem;border-bottom:1px solid var(--line-strong)}
+.tl-ruler span{position:absolute;top:0;white-space:nowrap;font:400 .72rem var(--f-mono);color:var(--ink-soft);transform:translateX(-50%)}
+.tl-ruler span:first-child{transform:none}
+.tl-ruler span:last-child{transform:translateX(-100%)}
+.tl-lane{display:grid;grid-template-columns:8.4rem minmax(0,1fr);align-items:center;height:36px}
+.tl-name{font-size:.84rem;color:var(--ink-soft);padding-right:.4rem;line-height:1.2}
+.tl-track{position:relative;height:100%;border-bottom:1px solid var(--line);background:linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/calc(100%/var(--n)) 100%}
+.tl-bar{position:absolute;top:5px;bottom:5px;border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 22%,transparent);border-radius:4px;cursor:grab;touch-action:none;display:flex;align-items:center;padding:0 .3rem;font:500 .72rem var(--f-mono);color:var(--ink);overflow:hidden;white-space:nowrap}
+.tl-bar:active{cursor:grabbing}
+.tl-over{position:absolute;left:calc(.6rem + 8.4rem);right:.6rem;top:.4rem;bottom:.6rem;pointer-events:none}
+.tl-head{position:absolute;top:0;bottom:0;left:0;width:2px;margin-left:-1px;background:var(--ink)}
+
+/* easing bench */
+.bench{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.9rem;align-items:start}
+@media (max-width:760px){.bench{grid-template-columns:1fr}}
+.sl{display:grid;grid-template-columns:5.2rem 1fr 4.2rem;gap:.5rem;align-items:center;font-size:.84rem;margin:.25rem 0}
+.sl .num{text-align:right;color:var(--ink)}
+.sl label{color:var(--ink-soft);font-weight:600}
+.curve{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:var(--r)}
+.curve text{font-family:var(--f-mono);font-size:10px;fill:var(--ink-soft)}
+.curve .g{stroke:var(--line);stroke-width:1}
+.curve .t1{stroke:var(--ink-faint);stroke-width:1;stroke-dasharray:4 3}
+.curve .p{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round}
+.curve .ph{stroke:var(--ink);stroke-width:1}
+.demo{position:relative;height:160px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);overflow:hidden;margin-top:.6rem}
+.demo .rail-line{position:absolute;left:7%;right:7%;top:34px;height:1px;background:var(--line-strong)}
+.demo .mdot{position:absolute;top:27px;left:7%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--accent)}
+.demo .mcard{position:absolute;left:7%;bottom:14px;width:46%;height:84px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface-2);padding:.6rem .7rem;display:flex;flex-direction:column;gap:.35rem;justify-content:center;will-change:transform}
+.demo .mcard i{display:block;height:7px;border-radius:4px;background:var(--line-strong)}
+.demo .mcard i:first-child{width:62%;background:var(--accent)}
+.demo .mcard i:nth-child(2){width:88%}
+.demo .mcard i:nth-child(3){width:46%}
+.readout-line{font:500 .82rem var(--f-mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:.5rem .7rem;margin:.5rem 0;word-break:break-word}
+
+/* brief */
+.swc{display:flex;gap:.35rem;align-items:center;flex-wrap:wrap}
+.swc button{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);cursor:pointer;padding:0}
+.swc button[aria-pressed="true"]{border-color:var(--ink)}
+.chiprow{display:flex;gap:.4rem;flex-wrap:wrap}
+.note{border:1px solid var(--line);border-radius:var(--r);background:var(--bg);padding:.5rem .7rem;margin:.4rem 0;display:grid;grid-template-columns:5.2rem 1fr auto;gap:.6rem;align-items:start;font-size:.9rem}
+.note .num{font-weight:500}
+#tlBody input{width:5.6rem;padding:.3rem .45rem}
+.cmp th:first-child{width:7.5rem}
+
+@media (max-width:560px){
+ .shell{display:block}
+ .nav,.rail{position:static;height:auto;border:0;border-bottom:1px solid var(--line)}
+ .nav-list{display:grid;grid-template-columns:1fr 1fr}
+ main{padding:1.2rem 1rem 3rem}
+ .tl-lane{grid-template-columns:1fr;height:auto;padding-top:.3rem}
+ .tl-name{padding:0 0 .15rem}
+ .tl-track{height:30px}
+ .tl-ruler{margin-left:0}
+ .tl-ruler span:nth-child(even){display:none}
+ .tl-over{display:none}
+ .note{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .meter span,.rail-body,.connect{transition:none}
+}
+</style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts, CSV rows or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain}
+   card_click {workshop} is set on the hub with data-umami-event attributes. */
+window.wsTrack=(function(){
+  var WS='motion-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<nav class="nav" aria-label="Workshop modules">
+  <div class="brand">Directing motion as code<span>Beats, numbers, frame checks, Opus 5.5</span></div>
+  <a class="back" href="https://www.kpphillips.com/ai-workshops/" style="display:inline-block;font-family:var(--f-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);text-decoration:none;">← All workshops</a>
+  <div class="tick" aria-hidden="true"></div>
+  <div class="progress">
+    <div class="meter" role="progressbar" aria-label="Modules visited" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
+    <small id="progressLabel">0 of 10 modules visited</small>
+  </div>
+  <ol class="nav-list" id="navList">
+    <li><a href="#m0"><span class="n">0</span>Start here</a></li>
+    <li><a href="#m1"><span class="n">1</span>Vague vs directed</a></li>
+    <li><a href="#m2"><span class="n">2</span>Motion brief</a></li>
+    <li><a href="#m3"><span class="n">3</span>Beat timeline</a></li>
+    <li><a href="#m4"><span class="n">4</span>Easing and springs</a></li>
+    <li><a href="#m5"><span class="n">5</span>Generate</a></li>
+    <li><a href="#m6"><span class="n">6</span>Frame-check loop</a></li>
+    <li><a href="#m7"><span class="n">7</span>Data to motion</a></li>
+    <li><a href="#m8"><span class="n">8</span>Take it to Claude</a></li>
+    <li><a href="#m9"><span class="n">9</span>Ship gate</a></li>
+  </ol>
+  <div class="nav-foot">
+    <span class="lbl" id="palLbl">Palette</span>
+    <div class="swatches" role="group" aria-labelledby="palLbl">
+      <button class="swatch" data-p="tide" aria-label="Tide palette" aria-pressed="true"></button>
+      <button class="swatch" data-p="ember" aria-label="Ember palette" aria-pressed="false"></button>
+      <button class="swatch" data-p="iris" aria-label="Iris palette" aria-pressed="false"></button>
+    </div>
+    <button class="btn ghost sm" id="modeBtn" type="button">Switch to light</button>
+  </div>
+</nav>
+
+<main id="main">
+<div class="content">
+
+<section class="mod" id="m0" data-mod="0">
+  <div class="sweep" aria-hidden="true"><div class="tick"></div><b></b></div>
+  <p class="sweep-cap num">That line: starts at 0.3 s, runs 1.2 s, cubic-bezier(0.16, 1, 0.3, 1). Reload to see it again.</p>
+  <h1>Directing motion as code with Opus 5.5</h1>
+  <p class="lead">A model can write code that animates text, charts and shapes. Whether the result feels directed or generic depends on what you hand it: beats in seconds, durations, easing curves, springs, stagger. You will write a motion brief, retime a scene, tune the numbers, have a model generate an animation, check its frames, revise it, and carry the same package to Claude Motion if you have it.</p>
+  <div class="legend" aria-label="Evidence labels">
+    <span><span class="tag q">Quoted</span> published by the linked source</span>
+    <span><span class="tag d">Derived</span> computed on this page</span>
+    <span><span class="tag i">Illustrative</span> hand-authored demo, not measurements</span>
+    <span><span class="tag t">Your run</span> a live call you paid for</span>
+    <span><span class="tag c">Convention</span> this workshop's choice, not a spec</span>
+    <span><span class="tag m">Community</span> a third-party claim, untested here</span>
+  </div>
+  <p class="muted" style="font-size:.95rem">Every module is a lab: you do one thing, read a result, move on. Nothing here asks you for answers or gives you a mark. Animations play on this page, inside a sandbox, and nothing starts by itself except the line above. Labs run in demo mode with hand-authored animations, labelled illustrative, until you connect an OpenRouter key in the <a href="#connect">Live labs panel</a> (right rail; at the bottom on phones). Demo mode teaches every lab. Live mode makes the output yours.</p>
+
+  <div class="lab">
+    <div class="lab-head"><h3>What Claude Motion is, per Anthropic</h3><span class="tag q">Quoted</span></div>
+    <p class="muted" style="font-size:.92rem;margin-top:0">Claude Motion is the in-app endpoint of this workflow, not the subject of the workshop. Everything below comes from two Anthropic pages: the <a href="https://support.claude.com/en/articles/17454997-get-started-with-claude-motion" target="_blank" rel="noopener">Get started with Claude Motion</a> help article and the <a href="https://claude.com/resources/articles/dashboards-and-motion" target="_blank" rel="noopener">Dashboards and Motion announcement</a> (October 8, 2026).</p>
+    <div class="quote">&ldquo;Claude Motion is available in beta on Team and Enterprise plans.&rdquo;<cite>Help center. It is on by default on Team plans; on Enterprise, off until an owner turns it on in Organization settings &gt; Artifacts.</cite></div>
+    <div class="quote">&ldquo;An animation is an artifact made from the Motion template. Claude builds it from your prompt as code that animates the text, charts, shapes, and images in it, and it plays like a short video.&rdquo;<cite>Help center, How Claude Motion works</cite></div>
+    <div class="quote">&ldquo;Claude Motion doesn't use a video generation model, so it doesn't create realistic footage or people.&rdquo;<cite>Help center, How Claude Motion works</cite></div>
+    <div class="quote">&ldquo;To download an animation, click &quot;Export&quot; and choose MP4.&rdquo;<cite>Help center, Export and share</cite></div>
+    <div class="callout caution">
+      <span class="ttl">What Anthropic's pages do not say</span>
+      Neither page states which model Claude Motion uses, and neither states its code stack (for example HTML, SVG, canvas or a video library). Neither mentions an API for Motion. So this workshop calls a model through OpenRouter and previews the code itself. What you build here is the same idea, animation as code, not a copy of Motion.
+    </div>
+    <div class="callout">
+      <span class="ttl">Community sources <span class="tag m">Community</span></span>
+      Two third-party sources inspired the method. An X article by @flxrnc, <a href="https://x.com/flxrnc/status/2105311836190978392" target="_blank" rel="noopener">&ldquo;Opus 5.5 Motion Lab&rdquo;</a>, argues that directed prompts with numbers beat vague ones and that a model can check its own frames. The GitHub repo <a href="https://github.com/whaleyxbt/claude-motion" target="_blank" rel="noopener">whaleyxbt/claude-motion</a> (third party, MIT license, no relation to the Claude product) is an agent toolkit built around the same ideas. Neither is Anthropic's. Any claim they make about what Opus 5.5 can do with motion is a community claim and is not tested here; the labs let you test it yourself.
+    </div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><h3>The contract every model-written animation must meet</h3><span class="tag c">Convention</span></div>
+    <p class="muted" style="font-size:.92rem;margin-top:0">Model output is untrusted code. This page runs it only inside an <code>&lt;iframe sandbox="allow-scripts" srcdoc&gt;</code> with no <code>allow-same-origin</code>, so the code gets no access to this page, its storage, or your key. A Content-Security-Policy injected into the document blocks the network as a second wall. Before any frame plays, the page checks the document against this contract and shows an error if it breaks a rule.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th scope="col">Rule</th><th scope="col">Value</th></tr></thead>
+      <tbody>
+        <tr><td>One HTML document, inline CSS and JS only</td><td class="num">no src, link, import or @import</td></tr>
+        <tr><td>Stage element <code>#stage</code> (div, svg or canvas)</td><td class="num">640 x 360 px, fixed</td></tr>
+        <tr><td><code>window.DURATION</code></td><td class="num">1 to 12 s, fixed</td></tr>
+        <tr><td><code>window.renderAt(t)</code>, t in seconds</td><td class="num">pure function of t, any order</td></tr>
+        <tr><td>Frame rate for stepping and sheets</td><td class="num">30 fps (frame n = n / 30 s)</td></tr>
+        <tr><td>No network, no libraries, no clocks, no randomness</td><td class="num">CSP plus static checks</td></tr>
+        <tr><td>Code size</td><td class="num">20,000 characters max</td></tr>
+        <tr><td>Output tokens per reply</td><td class="num">capped in Live labs (default 6,000)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="faint" style="font-size:.84rem;margin:0">The page owns time: it calls <code>renderAt(t)</code> by message. That is why a scrubber, frame stepping and contact sheets work on any stack. A runaway loop in model code can still freeze a tab; the static check rejects the obvious forms, and reloading the page clears the rest.</p>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><h3>The two models on offer</h3><span class="tag q">Quoted</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th scope="col">Model</th><th scope="col">OpenRouter slug</th><th scope="col" class="n">In / out per 1M</th><th scope="col" class="n">Context</th></tr></thead>
+      <tbody id="rosterBody"></tbody>
+    </table></div>
+    <p class="faint" style="font-size:.84rem;margin:0 0 .6rem">Slugs, prices and context from OpenRouter's <a href="https://openrouter.ai/api/v1/models" target="_blank" rel="noopener">model catalog</a>, read on 2026-10-11. Opus 5.5 is the model this workshop is about. Sonnet 5.5 is a cheaper option for iterating. Prices change, so check before you rely on a number; the check also updates the page's spend estimate.</p>
+    <div class="row"><button class="btn ghost sm" id="rosterCheck" type="button">Check these slugs and prices against the live catalog</button><span class="faint" style="font-size:.84rem">Public catalog, no key needed.</span></div>
+    <div class="out" id="rosterOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m1" data-mod="1">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>1. Vague versus directed</h2>
+  <p class="intro">Same idea, two prompts. The idea: a six-second explainer that shows weekly signups rising to 18%. The vague prompt names no timing, so everything happens together and evenly. The directed prompt gives beats, curves, a spring and a stagger. Play both on one clock, then step frame by frame and watch when each element starts.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Play both on one clock</h3><span class="lab-kind">Do it yourself</span></div>
+    <span class="illus">Hand-authored animations, not model output. Illustrative, not measurements.</span>
+    <div class="ab">
+      <div><h4>Vague prompt</h4><pre id="p1VagueTxt"></pre></div>
+      <div><h4>Directed prompt</h4><pre id="p1DirTxt"></pre></div>
+    </div>
+    <div class="pl" id="p1"></div>
+    <div class="out" id="p1Out" aria-live="polite"></div>
+    <p class="muted" style="font-size:.9rem;margin:.6rem 0 0">Try this: press <b>+1 frame</b> from frame 0. The vague version moves on frame 1 and every element moves together at one speed. The directed version holds still, then each beat starts on its own frame. The words are the same; only the numbers differ. All shapes and text in these animations are original and abstract.</p>
+    <p><button class="btn" id="p1Go" type="button" style="margin-top:.4rem">Play both from the start</button></p>
+  </div>
+</section>
+
+<section class="mod" id="m2" data-mod="2">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>2. Write a motion brief</h2>
+  <p class="intro">Anthropic's own tip for Motion is to say who will watch it, where it will play, and roughly how long it should be <span class="tag q">Quoted</span>. A brief adds the parts a model cannot guess: beat times, one accent color, a mood. Fill the fields and the page compiles them into a prompt block you reuse in modules 5 to 8.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Your brief</h3><span class="lab-kind">Do it yourself</span></div>
+    <div class="row">
+      <label class="field grow"><span>Audience</span><input type="text" id="brAud" maxlength="90" value="Product team at a Monday standup"></label>
+      <label class="field grow"><span>Where it plays</span>
+        <select id="brWhere">
+          <option>Meeting slide, presented live</option>
+          <option>Social feed, muted, on a phone</option>
+          <option>Product page, loops quietly</option>
+          <option>Board deck, the last frame is what gets printed</option>
+        </select></label>
+      <label class="field"><span>Length, seconds</span><input type="number" id="brLen" min="3" max="10" step="1" value="6"></label>
+    </div>
+    <label class="field"><span>On-screen content</span><textarea id="brContent" class="prose" maxlength="400" spellcheck="false" style="min-height:4rem">Headline: Signups up 18% this week
+Bars (weekly signups): Mon 12, Tue 15, Wed 18, with the last bar in the accent color</textarea></label>
+    <label class="field" style="margin-top:.7rem"><span>Beats, one per line: seconds, then what happens</span><textarea id="brBeats" spellcheck="false" maxlength="900" style="min-height:7.4rem"></textarea></label>
+    <div class="row" style="margin-top:.7rem">
+      <div class="field"><span id="brAccLbl">One accent color</span>
+        <div class="swc" role="group" aria-labelledby="brAccLbl">
+          <input type="color" id="brAccent" value="#5cc8e6" aria-label="Accent color picker">
+          <span id="brSw" class="swc"></span>
+          <span class="num" id="brAccHex" style="font-size:.84rem"></span>
+        </div>
+      </div>
+      <div class="field grow"><span id="brMoodLbl">Mood</span>
+        <div class="chiprow" id="brMood" role="group" aria-labelledby="brMoodLbl">
+          <button class="chip" type="button" data-v="calm" aria-pressed="false">Calm</button>
+          <button class="chip" type="button" data-v="crisp" aria-pressed="true">Crisp</button>
+          <button class="chip" type="button" data-v="playful" aria-pressed="false">Playful</button>
+          <button class="chip" type="button" data-v="serious" aria-pressed="false">Serious</button>
+        </div>
+      </div>
+    </div>
+    <div class="out" id="brCheck" aria-live="polite"></div>
+    <h3>Compiled prompt block</h3>
+    <p class="faint" style="font-size:.84rem;margin:0 0 .4rem">This is what modules 5, 6 and 8 send or copy. It includes the numbers you set in module 4. Nothing here leaves your browser until you run a live lab.</p>
+    <pre id="brOut" aria-label="Compiled prompt block"></pre>
+    <div class="row"><button class="btn" id="brCopy" type="button">Copy the prompt block</button><span class="msg" id="brMsg" role="status"></span></div>
+  </div>
+</section>
+
+<section class="mod" id="m3" data-mod="3">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>3. Edit the beats on a timeline</h2>
+  <p class="intro">A beat is a named moment with a start time. At 30 fps every start snaps to a frame, so "1.00 s" and "frame 30" are the same fact. Drag a bar, or focus it and use the arrow keys (shift for five frames). The second scene below retimes live; the first keeps the starting beats so you can compare.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Retime a sample scene</h3><span class="lab-kind">Do it yourself</span></div>
+    <span class="illus">Hand-authored scene. Illustrative, not measurements.</span>
+    <div class="tl" id="tl" style="--n:6"></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th scope="col">Beat</th><th scope="col" class="n">Start, s</th><th scope="col" class="n">Frame</th><th scope="col" class="n">Runs, s</th></tr></thead>
+      <tbody id="tlBody"></tbody>
+    </table></div>
+    <div class="pl" id="p3"></div>
+    <div class="row"><button class="btn" id="tlToBrief" type="button">Write these beats into my brief</button><button class="btn ghost" id="tlReset" type="button">Reset to the starting beats</button><span class="msg" id="tlMsg" role="status"></span></div>
+  </div>
+</section>
+
+<section class="mod" id="m4" data-mod="4">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>4. Easing and springs are numbers</h2>
+  <p class="intro">"Smooth" is not an instruction. A cubic-bezier is four numbers and a duration. A spring is a stiffness and a damping. Tune one, watch a dot and a card move, read the measured values, and put the numbers in your prompt so the model does not have to guess.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Easing bench</h3><span class="lab-kind">Do it yourself</span></div>
+    <div class="chips" role="group" aria-label="Curve type" id="ezMode">
+      <button class="chip" type="button" data-v="bezier" aria-pressed="true">Cubic-bezier</button>
+      <button class="chip" type="button" data-v="spring" aria-pressed="false">Spring</button>
+    </div>
+    <div class="chips" role="group" aria-label="Presets" id="ezPresets"></div>
+    <div class="bench">
+      <div>
+        <div id="ezBez">
+          <div class="sl"><label for="ezX1">x1</label><input type="range" id="ezX1" min="0" max="1" step="0.01"><span class="num" id="ezX1v"></span></div>
+          <div class="sl"><label for="ezY1">y1</label><input type="range" id="ezY1" min="-1" max="2" step="0.01"><span class="num" id="ezY1v"></span></div>
+          <div class="sl"><label for="ezX2">x2</label><input type="range" id="ezX2" min="0" max="1" step="0.01"><span class="num" id="ezX2v"></span></div>
+          <div class="sl"><label for="ezY2">y2</label><input type="range" id="ezY2" min="-1" max="2" step="0.01"><span class="num" id="ezY2v"></span></div>
+          <div class="sl"><label for="ezMs">Duration</label><input type="range" id="ezMs" min="100" max="1500" step="10"><span class="num" id="ezMsv"></span></div>
+        </div>
+        <div id="ezSpr" hidden>
+          <div class="sl"><label for="ezK">Stiffness</label><input type="range" id="ezK" min="10" max="600" step="1"><span class="num" id="ezKv"></span></div>
+          <div class="sl"><label for="ezC">Damping</label><input type="range" id="ezC" min="1" max="80" step="0.5"><span class="num" id="ezCv"></span></div>
+          <div class="sl"><label>Mass</label><span class="muted" style="font-size:.84rem">fixed at 1</span><span class="num">1</span></div>
+        </div>
+        <div class="readout-line" id="ezRead" aria-live="polite"></div>
+        <p class="faint" style="font-size:.8rem;margin:0"><span class="tag d">Derived</span> Measured from the curve itself on this page, sampled every 1/240 s.</p>
+      </div>
+      <div>
+        <svg class="curve" id="ezCurve" viewBox="0 0 260 150" role="img" aria-label="Plot of progress against time for the current curve"></svg>
+      </div>
+    </div>
+    <div class="demo" id="ezDemo" aria-label="A dot and a card driven by the current curve"><div class="rail-line"></div><div class="mdot" id="ezDot"></div><div class="mcard" id="ezCard"><i></i><i></i><i></i></div></div>
+    <div class="tp">
+      <button class="btn sm" id="ezPlay" type="button">Play once</button>
+      <input class="scrub" type="range" id="ezScrub" min="0" max="1000" value="0" aria-label="Scrub the curve">
+      <span class="readout" id="ezT"></span>
+    </div>
+    <div class="row" style="margin-top:.8rem">
+      <label class="field"><span>Use it as</span><select id="ezRole"><option value="enter">Entrance</option><option value="exit">Exit</option><option value="emphasis">Emphasis (the number's pop)</option></select></label>
+      <label class="field"><span>Stagger between items, ms</span><input type="number" id="ezStag" min="0" max="400" step="5" value="90"></label>
+      <button class="btn" id="ezUse" type="button">Use in my prompt</button>
+    </div>
+    <div class="msg" id="ezMsg" role="status"></div>
+    <h3>Numbers block in your prompt</h3>
+    <pre id="ezNumbers"></pre>
+    <p class="faint" style="font-size:.84rem;margin:0">Starting values here (entrance cubic-bezier(0.16, 1, 0.3, 1) at 600 ms, exits at half that length, 90 ms stagger) follow rules of thumb in the community repo, so they are a place to begin, not a finding <span class="tag m">Community</span> <span class="tag c">Convention</span>. The spring uses the standard damped-spring equation with mass 1.</p>
+  </div>
+</section>
+
+<section class="mod" id="m5" data-mod="5">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>5. Generate, render inline, scrub</h2>
+  <p class="intro">Now send the directed prompt to a model. The system message carries the contract from module 0; the user message is your compiled block from modules 2 to 4. The reply is checked against the contract, then played in the sandbox. In demo mode a hand-authored scene stands in. It reads your accent color, length, beat times and numbers, but not your words.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Generate an animation</h3><span class="lab-kind">Test it yourself</span></div>
+    <div class="row">
+      <label class="field"><span>Model</span><select id="genModel"></select></label>
+      <button class="btn" id="genBtn" type="button">Generate</button>
+      <span class="num faint" id="genEst" style="font-size:.84rem"></span>
+    </div>
+    <div class="msg" id="genMsg" role="status"></div>
+    <details><summary>See exactly what is sent</summary>
+      <p class="lbl-sm" style="margin:.5rem 0 .2rem">System message (the contract)</p><pre id="genSys"></pre>
+      <p class="lbl-sm" style="margin:.5rem 0 .2rem">User message (your compiled block)</p><pre id="genUsr"></pre>
+    </details>
+    <div id="genErr"></div>
+    <div class="pl" id="p5"></div>
+    <div class="out" id="genStats" aria-live="polite"></div>
+    <details><summary>View the HTML the sandbox is running</summary><pre id="genCode" style="max-height:18rem"></pre>
+      <div class="row"><button class="btn ghost sm" id="genCopy" type="button">Copy the HTML</button></div></details>
+  </div>
+</section>
+
+<section class="mod" id="m6" data-mod="6">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>6. The frame-check loop</h2>
+  <p class="intro">A model cannot watch a video, but you can show it frames. Render a contact sheet, find the frame where the motion goes wrong, and write a note tied to that frame number: "frame 84 peaks late", not "make it snappier". The model revises, and you compare the same frames before and after. A community repo describes the same loop, and suggests higher effort for the review step <span class="tag m">Community</span>; that suggestion is not tested here, but the effort control in Live labs lets you try it.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>1. Look at the contact sheet</h3><span class="lab-kind">Do it yourself</span></div>
+    <div class="chips" role="group" aria-label="Animation to check" id="fxSrc">
+      <button class="chip" type="button" data-v="demo" aria-pressed="true">Demo animation with a planted flaw</button>
+      <button class="chip" type="button" data-v="gen" aria-pressed="false" disabled>Module 5 output</button>
+    </div>
+    <span class="illus" id="fxIllus">The planted-flaw demo is hand-authored. Illustrative, not measurements.</span>
+    <div class="pl" id="p6"></div>
+    <div class="row">
+      <div class="field"><span id="fxNLbl">Stills on the sheet</span>
+        <div class="chiprow" id="fxN" role="group" aria-labelledby="fxNLbl">
+          <button class="chip" type="button" data-v="6" aria-pressed="false">6</button>
+          <button class="chip" type="button" data-v="12" aria-pressed="true">12</button>
+          <button class="chip" type="button" data-v="24" aria-pressed="false">24</button>
+        </div>
+      </div>
+      <button class="btn" id="fxSheetBtn" type="button">Render the contact sheet</button>
+    </div>
+    <p class="faint" style="font-size:.84rem;margin:0">Each still is a frozen copy of the sandbox, told by message to draw one timestamp. Press a frame label to jump the player to it.</p>
+    <div class="sheet" id="fxSheet" aria-live="polite"></div>
+    <div class="out" id="fxFacts" aria-live="polite"></div>
+  </div>
+  <div class="lab">
+    <div class="lab-head"><h3>2. Write fix notes tied to frames</h3><span class="lab-kind">Do it yourself</span></div>
+    <div class="row">
+      <label class="field"><span>Frame</span><input type="number" id="fxFrame" min="0" max="360" value="84"></label>
+      <label class="field grow"><span>What is wrong, and what you want</span><input type="text" id="fxNote" maxlength="200" value="The number's pop peaks late and keeps wobbling. Peak by frame 75 and settle before the accent line."></label>
+      <button class="btn ghost" id="fxAdd" type="button">Add note</button>
+    </div>
+    <div id="fxNotes"></div>
+    <div class="row" style="margin-top:.7rem">
+      <label class="field"><span>Model</span><select id="fxModel"></select></label>
+      <button class="btn" id="fxRevise" type="button">Revise from my notes</button>
+    </div>
+    <div class="msg" id="fxMsg" role="status"></div>
+    <div id="fxErr"></div>
+  </div>
+  <div class="lab">
+    <div class="lab-head"><h3>3. Compare before and after</h3><span class="lab-kind">Do it yourself</span></div>
+    <div class="pl" id="p6b"></div>
+    <div id="fxCmp" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m7" data-mod="7">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>7. Data to motion</h2>
+  <p class="intro">Anthropic's announcement pairs Motion with charts: "add motion to a chart in a board deck" <span class="tag q">Quoted</span>. Paste a small CSV of labels and numbers and get an animated SVG chart, run in the same sandbox. Demo mode uses a hand-authored chart template. Live mode asks the model to write the chart under the contract, and your rows go to OpenRouter and the model's provider.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Animate your own numbers</h3><span class="lab-kind">Do it yourself</span></div>
+    <label class="field"><span>CSV: label, value (2 to 12 rows, values zero or more)</span><textarea id="csvIn" spellcheck="false" maxlength="2000" style="min-height:8rem">month,signups
+Apr,42
+May,58
+Jun,51
+Jul,77
+Aug,93
+Sep,121</textarea></label>
+    <div class="row" style="margin-top:.7rem">
+      <label class="field grow"><span>Chart title</span><input type="text" id="csvTitle" maxlength="60" value="Signups per month"></label>
+      <div class="field"><span id="csvTypeLbl">Chart</span>
+        <div class="chiprow" id="csvType" role="group" aria-labelledby="csvTypeLbl">
+          <button class="chip" type="button" data-v="bar" aria-pressed="true">Bars</button>
+          <button class="chip" type="button" data-v="line" aria-pressed="false">Line</button>
+        </div>
+      </div>
+      <label class="field"><span>Model (live only)</span><select id="csvModel"></select></label>
+      <button class="btn" id="csvBtn" type="button">Animate this data</button>
+    </div>
+    <div class="msg" id="csvMsg" role="status"></div>
+    <div id="csvErr"></div>
+    <div class="pl" id="p7"></div>
+    <p class="faint" style="font-size:.84rem;margin:0" id="csvPath"></p>
+  </div>
+</section>
+
+<section class="mod" id="m8" data-mod="8">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>8. Take it to Claude</h2>
+  <p class="intro">If your plan includes Claude Motion, the work you did here travels as plain text: a brief, beats, numbers and fix notes. Motion writes its own code, so the package leaves out the <code>renderAt(t)</code> contract, which belongs to this page.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Your copy-ready package</h3><span class="lab-kind">Do it yourself</span></div>
+    <pre id="pkOut" aria-label="Package for Claude Motion" style="max-height:24rem"></pre>
+    <div class="row"><button class="btn" id="pkCopy" type="button">Copy the package</button><span class="msg" id="pkMsg" role="status"></span></div>
+  </div>
+  <div class="lab">
+    <div class="lab-head"><h3>Steps, quoted from the help article</h3><span class="tag q">Quoted</span></div>
+    <ol style="margin:.2rem 0 .6rem;padding-left:1.2rem;font-size:.93rem">
+      <li>Ask Claude for an animation in any chat. You can also select &ldquo;Output&rdquo; in the message box and choose &ldquo;Motion.&rdquo; Or go to the Artifacts tab, select a Motion template, and describe the animation you want.</li>
+      <li>&ldquo;Say who will watch it, where it will play, and roughly how long it should be.&rdquo;</li>
+      <li>&ldquo;Attach the report, data, or images you want Claude to use, so the animation is built from your own content.&rdquo;</li>
+      <li>Edit by asking in the chat, &ldquo;like &quot;Slow down the second scene&quot; or &quot;Change the Q3 number to 18%.&quot;&rdquo; Or &ldquo;Adjust the animation yourself in the editor.&rdquo;</li>
+      <li>&ldquo;To download an animation, click &quot;Export&quot; and choose MP4.&rdquo; &ldquo;Animations start private to you. To share one, open it and click &quot;Share.&quot;&rdquo;</li>
+    </ol>
+    <p class="faint" style="font-size:.84rem;margin:0">Source: <a href="https://support.claude.com/en/articles/17454997-get-started-with-claude-motion" target="_blank" rel="noopener">Get started with Claude Motion</a>. Usage: &ldquo;Claude Motion counts toward your plan's usage limits,&rdquo; and &ldquo;Longer or more complex animations use more of your limit than a typical message.&rdquo; Anthropic's <a href="https://claude.com/resources/articles/dashboards-and-motion" target="_blank" rel="noopener">announcement</a> lists these places to open an animation next: Adobe, Descript, HeyGen, Higgsfield, invideo, Luma AI and Runway, with Canva and Captions coming soon.</p>
+  </div>
+  <div class="lab">
+    <div class="lab-head"><h3>Where each one may do better</h3><span class="tag c">Convention</span></div>
+    <div class="tbl-wrap"><table class="cmp">
+      <thead><tr><th scope="col">Topic</th><th scope="col">Claude app (what Anthropic's pages state)</th><th scope="col">This inline preview</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Output</th><td>MP4 export, sharing as an artifact.</td><td>Plays on the page. No video export. The HTML is yours to copy.</td></tr>
+        <tr><th scope="row">Editing</th><td>Chat requests and a direct editor.</td><td>Edit the numbers, add frame-tied notes, or edit the code by hand.</td></tr>
+        <tr><th scope="row">Handoff</th><td>Open in Adobe, Descript, HeyGen, Higgsfield, invideo, Luma AI or Runway.</td><td>None. You take the code elsewhere yourself.</td></tr>
+        <tr><th scope="row">Access and cost</th><td>Beta on Team and Enterprise. Counts toward plan usage limits.</td><td>Demo mode is free. Live mode costs per token on your own OpenRouter key.</td></tr>
+        <tr><th scope="row">Inspect</th><td>Built as code you can edit, per the announcement.</td><td>Code on screen, a scrubber, 30 fps stepping, contact sheets.</td></tr>
+        <tr><th scope="row">Model and stack</th><td>Not stated on either page.</td><td>The model you pick; HTML, SVG or canvas under the contract.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout caution">
+      <span class="ttl">Rendering quality is not measured here</span>
+      This workshop did not compare what the Claude app renders against what this preview renders, so it makes no claim about which looks better. The app may handle export, editing and handoff better. This page may be faster to iterate on and easier to inspect. Test your own brief in both before you choose.
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="m9" data-mod="9">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>9. Ship gate</h2>
+  <p class="intro">Tap an item once you have done it on your own animation, not just on this page. The count is only a tally of what you have ticked.</p>
+  <ul class="gate" id="gate"></ul>
+  <p class="msg" id="gateCount" role="status" style="margin:.4rem 0 1rem"></p>
+  <h3>One honest limitation</h3>
+  <div class="callout caution">
+    <span class="ttl">This page previews code you steer with numbers. It is not Claude Motion.</span>
+    Anthropic's pages state neither the model nor the code stack behind Motion, and this workshop never ran Motion, so nothing here predicts what Motion will render for the same brief.
+  </div>
+</section>
+
+</div>
+</main>
+
+<aside class="rail" aria-label="Live labs and module notes">
+  <section class="connect" id="connect" aria-labelledby="connectTitle">
+    <div class="lamp-row"><h2 id="connectTitle">Live labs</h2><span class="lamp" id="lamp"><i aria-hidden="true"></i><span id="lampText">Demo</span></span></div>
+    <p class="msg" id="connectMsg" role="status">Demo mode: labs use hand-authored animations, labelled illustrative.</p>
+    <div class="row">
+      <input type="password" id="keyIn" autocomplete="off" placeholder="OpenRouter key (sk-or-...)" aria-label="OpenRouter API key">
+      <button class="btn sm" id="connectBtn" type="button">Connect</button>
+      <button class="btn ghost sm" id="disconnectBtn" type="button" hidden>Disconnect</button>
+    </div>
+    <div class="spend"><span>Session spend <b class="num" id="spendVal">$0.0000</b> <span class="tag d">Derived</span></span><label>Budget $<input type="number" id="budgetIn" min="0.1" step="0.5" value="2" aria-label="Session budget in dollars"></label></div>
+    <details><summary>Advanced</summary>
+      <label class="field"><span>max_tokens per reply (cap 8,000)</span><input type="number" id="maxTokIn" min="1000" max="8000" step="500" value="6000"></label>
+      <label class="field"><span>Reasoning effort</span><select id="effortIn"><option value="">Off</option><option value="low" selected>Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
+      <p class="msg">Reasoning tokens count toward max_tokens and are billed as output. Turn reasoning off if a model rejects the request with a 400. Generated code is capped at 20,000 characters. The key lives in page memory only and is gone when you reload. Calls go to openrouter.ai and nowhere else.</p>
+    </details>
+  </section>
+  <div class="tick" aria-hidden="true" style="margin-top:1rem"></div>
+  <div class="rail-body" id="railBody" aria-live="polite"></div>
+  <details class="all-src"><summary>All sources</summary><ul id="allSources"></ul></details>
+</aside>
+</div>
+
+<footer>
+  <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, OpenRouter, or any other company named on this page, including Adobe, Descript, HeyGen, Higgsfield, invideo, Luma AI, Runway, Canva and Captions. Product and model names belong to their owners. The third-party X article and GitHub repository cited here are by their own authors.</p>
+  <p>Live labs call paid models through your own OpenRouter key and cost real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a> before connecting, and set the session budget in the Live labs panel. Code-writing replies are long, so check the estimate beside each button before you run.</p>
+  <p>Usage policies and terms: <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener">Anthropic Usage Policy</a> and <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter Terms</a>. Claude Motion facts come from <a href="https://support.claude.com/en/articles/17454997-get-started-with-claude-motion" target="_blank" rel="noopener">Anthropic's help center</a> and <a href="https://claude.com/resources/articles/dashboards-and-motion" target="_blank" rel="noopener">announcement</a>, read on October 11, 2026.</p>
+  <p>Facts checked against primary sources on October 11, 2026. Model slugs, prices and product details change; re-check them before relying on them. Illustrative outputs are labelled "illustrative, not measurements".</p>
+  <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data.</p>
+</footer>
+<script id="lib">
+/* Pure logic and scene sources. No DOM access. Unit-tested in Node before assembly.
+   bezierFn, springFn, sceneMain and chartMain are also serialised into the sandboxed documents,
+   so they must stay self-contained (no references to anything outside their own body). */
+(function (root) {
+  'use strict';
+  var FPS = 30, CAP_CHARS = 20000, MAX_ROWS = 12;
+
+  function bezierFn(x1, y1, x2, y2) {
+    function cx(t) { var u = 1 - t; return 3 * u * u * t * x1 + 3 * u * t * t * x2 + t * t * t; }
+    function cy(t) { var u = 1 - t; return 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t; }
+    function dx(t) { var u = 1 - t; return 3 * u * u * x1 + 6 * u * t * (x2 - x1) + 3 * t * t * (1 - x2); }
+    return function (x) {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      var t = x, i, e, d;
+      for (i = 0; i < 8; i++) {
+        e = cx(t) - x;
+        if (Math.abs(e) < 1e-6) return cy(t);
+        d = dx(t);
+        if (Math.abs(d) < 1e-6) break;
+        t -= e / d;
+      }
+      var lo = 0, hi = 1; t = x;
+      for (i = 0; i < 40; i++) {
+        e = cx(t) - x;
+        if (Math.abs(e) < 1e-6) break;
+        if (e > 0) hi = t; else lo = t;
+        t = (lo + hi) / 2;
+      }
+      return cy(t);
+    };
+  }
+
+  function springFn(k, c, m) {
+    m = m || 1;
+    var w0 = Math.sqrt(k / m), z = c / (2 * Math.sqrt(k * m));
+    if (Math.abs(z - 1) < 1e-6) {
+      return function (t) { return t <= 0 ? 0 : 1 - Math.exp(-w0 * t) * (1 + w0 * t); };
+    }
+    if (z < 1) {
+      var wd = w0 * Math.sqrt(1 - z * z);
+      return function (t) { return t <= 0 ? 0 : 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + (z * w0 / wd) * Math.sin(wd * t)); };
+    }
+    var s = Math.sqrt(z * z - 1), r1 = -w0 * (z - s), r2 = -w0 * (z + s);
+    return function (t) { return t <= 0 ? 0 : 1 - (r2 * Math.exp(r1 * t) - r1 * Math.exp(r2 * t)) / (r2 - r1); };
+  }
+
+  function springStats(k, c) {
+    var f = springFn(k, c, 1), dt = 1 / 240, N = 8 * 240, peak = 0, peakT = 0, lastOut = 0, i, x, t;
+    for (i = 0; i <= N; i++) {
+      t = i * dt; x = f(t);
+      if (x > peak) { peak = x; peakT = t; }
+      if (Math.abs(x - 1) > 0.01) lastOut = t;
+    }
+    var settle = lastOut >= 8 - dt ? 8 : lastOut + dt;
+    return { peak: peak, peakT: peakT, overshootPct: Math.max(0, (peak - 1) * 100), settleT: settle, peakFrame: Math.round(peakT * FPS), settleFrame: Math.round(settle * FPS) };
+  }
+
+  function bezierStats(b) {
+    var f = bezierFn(b[0], b[1], b[2], b[3]), i, y, peak = 0, t90 = null;
+    for (i = 0; i <= 480; i++) {
+      y = f(i / 480);
+      if (y > peak) peak = y;
+      if (t90 === null && y >= 0.9) t90 = i / 480;
+    }
+    return { peak: peak, overshootPct: Math.max(0, (peak - 1) * 100), t90: t90 === null ? 1 : t90 };
+  }
+
+  function lum(hex) {
+    var h = String(hex).replace('#', '');
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    var ch = [0, 2, 4].map(function (i) {
+      var v = parseInt(h.substr(i, 2), 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+  }
+  function ratio(a, b) {
+    var A = lum(a), B = lum(b), hi = Math.max(A, B), lo = Math.min(A, B);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  /* ---------- scene sources (run inside the sandbox) ---------- */
+  function sceneMain(P) {
+    var D = P.D, B = P.beats, acc = P.accent, vague = P.mode === 'vague';
+    function mk(o) {
+      if (o.type === 'spring') { var f = springFn(o.k, o.c, 1), T = o.T; return function (x) { return f(x * T); }; }
+      return bezierFn.apply(null, o.b);
+    }
+    var enter = mk(P.enter), exitE = mk(P.exit), pop = springFn(P.pop.k, P.pop.c, 1);
+    var eD = P.enter.ms / 1000, xD = P.exit.ms / 1000, S = P.stagger / 1000;
+    window.DURATION = D;
+    var words = ['Signups', 'up', '18%', 'this', 'week'], bars = [['Mon', 12], ['Tue', 15], ['Wed', 18]];
+    var h = '<div id="all"><div id="words">';
+    words.forEach(function (w) { h += '<span class="w">' + w + '</span>'; });
+    h += '</div>';
+    bars.forEach(function (b, i) {
+      var bh = Math.round(b[1] / 18 * 168), x = 40 + i * 84;
+      h += '<div class="bar' + (i === 2 ? ' hot' : '') + '" style="left:' + x + 'px;top:' + (316 - bh) + 'px;height:' + bh + 'px"></div>';
+      h += '<div class="bl" style="left:' + x + 'px">' + b[0] + '</div>';
+    });
+    h += '<div id="num">0%</div><div id="ul"></div><div id="cap">weekly signups</div><div id="note">illustrative data</div></div>';
+    var st = document.getElementById('stage');
+    st.innerHTML = h;
+    var ws = [].slice.call(st.querySelectorAll('.w')), bs = [].slice.call(st.querySelectorAll('.bar'));
+    var num = st.querySelector('#num'), ul = st.querySelector('#ul'), all = st.querySelector('#all'), wrap = st.querySelector('#words');
+    num.style.color = acc; ul.style.background = acc;
+    st.querySelector('.hot').style.background = acc;
+    function cl(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+    function pr(t, s, d) { return cl((t - s) / d); }
+    var bls = [].slice.call(st.querySelectorAll('.bl')), cap = st.querySelector('#cap');
+    window.renderAt = function (t) {
+      t = Math.max(0, Math.min(D, +t || 0));
+      var i, p, c;
+      if (vague) {
+        p = cl(t / 2.5);
+        wrap.style.opacity = p;
+        for (i = 0; i < bs.length; i++) { bs[i].style.transform = 'scaleY(' + p + ')'; bls[i].style.opacity = p; }
+        num.textContent = Math.round(18 * p) + '%';
+        num.style.opacity = p; cap.style.opacity = p;
+        ul.style.transform = 'scaleX(' + p + ')';
+        return;
+      }
+      for (i = 0; i < ws.length; i++) {
+        p = enter(pr(t, B.head + i * S, eD));
+        ws[i].style.opacity = cl(p);
+        ws[i].style.transform = 'translateY(' + ((1 - p) * 18).toFixed(2) + 'px)';
+      }
+      for (i = 0; i < bs.length; i++) {
+        p = enter(pr(t, B.bars + i * S, eD));
+        bs[i].style.transform = 'scaleY(' + Math.max(0, p).toFixed(4) + ')';
+        bls[i].style.opacity = cl(p);
+      }
+      c = enter(pr(t, B.num, 1));
+      num.textContent = Math.round(18 * Math.min(1, c)) + '%';
+      num.style.opacity = cl((t - B.num) / 0.15);
+      cap.style.opacity = cl((t - B.num - 0.3) / 0.3);
+      num.style.transform = 'scale(' + (0.6 + 0.4 * pop(t - B.num)).toFixed(4) + ')';
+      ul.style.transform = 'scaleX(' + Math.max(0, enter(pr(t, B.acc, 0.5))).toFixed(4) + ')';
+      p = exitE(pr(t, B.out, xD));
+      all.style.opacity = cl(1 - p);
+      all.style.transform = 'translateY(' + (-12 * p).toFixed(2) + 'px)';
+    };
+    window.renderAt(0);
+  }
+  var SCENE_CSS = '#all{position:absolute;left:0;top:0;width:640px;height:360px}' +
+    '#words{position:absolute;left:40px;top:34px;width:560px;font-size:32px;line-height:1.2;font-weight:700}' +
+    '.w{display:inline-block;margin-right:.28em}' +
+    '.bar{position:absolute;width:64px;background:#3b4b63;transform-origin:50% 100%;border-radius:3px 3px 0 0}' +
+    '.bl{position:absolute;top:322px;width:64px;text-align:center;font-size:12px;font-weight:500;color:#8fa1b8}' +
+    '#num{position:absolute;left:340px;top:112px;font-size:112px;line-height:1;font-weight:700;transform-origin:0 60%}' +
+    '#ul{position:absolute;left:340px;top:238px;width:230px;height:4px;transform-origin:0 50%;border-radius:2px}' +
+    '#cap{position:absolute;left:342px;top:252px;font-size:15px;font-weight:500;color:#8fa1b8}' +
+    '#note{position:absolute;right:16px;bottom:10px;font-size:11px;color:#8fa1b8}';
+
+  function chartMain(P) {
+    var D = 5, rows = P.rows, n = rows.length, acc = P.accent, line = P.type === 'line';
+    function mk(o) {
+      if (o.type === 'spring') { var f = springFn(o.k, o.c, 1), T = o.T; return function (x) { return f(x * T); }; }
+      return bezierFn.apply(null, o.b);
+    }
+    var enter = mk(P.enter), eD = P.enter.ms / 1000, S = Math.min(P.stagger / 1000, 2 / n);
+    window.DURATION = D;
+    var max = 0; rows.forEach(function (r) { if (r.v > max) max = r.v; });
+    if (max <= 0) max = 1;
+    var e10 = Math.pow(10, Math.floor(Math.log10(max))), m = max / e10;
+    var top = (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e10;
+    var x0 = 56, x1 = 616, y0 = 300, y1 = 84, band = (x1 - x0) / n, bw = band * 0.62;
+    var allInt = rows.every(function (r) { return Math.round(r.v) === r.v; });
+    function fmt(v) { return allInt ? String(Math.round(v)) : (Math.round(v * 10) / 10).toFixed(1); }
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    var NS = 'http://www.w3.org/2000/svg';
+    var s = '<svg xmlns="' + NS + '" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Animated chart">';
+    s += '<text id="ttl" x="40" y="46" class="ttl">' + esc(P.title) + '</text>';
+    var g, ticks = [];
+    for (g = 0; g <= 4; g++) {
+      var gy = y0 - (y0 - y1) * g / 4;
+      ticks.push(gy);
+      s += '<g class="gl"><line x1="' + x0 + '" x2="' + x1 + '" y1="' + gy + '" y2="' + gy + '"/><text x="' + (x0 - 8) + '" y="' + (gy + 4) + '" text-anchor="end">' + fmt(top * g / 4) + '</text></g>';
+    }
+    var pts = rows.map(function (r, i) { return [x0 + band * i + band / 2, y0 - (y0 - y1) * r.v / top]; });
+    var cum = [0], total = 0;
+    if (line) {
+      for (var i = 1; i < n; i++) { total += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); cum.push(total); }
+      s += '<path id="ln" fill="none" stroke="' + acc + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" d="M' + pts.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L') + '"/>';
+    }
+    rows.forEach(function (r, i) {
+      var lab = r.l.length > 8 ? r.l.slice(0, 7) + '.' : r.l;
+      if (line) s += '<circle class="pt" cx="' + pts[i][0].toFixed(1) + '" cy="' + pts[i][1].toFixed(1) + '" r="5" fill="' + acc + '"/>';
+      else s += '<rect class="bar" x="' + (x0 + band * i + (band - bw) / 2).toFixed(1) + '" width="' + bw.toFixed(1) + '" y="' + y0 + '" height="0" fill="' + (i === n - 1 ? acc : '#4a5d78') + '"/>';
+      s += '<text class="vl" text-anchor="middle" x="' + pts[i][0].toFixed(1) + '" y="' + (pts[i][1] - 10).toFixed(1) + '">0</text>';
+      s += '<text class="xl" text-anchor="middle" x="' + pts[i][0].toFixed(1) + '" y="322">' + esc(lab) + '</text>';
+    });
+    s += '<text x="624" y="350" text-anchor="end" class="nt">illustrative styling, your data</text></svg>';
+    var st = document.getElementById('stage');
+    st.innerHTML = s;
+    var ttl = st.querySelector('#ttl'), gls = [].slice.call(st.querySelectorAll('.gl')), vls = [].slice.call(st.querySelectorAll('.vl'));
+    var bars = [].slice.call(st.querySelectorAll('.bar')), pt = [].slice.call(st.querySelectorAll('.pt')), ln = st.querySelector('#ln');
+    function cl(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+    function pr(t, s0, d) { return cl((t - s0) / d); }
+    window.renderAt = function (t) {
+      t = Math.max(0, Math.min(D, +t || 0));
+      var i, p, q = enter(pr(t, 0, 0.5));
+      ttl.style.opacity = cl(q);
+      ttl.setAttribute('transform', 'translate(0 ' + ((1 - q) * 14).toFixed(2) + ')');
+      p = pr(t, 0.2, 0.5);
+      gls.forEach(function (e) { e.style.opacity = p; });
+      if (line) {
+        var d = enter(pr(t, 0.7, 1.8));
+        ln.setAttribute('stroke-dasharray', total.toFixed(1));
+        ln.setAttribute('stroke-dashoffset', (total * (1 - d)).toFixed(1));
+        for (i = 0; i < n; i++) {
+          var on = d * total >= cum[i] - 0.001 ? 1 : 0;
+          pt[i].style.opacity = on;
+          vls[i].style.opacity = on;
+          vls[i].textContent = fmt(rows[i].v);
+        }
+      } else {
+        for (i = 0; i < n; i++) {
+          p = enter(pr(t, 0.8 + i * S, eD));
+          var h = (y0 - y1) * rows[i].v / top * Math.max(0, p);
+          bars[i].setAttribute('height', h.toFixed(2));
+          bars[i].setAttribute('y', (y0 - h).toFixed(2));
+          vls[i].setAttribute('y', (y0 - h - 10).toFixed(2));
+          vls[i].style.opacity = cl(p * 2);
+          vls[i].textContent = fmt(rows[i].v * Math.min(1, Math.max(0, p)));
+        }
+      }
+    };
+    window.renderAt(0);
+  }
+  var CHART_CSS = 'svg{display:block}.ttl{font-size:22px;font-weight:700;fill:#eef2f7}' +
+    '.gl line{stroke:#26354a;stroke-width:1}.gl text{font-size:11px;fill:#8fa1b8}' +
+    '.vl{font-size:13px;font-weight:600;fill:#eef2f7}.xl{font-size:12px;fill:#8fa1b8}.nt{font-size:10px;fill:#8fa1b8}';
+
+  function buildDoc(main, css, params) {
+    var P = JSON.stringify(params).replace(/</g, '\\u003c').replace(/\u2028|\u2029/g, '');
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Motion</title><style>html,body{margin:0;background:#101826}' +
+      '#stage{position:relative;width:640px;height:360px;overflow:hidden;background:#101826;color:#eef2f7;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}' + css +
+      '</style></head><body><div id="stage"></div><script>' + bezierFn + '\n' + springFn + '\n(' + main + ')(' + P + ');<\/script></body></html>';
+  }
+
+  /* ---------- numbers, brief, parsing ---------- */
+  function fx(v) { return String(Math.round(v * 100) / 100); }
+  function easeText(e) {
+    return e.type === 'spring'
+      ? 'spring(stiffness ' + fx(e.k) + ', damping ' + fx(e.c) + ', mass 1), about ' + e.ms + ' ms to settle'
+      : 'cubic-bezier(' + e.b.map(fx).join(', ') + '), ' + e.ms + ' ms';
+  }
+  function numbersText(n) {
+    return ['NUMBERS (use exactly, do not round)',
+      'Entrance: ' + easeText(n.enter),
+      'Exit: ' + easeText(n.exit),
+      'Emphasis (the number\'s pop): spring(stiffness ' + fx(n.pop.k) + ', damping ' + fx(n.pop.c) + ', mass 1)',
+      'Stagger: ' + n.stagger + ' ms between items',
+      'Count-up: 1000 ms on the entrance curve'].join('\n');
+  }
+  var MOODS = {
+    calm: 'unhurried; long eases; no overshoot',
+    crisp: 'short, decisive moves; at most a small overshoot',
+    playful: 'bouncy springs; visible overshoot',
+    serious: 'restrained; no overshoot; minimal travel'
+  };
+  function parseBeats(text, D) {
+    var beats = [], issues = [], last = -1;
+    String(text || '').split(/\r?\n/).forEach(function (line, i) {
+      if (!line.trim()) return;
+      var m = /^\s*(\d+(?:\.\d+)?)\s*(?:s|sec|secs|seconds)?\s*(?:-|:|\u2013|\u2014)\s*(.+?)\s*$/i.exec(line);
+      if (!m) { issues.push('Line ' + (i + 1) + ' has no time. Start it with seconds, like "1.2 s - bars rise".'); return; }
+      var t = parseFloat(m[1]);
+      if (t > D) issues.push('The beat at ' + fx(t) + ' s starts after the ' + D + ' s length.');
+      if (t < last) issues.push('The beat at ' + fx(t) + ' s is listed after a later one. Keep beats in time order.');
+      last = Math.max(last, t);
+      beats.push({ t: t, label: m[2] });
+    });
+    if (!beats.length) issues.unshift('No beats parsed yet.');
+    return { beats: beats, issues: issues };
+  }
+  function compileBrief(b) {
+    var pb = parseBeats(b.beatsText, b.len);
+    var lines = ['MOTION BRIEF',
+      'Audience: ' + b.aud,
+      'Plays: ' + b.where,
+      'Length: ' + b.len + ' s at ' + FPS + ' fps (' + (b.len * FPS) + ' frames), 640 x 360',
+      'Accent: ' + b.accent + ' (the only accent color; everything else stays neutral)',
+      'Mood: ' + b.mood + ' (' + MOODS[b.mood] + ')',
+      '',
+      'CONTENT',
+      String(b.content || '').trim(),
+      '',
+      'BEATS (seconds from the start; frame = seconds x ' + FPS + ')'];
+    if (pb.beats.length) pb.beats.forEach(function (x) { lines.push(x.t.toFixed(2) + ' s (frame ' + Math.round(x.t * FPS) + ') ' + x.label); });
+    else lines.push(String(b.beatsText || '').trim() || '(none yet)');
+    lines.push('', numbersText(b.numbers));
+    return lines.join('\n');
+  }
+  function contractText() {
+    return [
+      'You write one self-contained HTML document that animates by code. Reply with only that document in a single ```html block and no other text.',
+      'Contract. The page checks every item and rejects output that breaks one:',
+      '1. One complete HTML document with inline <style> and <script> only.',
+      '2. An element with id="stage", exactly 640x360 CSS px, overflow hidden, body margin 0. It may be a div, an svg or a canvas.',
+      '3. window.DURATION is a number of seconds from 1 to 12.',
+      '4. window.renderAt(t) draws the frame for time t in seconds (0 <= t <= DURATION). It must be a pure function of t: callable in any order, with nothing carried between calls. Call renderAt(0) once at load so a first frame shows.',
+      '5. Do not use requestAnimationFrame, setTimeout, setInterval, Date, performance.now or Math.random. If you need randomness, write a small seeded generator.',
+      '6. No network and no libraries: no external scripts, stylesheets, fonts, images or URLs, and no fetch, XMLHttpRequest, WebSocket, import() or workers. Inline SVG, Canvas and CSS only, with system fonts.',
+      '7. Under ' + CAP_CHARS + ' characters in total.',
+      '8. Original abstract shapes and text only. No logos, mascots or characters from existing brands or studios.',
+      '9. Use the brief\'s numbers exactly: beat times, easing curves, springs, stagger and the accent color. Write the cubic-bezier and spring math yourself (a closed-form damped spring with mass 1 is fine).'
+    ].join('\n');
+  }
+
+  function parseCSV(text) {
+    text = String(text || '');
+    if (text.length > 2000) return { error: 'That is over 2,000 characters. Paste fewer rows.' };
+    var lines = text.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    if (!lines.length) return { error: 'Paste a CSV with a label and a number on each line.' };
+    var delim = lines[0].indexOf(',') >= 0 ? ',' : lines[0].indexOf('\t') >= 0 ? '\t' : lines[0].indexOf(';') >= 0 ? ';' : ',';
+    function split(l) {
+      var out = [], cur = '', q = false, i, ch;
+      for (i = 0; i < l.length; i++) {
+        ch = l[i];
+        if (ch === '"') { q = !q; continue; }
+        if (ch === delim && !q) { out.push(cur.trim()); cur = ''; continue; }
+        cur += ch;
+      }
+      out.push(cur.trim());
+      return out;
+    }
+    function num(s) { var v = Number(String(s).replace(/[$%\s]/g, '')); return String(s).trim() === '' ? NaN : v; }
+    var rows = [], header = null, first = split(lines[0]);
+    if (first.length >= 2 && !isFinite(num(first[1]))) { header = first; lines.shift(); }
+    for (var i = 0; i < lines.length; i++) {
+      var p = split(lines[i]), n = i + 1 + (header ? 1 : 0);
+      if (p.length < 2) return { error: 'Line ' + n + ' needs a label, a separator and a number.' };
+      var v = num(p[1]);
+      if (!p[0]) return { error: 'Line ' + n + ' has an empty label.' };
+      if (p[0].length > 24) return { error: 'Line ' + n + ': labels can be up to 24 characters.' };
+      if (!isFinite(v)) return { error: 'Line ' + n + ': "' + p[1].slice(0, 20) + '" is not a number.' };
+      if (v < 0) return { error: 'Line ' + n + ': this chart starts at zero, so negative values are not supported.' };
+      rows.push({ l: p[0], v: v });
+    }
+    if (rows.length < 2) return { error: 'Give at least two rows.' };
+    if (rows.length > MAX_ROWS) return { error: 'Up to ' + MAX_ROWS + ' rows, please. You pasted ' + rows.length + '.' };
+    return { rows: rows, header: header };
+  }
+
+  /* ---------- contract lint (static, before anything runs) ---------- */
+  function lintDoc(html) {
+    var errs = [], src = String(html || '');
+    function add(code, msg) { errs.push({ code: code, msg: msg }); }
+    if (src.length > CAP_CHARS) add('size', 'The document is ' + src.length.toLocaleString('en-US') + ' characters; the cap is ' + CAP_CHARS.toLocaleString('en-US') + '.');
+    if (!/<!doctype html|<html[\s>]/i.test(src)) add('document', 'This is not one complete HTML document (no doctype or html element).');
+    var code = src.replace(/\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->|(^|[^:\\"'`])\/\/[^\n]*/g, '$1');
+    if (!/renderAt/.test(code)) add('renderAt', 'No renderAt function is defined. The page needs window.renderAt(t).');
+    if (!/DURATION/.test(code)) add('duration', 'No window.DURATION is defined.');
+    var net = src.replace(/https?:\/\/www\.w3\.org\/[\w\/.#-]*/gi, '');
+    if (/https?:\/\/|(?:src|href|action|poster)\s*=\s*["']?\s*\/\//i.test(net) || /url\(\s*["']?\s*(?:https?:)?\/\//i.test(net)) add('network', 'It points at an external URL. Nothing may load from the network.');
+    if (/@import/i.test(code)) add('network', 'It uses @import. Inline CSS only.');
+    if (/<script[^>]+\ssrc\s*=/i.test(src)) add('library', 'It loads a script with src. No external libraries; inline code only.');
+    if (/<link\b|<iframe\b|<object\b|<embed\b|<base\b/i.test(src)) add('library', 'It uses link, iframe, object, embed or base. Inline SVG, Canvas and CSS only.');
+    if (/\ssrc\s*=\s*["']?(?!data:)/i.test(src.replace(/<script[^>]+\ssrc\s*=/gi, '<script'))) add('network', 'An element has a src that is not a data: URL.');
+    if (/\b(fetch|XMLHttpRequest|WebSocket|EventSource|importScripts|sendBeacon)\b|\bimport\s*\(|\bnew\s+(Shared)?Worker\b/.test(code)) add('network', 'It calls a network, import or worker API. None are allowed.');
+    if (/\b(requestAnimationFrame|setTimeout|setInterval)\b|\bDate\b|performance\.now|Math\.random/.test(code)) add('pure', 'It uses a clock, a timer or Math.random. Motion must be a pure function of t; use a seeded generator for randomness.');
+    if (/while\s*\(\s*(true|1)\s*\)|for\s*\(\s*;\s*;\s*\)/.test(code)) add('loop', 'It contains an endless loop, which would freeze the page.');
+    return errs;
+  }
+
+  function extractHtml(reply) {
+    var s = String(reply || ''), m = /```(?:html)?[ \t]*\r?\n([\s\S]*?)```/i.exec(s);
+    if (m) return m[1].trim();
+    var open = /```(?:html)?[ \t]*\r?\n([\s\S]*)$/i.exec(s);
+    if (open) return open[1].trim();
+    var i = s.search(/<!doctype html|<html[\s>]/i);
+    if (i < 0) return null;
+    var j = s.toLowerCase().lastIndexOf('</html>');
+    return (j > i ? s.slice(i, j + 7) : s.slice(i)).trim();
+  }
+
+  var PRICES = {
+    'anthropic/claude-opus-5.5': { label: 'Claude Opus 5.5', inM: 4, outM: 20, ctx: '1M', canonical: 'anthropic/claude-opus-5.5-20260921' },
+    'anthropic/claude-sonnet-5.5': { label: 'Claude Sonnet 5.5', inM: 2, outM: 10, ctx: '1M', canonical: 'anthropic/claude-sonnet-5.5-20260928' }
+  };
+  function costOf(model, inTok, outTok, prices) {
+    var p = (prices || PRICES)[model];
+    return p ? (inTok * p.inM + outTok * p.outM) / 1e6 : 0;
+  }
+  function approxTokens(s) { return Math.ceil(String(s || '').length / 3.5); }
+  function validateKeyFormat(k) {
+    if (!k) return 'Paste an OpenRouter key first.';
+    if (/\s/.test(k)) return 'The key has a space or line break in it. Paste it again.';
+    if (k.indexOf('sk-or-') !== 0) return 'OpenRouter keys start with sk-or-. Create one at openrouter.ai/keys.';
+    if (k.length < 24) return 'That key looks too short. Paste the whole key.';
+    return '';
+  }
+  function frameOf(t) { return Math.round(t * FPS); }
+
+  root.ML = {
+    FPS: FPS, CAP_CHARS: CAP_CHARS, PRICES: PRICES, MOODS: MOODS,
+    bezierFn: bezierFn, springFn: springFn, springStats: springStats, bezierStats: bezierStats,
+    lum: lum, ratio: ratio, sceneMain: sceneMain, SCENE_CSS: SCENE_CSS, chartMain: chartMain, CHART_CSS: CHART_CSS, buildDoc: buildDoc,
+    numbersText: numbersText, easeText: easeText, parseBeats: parseBeats, compileBrief: compileBrief, contractText: contractText,
+    parseCSV: parseCSV, lintDoc: lintDoc, extractHtml: extractHtml, costOf: costOf, approxTokens: approxTokens,
+    validateKeyFormat: validateKeyFormat, frameOf: frameOf, fx: fx
+  };
+})(window);
+</script>
+<script id="main">
+(function () {
+  'use strict';
+  var ML = window.ML, FPS = ML.FPS;
+
+  // ---------------- helpers ----------------
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function usd(n) { return '$' + (n < 0.1 ? n.toFixed(4) : n.toFixed(2)); }
+  function int(n) { return Math.round(n).toLocaleString('en-US'); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } return null; }
+  function clamp(v, lo, hi, d) { v = parseFloat(v); if (!isFinite(v)) return d; return Math.max(lo, Math.min(hi, v)); }
+  function setMsg(el, text, kind) { el.textContent = text; el.className = 'msg' + (kind ? ' ' + kind : ''); }
+  function fx(v) { return ML.fx(v); }
+  function tsec(f) { return (f / FPS).toFixed(2) + ' s'; }
+  function snap(t) { return Math.round(t * FPS) / FPS; }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function UserError(msg, fatal) { this.message = msg; this.user = true; this.fatal = !!fatal; }
+  function mark(ok) {
+    return ok
+      ? '<svg class="mark" viewBox="0 0 14 14" aria-label="ok" role="img"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg class="mark" viewBox="0 0 14 14" aria-label="needs attention" role="img"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"/></svg>';
+  }
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return false; });
+    return Promise.resolve(false);
+  }
+  function illus(extra) { return '<span class="illus">Hand-authored demo output. Illustrative, not measurements.' + (extra ? ' ' + extra : '') + '</span>'; }
+
+  // ---------------- theme ----------------
+  var root = document.documentElement;
+  function applyTheme(p, t) {
+    root.setAttribute('data-palette', p); root.setAttribute('data-theme', t);
+    $$('.swatch').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-p') === p)); });
+    $('#modeBtn').textContent = t === 'light' ? 'Switch to dark' : 'Switch to light';
+  }
+  var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  var pal = store('mow-palette') || 'tide', mode = store('mow-theme') || root.getAttribute('data-theme') || (prefersLight ? 'light' : 'dark');
+  if (['tide', 'ember', 'iris'].indexOf(pal) < 0) pal = 'tide';
+  if (mode !== 'light' && mode !== 'dark') mode = 'dark';
+  applyTheme(pal, mode);
+  $$('.swatch').forEach(function (b) { b.addEventListener('click', function () { pal = b.getAttribute('data-p'); store('mow-palette', pal); applyTheme(pal, mode); }); });
+  $('#modeBtn').addEventListener('click', function () { mode = mode === 'light' ? 'dark' : 'light'; store('mow-theme', mode); applyTheme(pal, mode); });
+
+  // ---------------- sources and rail ----------------
+  var S = {
+    help: ['Get started with Claude Motion (Claude Help Center)', 'https://support.claude.com/en/articles/17454997-get-started-with-claude-motion'],
+    ann: ['Build live dashboards and animate explainers with Claude (Anthropic, Oct 8, 2026)', 'https://claude.com/resources/articles/dashboards-and-motion'],
+    xart: ['Opus 5.5 Motion Lab by @flxrnc (X article, community)', 'https://x.com/flxrnc/status/2105311836190978392'],
+    repo: ['whaleyxbt/claude-motion (GitHub, third party, MIT)', 'https://github.com/whaleyxbt/claude-motion'],
+    orModels: ['OpenRouter model catalog', 'https://openrouter.ai/models'],
+    orOpus: ['OpenRouter: Claude Opus 5.5', 'https://openrouter.ai/anthropic/claude-opus-5.5'],
+    orSonnet: ['OpenRouter: Claude Sonnet 5.5', 'https://openrouter.ai/anthropic/claude-sonnet-5.5'],
+    keys: ['OpenRouter keys and credit limits', 'https://openrouter.ai/keys'],
+    aup: ['Anthropic Usage Policy', 'https://www.anthropic.com/legal/aup'],
+    easing: ['MDN: CSS easing functions', 'https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function'],
+    iframe: ['MDN: the iframe element and its sandbox attribute', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe'],
+    pm: ['MDN: window.postMessage', 'https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage']
+  };
+  function refLi(k) { var s = S[k]; return '<li><a href="' + s[1] + '" target="_blank" rel="noopener">' + esc(s[0]) + '</a></li>'; }
+  var RAIL = [
+    { name: 'Start here',
+      tips: ['Demo mode plays hand-authored animations in the sandbox. Every lab works with no key.', 'Anthropic\'s pages describe Motion as animation written as code that plays like a short video. They do not name its model or code stack.', 'The X article and the GitHub repo are community sources. Their claims about Opus 5.5 are untested here.', 'Model-written code runs only in an iframe with sandbox="allow-scripts", no same-origin, plus a CSP that blocks the network.', 'Set a credit limit on your OpenRouter key before you connect.'],
+      refs: ['help', 'ann', 'xart', 'repo', 'orOpus'],
+      gloss: [['renderAt(t)', 'A function that draws the frame for time t in seconds. The page, not the animation, owns the clock.'], ['Sandbox', 'An iframe with scripts allowed and nothing else: no access to this page, its storage or your key.'], ['Slug', 'OpenRouter\'s model id, in the form vendor/model-name.']] },
+    { name: 'Vague vs directed',
+      tips: ['Use +1 frame from frame 0 and watch what moves.', 'Vague prompts leave timing to the model, so it picks one speed for everything.', 'A directed prompt names when, how long, which curve, and in what order.', 'The two animations are hand-authored to show the contrast. They are not a measurement of any model.'],
+      refs: ['xart', 'repo', 'easing'],
+      gloss: [['Beat', 'A named moment with a start time, like "bars rise at 1.0 s".'], ['Stagger', 'A small delay between items that start one after another.']] },
+    { name: 'Motion brief',
+      tips: ['Anthropic\'s tip: say who will watch it, where it will play, and roughly how long.', 'One accent color keeps a model from decorating.', 'Beats are seconds, not adjectives. Frame = seconds x 30.', 'Mood words are a convention here. They add a short plain description to the prompt.', 'The block compiles live from your fields and from module 4.'],
+      refs: ['help', 'ann'],
+      gloss: [['Brief', 'The short document that says who, where, how long, what happens when, and in what color.'], ['Contrast ratio', 'A measure of how readable one color is on another. 3:1 is the usual floor for large graphics.']] },
+    { name: 'Beat timeline',
+      tips: ['Drag a bar or focus it and use arrow keys. Shift moves five frames.', 'Starts snap to frames at 30 fps.', 'Each beat has a fixed run time set by your numbers in module 4.', 'The left scene keeps the starting beats so you can compare.', 'Press "Write these beats into my brief" to carry your timing to module 2\'s text.'],
+      refs: ['pm', 'easing'],
+      gloss: [['Frame', 'One still at 1/30 s. Frame 30 is 1.00 s.'], ['Playhead', 'The marker showing the current time on the timeline.']] },
+    { name: 'Easing and springs',
+      tips: ['cubic-bezier(x1, y1, x2, y2) shapes progress over a fixed duration.', 'y above 1 overshoots the target. Below 0 pulls back first.', 'A spring has no fixed duration. Stiffness and damping decide how long it rings.', 'Damping ratio under 1 oscillates. Over 1 creeps. Near 1 is the fastest without overshoot.', 'The measured values come from sampling the curve on this page.'],
+      refs: ['easing', 'repo'],
+      gloss: [['Stiffness', 'How hard the spring pulls toward the target.'], ['Damping', 'How strongly motion is slowed. More damping, less ringing.'], ['Overshoot', 'How far past the target the motion goes before settling.']] },
+    { name: 'Generate',
+      tips: ['The system message is the contract. The user message is your compiled block.', 'Output is capped: max_tokens in Live labs and 20,000 characters of code.', 'Opus 5.5 costs about twice Sonnet 5.5 per token. Use Sonnet while iterating.', 'Reasoning tokens are billed as output and count toward max_tokens.', 'If the contract check fails, nothing runs. Read the list, then adjust the brief or retry.'],
+      refs: ['orOpus', 'orSonnet', 'iframe', 'keys'],
+      gloss: [['Contract check', 'Static rules on the code, then runtime checks in the sandbox: renderAt exists, duration set, stage is 640 x 360, no throw.'], ['CSP', 'A browser rule, injected into the sandbox, that blocks every network request.']] },
+    { name: 'Frame-check loop',
+      tips: ['Look at the sheet first. Find the frame where it goes wrong.', 'A note ties to a frame number and says what is wrong and what you want.', 'Compare the same frames before and after.', 'Stills are frozen copies of the sandbox told to draw one timestamp, not bitmap captures.', 'The community repo suggests higher effort for review. That is untested here; try it under Advanced.'],
+      refs: ['repo', 'xart', 'pm'],
+      gloss: [['Contact sheet', 'A grid of stills at chosen timestamps, each labelled with its frame number.'], ['Fix note', 'One sentence tied to one frame: what is wrong, and what you want instead.']] },
+    { name: 'Data to motion',
+      tips: ['Two to twelve rows, label then a number, zero or more.', 'Demo mode uses a hand-authored template. No model is called.', 'Live mode sends your rows to OpenRouter and the model\'s provider.', 'Never paste data you are not allowed to share.', 'The same contract check applies to the chart the model writes.'],
+      refs: ['ann', 'orOpus'],
+      gloss: [['CSV', 'Comma-separated values. Here: a label, a comma, a number, one per line.'], ['Stroke dash', 'An SVG trick that draws a line gradually by hiding part of its stroke.']] },
+    { name: 'Take it to Claude',
+      tips: ['Motion writes its own code, so the package leaves out renderAt.', 'Steps in the list are quoted from Anthropic\'s help article.', 'Export is MP4. Handoff targets are listed in the announcement.', 'Rendering quality between the app and this preview was not measured.', 'Motion counts toward plan usage limits. Longer animations use more.'],
+      refs: ['help', 'ann'],
+      gloss: [['Artifact', 'Anthropic\'s name for a thing Claude builds that you can open, edit, export and share.'], ['Handoff', 'Opening an exported animation in another tool for further work.']] },
+    { name: 'Ship gate',
+      tips: ['Tick an item only when you did it on your own animation.', 'The one limitation matters as much as the checks.', 'Re-check slugs, prices and Anthropic\'s pages before you quote them.'],
+      refs: ['help', 'ann', 'aup', 'keys'],
+      gloss: [['Ship gate', 'A short list that must be true before you call something done.']] }
+  ];
+  function renderRail(i) {
+    var r = RAIL[i]; if (!r) return;
+    var html = '<h3 class="mod-name">' + esc(r.name) + '</h3><h3>Tips</h3><ul>' + r.tips.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
+      '<h3>References</h3><ul>' + r.refs.map(refLi).join('') + '</ul>' +
+      '<h3>Glossary</h3><dl>' + r.gloss.map(function (g) { return '<dt>' + esc(g[0]) + '</dt><dd>' + esc(g[1]) + '</dd>'; }).join('') + '</dl>';
+    var body = $('#railBody');
+    if (body.getAttribute('data-i') === String(i)) return;
+    body.setAttribute('data-i', String(i));
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !body.innerHTML) { body.innerHTML = html; return; }
+    body.classList.add('fade');
+    setTimeout(function () { body.innerHTML = html; body.classList.remove('fade'); }, 180);
+  }
+  $('#allSources').innerHTML = Object.keys(S).map(refLi).join('');
+
+  // ---------------- state ----------------
+  var DEFAULT_NUM = { enter: { type: 'bezier', b: [0.16, 1, 0.3, 1], ms: 600 }, exit: { type: 'bezier', b: [0.7, 0, 0.84, 0], ms: 300 }, pop: { k: 300, c: 26 }, stagger: 90 };
+  var BEATS0 = { head: 0.2, bars: 1.0, num: 2.2, acc: 3.4, out: 4.8 };
+  var BEAT_DEF = [
+    { id: 'head', label: 'Headline words enter', text: 'headline enters word by word' },
+    { id: 'bars', label: 'Bars rise in sequence', text: 'three bars rise one after another' },
+    { id: 'num', label: 'Number counts up and pops', text: 'the number counts up to 18 and pops' },
+    { id: 'acc', label: 'Accent line draws', text: 'the accent line draws under the number' },
+    { id: 'out', label: 'Everything exits', text: 'everything exits together' }
+  ];
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function beatsToText(beats) { return BEAT_DEF.map(function (d) { return beats[d.id].toFixed(2) + ' s - ' + d.text; }).join('\n'); }
+  var state = {
+    live: false, spent: 0, budget: 2,
+    brief: { aud: '', where: '', len: 6, content: '', beatsText: beatsToText(BEATS0), accent: '#5cc8e6', mood: 'crisp' },
+    numbers: clone(DEFAULT_NUM),
+    beats: clone(BEATS0),
+    gen: null, notes: [], rev: null, fxSrc: 'demo'
+  };
+  var apiKey = null;
+
+  function D() { return state.brief.len; }
+  function lens() {
+    var n = state.numbers, e = n.enter.ms / 1000, s = n.stagger / 1000;
+    return { head: 4 * s + e, bars: 2 * s + e, num: 1, acc: 0.5, out: n.exit.ms / 1000 };
+  }
+  function clampBeats() {
+    var L = lens(), d = D();
+    BEAT_DEF.forEach(function (b) { state.beats[b.id] = snap(Math.max(0, Math.min(d - L[b.id], state.beats[b.id]))); });
+  }
+  function sceneDoc(o) {
+    var n = o.numbers || state.numbers;
+    return ML.buildDoc(ML.sceneMain, ML.SCENE_CSS, { mode: o.mode || 'directed', D: o.D || D(), beats: o.beats || state.beats, accent: o.accent || state.brief.accent, enter: n.enter, exit: n.exit, pop: n.pop, stagger: n.stagger });
+  }
+  function briefFull() { var b = state.brief; return { aud: b.aud, where: b.where, len: b.len, content: b.content, beatsText: b.beatsText, accent: b.accent, mood: b.mood, numbers: state.numbers }; }
+
+  // ---------------- sandbox: stage, player, sheet ----------------
+  var CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; media-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'";
+  var EARLY = '(function(){var P=window.parent;function s(m){try{P.postMessage(m,"*")}catch(e){}}window.addEventListener("error",function(e){s({type:"error",message:String(e.message||"script error").slice(0,200)})});window.addEventListener("unhandledrejection",function(){s({type:"error",message:"unhandled promise rejection"})});})();';
+  function harnessMain() {
+    var P = window.parent;
+    function post(m) { try { P.postMessage(m, '*'); } catch (e) { } }
+    function stageEl() { return document.getElementById('stage'); }
+    function sig() {
+      var s = stageEl(); if (!s) return '';
+      if (s.tagName === 'CANVAS') { try { return s.toDataURL(); } catch (e) { return 'tainted'; } }
+      return s.innerHTML;
+    }
+    function check() {
+      var errors = [], warnings = [], d = window.DURATION;
+      if (typeof window.renderAt !== 'function') errors.push('window.renderAt is not a function.');
+      if (typeof d !== 'number' || !isFinite(d) || d < 1 || d > 12) errors.push('window.DURATION must be a number from 1 to 12 (found ' + (typeof d === 'number' ? d : typeof d) + ').');
+      var s = stageEl();
+      if (!s) errors.push('There is no element with id="stage".');
+      else { var r = s.getBoundingClientRect(); if (Math.round(r.width) !== 640 || Math.round(r.height) !== 360) errors.push('#stage must be exactly 640 x 360 px (found ' + Math.round(r.width) + ' x ' + Math.round(r.height) + ').'); }
+      if (!errors.length) {
+        try {
+          window.renderAt(0); var a = sig(); window.renderAt(d / 2); var b = sig(); window.renderAt(0); var a2 = sig(); window.renderAt(d);
+          if (a !== a2) warnings.push('Frame 0 looks different after other frames were drawn, so renderAt may not be a pure function of t.');
+          if (a === b) warnings.push('The frames at 0 s and at the midpoint are identical. Nothing seems to move.');
+        } catch (e) { errors.push('renderAt threw: ' + String(e && e.message || e).slice(0, 160)); }
+      }
+      post({ type: 'ready', errors: errors, warnings: warnings, duration: d });
+    }
+    window.addEventListener('message', function (e) {
+      if (e.source !== P) return;
+      var m = e.data; if (!m || m.type !== 'render') return;
+      try { window.renderAt(+m.t); post({ type: 'rendered', n: m.n }); }
+      catch (x) { post({ type: 'error', message: 'renderAt threw at t=' + m.t + ': ' + String(x && x.message || x).slice(0, 160) }); }
+    });
+    var tries = 0;
+    function go() {
+      var s = stageEl();
+      if ((!window.innerWidth || !s || !s.getBoundingClientRect().width) && tries++ < 40) { setTimeout(go, 50); return; }
+      check();
+    }
+    if (document.readyState === 'complete') go(); else window.addEventListener('load', go);
+  }
+  function buildSrcdoc(html) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    var meta = doc.createElement('meta'); meta.setAttribute('http-equiv', 'Content-Security-Policy'); meta.setAttribute('content', CSP);
+    var early = doc.createElement('script'); early.textContent = EARLY;
+    doc.head.insertBefore(early, doc.head.firstChild);
+    doc.head.insertBefore(meta, doc.head.firstChild);
+    var h = doc.createElement('script'); h.textContent = '(' + harnessMain + ')();';
+    doc.body.appendChild(h);
+    return '<!doctype html>' + doc.documentElement.outerHTML;
+  }
+
+  var activeStages = [];
+  window.addEventListener('message', function (e) {
+    for (var i = 0; i < activeStages.length; i++) {
+      var s = activeStages[i];
+      if (s.frame && s.frame.contentWindow === e.source) { s.onMsg(e.data); return; }
+    }
+  });
+  var ro = window.ResizeObserver ? new ResizeObserver(function (es) { es.forEach(function (e) { if (e.target._stage) e.target._stage.fit(); }); }) : null;
+
+  function Stage(host) {
+    this.host = host; host._stage = this;
+    this.empty = $('.empty', host);
+    this.frame = null; this.ready = false; this.ok = false; this.duration = 0;
+    this.errors = []; this.warnings = []; this.runtime = [];
+    this.resolve = null; this.timer = null; this.seq = 0; this.onerror = null;
+    if (ro) ro.observe(host); else window.addEventListener('resize', this.fit.bind(this));
+  }
+  Stage.prototype.fit = function () { if (this.frame) this.frame.style.transform = 'scale(' + (this.host.clientWidth / 640) + ')'; };
+  Stage.prototype.clear = function (msg) {
+    this._drop();
+    this.ready = this.ok = false; this.duration = 0; this.errors = []; this.warnings = []; this.runtime = [];
+    this.empty.style.display = ''; this.empty.textContent = msg || 'Nothing loaded yet.';
+  };
+  Stage.prototype._drop = function () {
+    clearTimeout(this.timer);
+    var i = activeStages.indexOf(this); if (i >= 0) activeStages.splice(i, 1);
+    if (this.frame) { this.frame.remove(); this.frame = null; }
+    if (this.resolve) { var r = this.resolve; this.resolve = null; r({ ok: false, stale: true, errors: [], warnings: [] }); }
+  };
+  Stage.prototype.destroy = function () { this._drop(); if (ro) ro.unobserve(this.host); };
+  Stage.prototype.load = function (html) {
+    var self = this;
+    this._drop();
+    this.ready = this.ok = false; this.duration = 0; this.errors = []; this.warnings = []; this.runtime = [];
+    var lint = ML.lintDoc(html);
+    if (lint.length) {
+      this.errors = lint;
+      this.empty.style.display = ''; this.empty.textContent = 'Blocked by the contract check. Nothing was run.';
+      return Promise.resolve({ ok: false, errors: lint, warnings: [] });
+    }
+    var srcdoc;
+    try { srcdoc = buildSrcdoc(html); } catch (e) {
+      this.errors = [{ code: 'parse', msg: 'The document could not be prepared: ' + e.message }];
+      return Promise.resolve({ ok: false, errors: this.errors, warnings: [] });
+    }
+    this.empty.style.display = 'none';
+    var f = document.createElement('iframe');
+    f.setAttribute('sandbox', 'allow-scripts');
+    f.setAttribute('referrerpolicy', 'no-referrer');
+    f.setAttribute('title', 'Animation preview, sandboxed');
+    f.setAttribute('tabindex', '-1');
+    f.srcdoc = srcdoc;
+    this.frame = f; this.host.appendChild(f); this.fit();
+    activeStages.push(this);
+    return new Promise(function (resolve) {
+      self.resolve = resolve;
+      self.timer = setTimeout(function () {
+        self.errors = [{ code: 'timeout', msg: 'The sandbox did not report back within 4 seconds. A script error or a very slow first frame is the usual cause.' }].concat(self.runtime.map(function (m) { return { code: 'script', msg: m }; }));
+        self.ok = false; self.empty.style.display = ''; self.empty.textContent = 'The sandbox did not respond.';
+        if (self.frame) { self.frame.remove(); self.frame = null; }
+        var r = self.resolve; self.resolve = null; if (r) r({ ok: false, errors: self.errors, warnings: [] });
+      }, 4000);
+    });
+  };
+  Stage.prototype.onMsg = function (m) {
+    if (!m || typeof m !== 'object') return;
+    if (m.type === 'ready' && this.resolve) {
+      clearTimeout(this.timer);
+      this.ready = true; this.duration = m.duration;
+      this.errors = (m.errors || []).map(function (x) { return { code: 'runtime', msg: String(x) }; });
+      this.warnings = (m.warnings || []).map(String);
+      this.ok = !this.errors.length;
+      if (!this.ok) {
+        this.empty.style.display = ''; this.empty.textContent = 'Blocked by the contract check. Details below.';
+        if (this.frame) { this.frame.remove(); this.frame = null; }
+      }
+      var r = this.resolve; this.resolve = null;
+      r({ ok: this.ok, errors: this.errors, warnings: this.warnings, duration: this.duration });
+    } else if (m.type === 'error') {
+      var msg = String(m.message || 'script error').slice(0, 200);
+      if (this.runtime.indexOf(msg) < 0 && this.runtime.length < 4) this.runtime.push(msg);
+      if (this.ready && this.onerror) this.onerror(msg);
+    }
+  };
+  Stage.prototype.render = function (t) {
+    if (!this.ok || !this.frame || !this.frame.contentWindow) return;
+    this.frame.contentWindow.postMessage({ type: 'render', t: t, n: ++this.seq }, '*');
+  };
+
+  function Player(rootEl, opts) {
+    var self = this; opts = opts || {};
+    this.root = rootEl; this.opts = opts;
+    var labels = opts.labels || ['Preview'];
+    rootEl.classList.add('pl');
+    rootEl.innerHTML = '<div class="stages">' + labels.map(function (l, i) {
+      return '<div class="stagecol"><p class="stagecap"><span>' + esc(l) + '</span><span class="num faint" data-info="' + i + '"></span></p><div class="sw"><div class="empty">' + esc(opts.empty || 'Nothing loaded yet.') + '</div></div></div>';
+    }).join('') + '</div><div class="perr" aria-live="polite"></div>' +
+      '<div class="tp" role="group" aria-label="Playback controls">' +
+      '<button class="btn sm" type="button" data-a="play">Play</button>' +
+      '<button class="btn ghost sm" type="button" data-a="restart">Restart</button>' +
+      '<button class="btn ghost sm" type="button" data-a="back" aria-label="Back one frame">-1 frame</button>' +
+      '<button class="btn ghost sm" type="button" data-a="fwd" aria-label="Forward one frame">+1 frame</button>' +
+      '<input class="scrub" type="range" min="0" max="0" value="0" step="1" aria-label="Scrub by frame" data-a="scrub">' +
+      '<span class="readout" data-a="read">no animation</span>' +
+      '<label><input type="checkbox" data-a="loop"> Loop</label></div>';
+    this.stages = $$('.sw', rootEl).map(function (h) { return new Stage(h); });
+    this.t = 0; this.D = 0; this.playing = false; this.raf = 0; this.sw = 0; this.st = 0;
+    this.ui = {
+      play: $('[data-a=play]', rootEl), restart: $('[data-a=restart]', rootEl), back: $('[data-a=back]', rootEl), fwd: $('[data-a=fwd]', rootEl),
+      scrub: $('[data-a=scrub]', rootEl), read: $('[data-a=read]', rootEl), loop: $('[data-a=loop]', rootEl), err: $('.perr', rootEl)
+    };
+    this.stages.forEach(function (s) { s.onerror = function () { self.showErrs(); }; });
+    this.ui.play.addEventListener('click', function () { if (self.playing) self.pause(); else self.play(); });
+    this.ui.restart.addEventListener('click', function () { self.seekT(0); self.play(); });
+    this.ui.back.addEventListener('click', function () { self.seek(Math.round(self.t * FPS) - 1); });
+    this.ui.fwd.addEventListener('click', function () { self.seek(Math.round(self.t * FPS) + 1); });
+    this.ui.scrub.addEventListener('input', function () { self.seek(parseInt(self.ui.scrub.value, 10)); });
+    this.update();
+  }
+  Player.prototype.load = function (i, html, o) {
+    var self = this, keep = o && o.keepFrame, prevT = this.t;
+    return this.stages[i].load(html).then(function (res) {
+      if (res.stale) return res;
+      self.recalc();
+      self.t = keep ? Math.min(prevT, self.D) : 0;
+      self.showErrs(); self.renderAll(); self.update();
+      return res;
+    });
+  };
+  Player.prototype.clear = function (i, msg) { this.stages[i].clear(msg); this.recalc(); this.showErrs(); this.update(); };
+  Player.prototype.recalc = function () { this.D = this.stages.reduce(function (m, s) { return s.ok ? Math.max(m, s.duration) : m; }, 0); if (this.t > this.D) this.t = this.D; };
+  Player.prototype.frames = function () { return Math.round(this.D * FPS); };
+  Player.prototype.renderAll = function () { var t = this.t; this.stages.forEach(function (s) { if (s.ok) s.render(Math.min(t, s.duration)); }); };
+  Player.prototype.seekT = function (t) { this.pause(); this.t = Math.max(0, Math.min(this.D, t)); this.renderAll(); this.update(); };
+  Player.prototype.seek = function (f) { this.seekT(Math.max(0, Math.min(this.frames(), f)) / FPS); };
+  Player.prototype.play = function () {
+    var self = this; if (!this.D) return;
+    if (this.t >= this.D - 1e-6) this.t = 0;
+    this.playing = true; this.sw = performance.now(); this.st = this.t;
+    function tick(now) {
+      if (!self.playing) return;
+      var t = self.st + (now - self.sw) / 1000;
+      if (t >= self.D) {
+        if (self.ui.loop.checked) { self.sw = now; self.st = 0; t = 0; }
+        else { self.t = self.D; self.playing = false; self.renderAll(); self.update(); return; }
+      }
+      self.t = t; self.renderAll(); self.update();
+      self.raf = requestAnimationFrame(tick);
+    }
+    this.raf = requestAnimationFrame(tick); this.update();
+  };
+  Player.prototype.pause = function () { this.playing = false; cancelAnimationFrame(this.raf); this.update(); };
+  Player.prototype.update = function () {
+    var u = this.ui, n = this.frames(), f = Math.round(this.t * FPS), has = n > 0;
+    u.play.textContent = this.playing ? 'Pause' : 'Play';
+    [u.play, u.restart, u.back, u.fwd, u.scrub].forEach(function (b) { b.disabled = !has; });
+    u.scrub.max = String(n); u.scrub.value = String(f);
+    u.scrub.setAttribute('aria-valuetext', 'frame ' + f + ' of ' + n + ', ' + (f / FPS).toFixed(2) + ' seconds');
+    u.read.textContent = has ? 'f ' + f + ' / ' + n + ' \u00b7 ' + (f / FPS).toFixed(2) + ' s' : 'no animation';
+    this.stages.forEach(function (s, i) {
+      var info = $('[data-info="' + i + '"]', this.root);
+      if (info) info.textContent = s.ok ? s.duration + ' s' : '';
+    }, this);
+    if (this.opts.onTime) this.opts.onTime(this.t, f);
+  };
+  Player.prototype.showErrs = function () {
+    var labels = this.opts.labels || ['Preview'], h = '';
+    this.stages.forEach(function (s, i) {
+      var errs = s.errors.slice(), rt = s.runtime.filter(function (m) { return s.ready; });
+      if (errs.length || (rt.length && s.ready)) {
+        h += '<div class="errbox"><span class="ttl">Contract check failed</span>' + (labels.length > 1 ? ' <span class="faint">(' + esc(labels[i]) + ')</span>' : '') +
+          '<ul>' + errs.map(function (e) { return '<li><code>' + esc(e.code) + '</code> ' + esc(e.msg) + '</li>'; }).join('') +
+          rt.map(function (m) { return '<li><code>script</code> ' + esc(m) + '</li>'; }).join('') + '</ul>' +
+          '<p style="margin:.4rem 0 0" class="muted">Nothing from this document was shown or kept. The rules are in module 0.</p></div>';
+      }
+      if (s.ok && s.warnings.length) h += '<div class="warnbox"><b>Plays, with a warning' + (labels.length > 1 ? ' (' + esc(labels[i]) + ')' : '') + ':</b> ' + s.warnings.map(esc).join(' ') + '</div>';
+    });
+    this.ui.err.innerHTML = h;
+  };
+
+  function Sheet(container, html, frames, opts) {
+    var self = this; opts = opts || {};
+    this.stages = [];
+    container.innerHTML = frames.map(function (f, i) {
+      return '<div class="tile" data-f="' + f + '"><div class="sw"><div class="empty">...</div></div><button class="f" type="button" data-f="' + f + '" aria-label="Jump to frame ' + f + '">f ' + f + ' \u00b7 ' + (f / FPS).toFixed(2) + ' s</button></div>';
+    }).join('');
+    $$('.tile', container).forEach(function (tile, i) {
+      var st = new Stage($('.sw', tile)); self.stages.push(st);
+      st.load(html).then(function (res) { if (res.ok) st.render(frames[i] / FPS); });
+      $('.f', tile).addEventListener('click', function () { if (opts.onPick) opts.onPick(frames[i]); });
+    });
+  }
+  Sheet.prototype.destroy = function () { this.stages.forEach(function (s) { s.destroy(); }); this.stages = []; };
+  Sheet.prototype.mark = function (container, f) { $$('.tile', container).forEach(function (t) { t.classList.toggle('cur', +t.getAttribute('data-f') === f); }); };
+
+  // ---------------- connect and API ----------------
+  function updateSpend() { $('#spendVal').textContent = '$' + state.spent.toFixed(4); }
+  function setLive(on) {
+    state.live = on;
+    $('#connect').classList.toggle('live', on);
+    $('#lampText').textContent = on ? 'Live' : 'Demo';
+    $('#connectBtn').hidden = on; $('#disconnectBtn').hidden = !on; $('#keyIn').disabled = on;
+    refreshMode();
+  }
+  async function connect() {
+    var input = $('#keyIn'), msg = $('#connectMsg');
+    wsTrack('connect_click');
+    var candidate = input.value.trim(), problem = ML.validateKeyFormat(candidate);
+    if (problem) { setMsg(msg, problem, 'err'); return; }
+    input.value = '';
+    setMsg(msg, 'Checking the key with OpenRouter...', '');
+    try {
+      var res = await fetch('https://openrouter.ai/api/v1/key', { headers: { Authorization: 'Bearer ' + candidate } });
+      if (res.status === 401 || res.status === 403) { setMsg(msg, 'OpenRouter rejected this key (' + res.status + '). It may be revoked or mistyped. Create a new one at openrouter.ai/keys.', 'err'); return; }
+      if (!res.ok) { setMsg(msg, 'OpenRouter answered ' + res.status + ' when checking the key. Try again in a minute, or check status.openrouter.ai.', 'err'); return; }
+      var data = null; try { data = await res.json(); } catch (e) { data = null; }
+      apiKey = candidate; candidate = null;
+      setLive(true);
+      wsTrack('connected');
+      var info = data && data.data;
+      if (info && (info.limit === null || info.limit === undefined)) setMsg(msg, 'Connected. This key has no credit limit. Set one at openrouter.ai/keys before generating.', 'warnm');
+      else if (info && typeof info.limit === 'number') setMsg(msg, 'Connected. Key credit limit: $' + info.limit.toFixed(2) + (typeof info.usage === 'number' ? ', used so far: $' + info.usage.toFixed(2) : '') + '.', 'okm');
+      else setMsg(msg, 'Connected. Labs now call the models live.', 'okm');
+    } catch (e) {
+      setMsg(msg, 'Could not reach openrouter.ai. Check your connection, or an extension that blocks requests, then try again.', 'err');
+    }
+  }
+  function disconnect() { apiKey = null; setLive(false); setMsg($('#connectMsg'), 'Disconnected. The key was cleared from memory. Demo mode is back on.', ''); }
+  $('#connectBtn').addEventListener('click', connect);
+  $('#disconnectBtn').addEventListener('click', disconnect);
+  $('#keyIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); connect(); } });
+  $('#budgetIn').addEventListener('change', function () { var v = parseFloat(this.value); state.budget = isFinite(v) && v > 0 ? v : 2; this.value = state.budget; refreshEst(); });
+
+  function httpError(status, data) {
+    var detail = data && data.error && (data.error.message || data.error.type) ? String(data.error.message || data.error.type) : '';
+    if (status === 401) return new UserError('OpenRouter says the key is not valid anymore (401). Disconnect and connect with a fresh key.', true);
+    if (status === 402) return new UserError('OpenRouter says the account is out of credits (402). Add credits or raise the key limit, then retry.', true);
+    if (status === 429) return new UserError('Rate limited (429). Wait a minute, then retry.');
+    if (status === 400) return new UserError('The request was rejected (400)' + (detail ? ': ' + detail : '') + '. If it mentions reasoning, set Reasoning effort to Off under Advanced.');
+    if (status === 404) return new UserError('Not found (404)' + (detail ? ': ' + detail : '') + '. The model slug may be gone, or your OpenRouter privacy settings may exclude every provider for it.');
+    return new UserError('Request failed (' + status + ')' + (detail ? ': ' + detail : '') + '.');
+  }
+  function maxTok() { return clamp($('#maxTokIn').value, 1000, 8000, 6000); }
+  function estIn(o) { return ML.approxTokens((o.system || '') + o.user) + 20; }
+  async function callModel(o) {
+    var mt = maxTok(), proj = ML.costOf(o.model, estIn(o), mt);
+    if (state.spent + proj > state.budget) throw new UserError('This call could cost up to ' + usd(proj) + ' and would pass your session budget of ' + usd(state.budget) + ' (spent ' + usd(state.spent) + '). Raise the budget in the Live labs panel, lower max_tokens, or switch to the cheaper model.', true);
+    var msgs = [];
+    if (o.system) msgs.push({ role: 'system', content: o.system });
+    msgs.push({ role: 'user', content: o.user });
+    var body = { model: o.model, messages: msgs, max_tokens: mt };
+    var eff = $('#effortIn').value; if (eff) body.reasoning = { effort: eff };
+    var headers = { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'X-Title': 'Directing motion as code workshop' };
+    if (location.origin && location.origin !== 'null') headers['HTTP-Referer'] = location.origin;
+    var t0 = performance.now(), res, data = null, attempt = 0;
+    for (;;) {
+      try { res = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: headers, body: JSON.stringify(body) }); }
+      catch (e) { throw new UserError('Network error reaching openrouter.ai. Check your connection and any extension that blocks requests.'); }
+      try { data = await res.json(); } catch (e) { data = null; }
+      if ((res.status === 429 || res.status >= 500) && attempt < 2) { attempt++; await sleep(1500 * attempt); continue; }
+      break;
+    }
+    if (!res.ok) throw httpError(res.status, data);
+    if (data && data.error && !data.choices) throw new UserError('OpenRouter returned an error: ' + String(data.error.message || data.error.code || 'unknown') + '.');
+    var ch = data && data.choices && data.choices[0], content = ch && ch.message ? ch.message.content : '';
+    if (Array.isArray(content)) content = content.map(function (p) { return p && p.text ? p.text : ''; }).join('');
+    var u = (data && data.usage) || {}, cost = ML.costOf(o.model, u.prompt_tokens || 0, u.completion_tokens || 0);
+    state.spent += cost; updateSpend();
+    var text = String(content || '');
+    if (!text.trim()) throw new UserError('The model returned an empty reply (finish_reason: ' + ((ch && ch.finish_reason) || 'unknown') + '). If reasoning used up the tokens, raise max_tokens or lower the reasoning effort under Advanced.');
+    return { text: text, usage: { input: u.prompt_tokens || 0, output: u.completion_tokens || 0 }, cost: cost, ms: performance.now() - t0, finish: ch && ch.finish_reason };
+  }
+  async function withBusy(btn, fn) {
+    btn.disabled = true; var t = btn.textContent; btn.textContent = 'Running...';
+    try { await fn(); } finally { btn.disabled = false; btn.textContent = t; }
+  }
+  function errText(e) { return e && e.user ? e.message : 'Something went wrong: ' + (e && e.message ? e.message : e); }
+
+  // model selects, kept in sync
+  var MODEL_SEL = ['#genModel', '#fxModel', '#csvModel'];
+  function modelLabel(id) { var m = ML.PRICES[id]; return m ? m.label : id; }
+  function fillModels() {
+    var keep = $('#genModel').value || 'anthropic/claude-opus-5.5';
+    MODEL_SEL.forEach(function (sel) {
+      $(sel).innerHTML = Object.keys(ML.PRICES).map(function (id) {
+        var m = ML.PRICES[id];
+        return '<option value="' + id + '">' + esc(m.label) + ' ($' + m.inM + ' / $' + m.outM + ' per 1M)' + (id.indexOf('sonnet') > 0 ? ', cheaper for iterating' : '') + '</option>';
+      }).join('');
+      $(sel).value = keep;
+    });
+  }
+  MODEL_SEL.forEach(function (sel) { $(sel).addEventListener('change', function () { var v = this.value; MODEL_SEL.forEach(function (o) { $(o).value = v; }); refreshEst(); }); });
+
+  // ---------------- module 0: roster ----------------
+  function renderRoster() {
+    $('#rosterBody').innerHTML = Object.keys(ML.PRICES).map(function (id) {
+      var m = ML.PRICES[id];
+      return '<tr><td>' + esc(m.label) + ' <span class="faint">(Anthropic)</span></td><td><code>' + esc(id) + '</code></td><td class="n num">$' + m.inM + ' / $' + m.outM + '</td><td class="n num">' + esc(m.ctx) + '</td></tr>';
+    }).join('');
+  }
+  function perM(v) { var n = parseFloat(v) * 1e6; return isFinite(n) ? Math.round(n * 1000) / 1000 : NaN; }
+  $('#rosterCheck').addEventListener('click', function () {
+    var box = $('#rosterOut');
+    withBusy(this, async function () {
+      try {
+        var res = await fetch('https://openrouter.ai/api/v1/models');
+        if (!res.ok) throw new UserError('OpenRouter answered ' + res.status + ' for the model catalog. Try again in a minute.');
+        var data = await res.json(), cat = {};
+        (data.data || []).forEach(function (m) { cat[m.id] = m; });
+        var gone = [], changed = false;
+        var rows = Object.keys(ML.PRICES).map(function (id) {
+          var c = cat[id], m = ML.PRICES[id];
+          if (!c) { gone.push(id); return '<tr><td><code>' + esc(id) + '</code></td><td colspan="3"><span class="tag x">Not in catalog</span></td></tr>'; }
+          var i = perM(c.pricing && c.pricing.prompt), o = perM(c.pricing && c.pricing.completion), same = i === m.inM && o === m.outM;
+          if (isFinite(i) && isFinite(o) && !same) { m.inM = i; m.outM = o; changed = true; }
+          return '<tr><td><code>' + esc(id) + '</code></td><td><span class="tag q">Found</span></td><td class="n num">$' + i + ' / $' + o + '</td><td>' + (same ? 'Matches the table' : '<span class="tag i">Price differs. Spend estimates now use this price.</span>') + '</td></tr>';
+        }).join('');
+        var html = '<div class="tbl-wrap"><table><thead><tr><th scope="col">Slug</th><th scope="col">Status</th><th scope="col" class="n">In / out per 1M</th><th scope="col">Against this page</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+        if (gone.length) html += '<p class="bad">Not found: ' + gone.map(function (g) { return '<code>' + esc(g) + '</code>'; }).join(', ') + '. This page does not guess a replacement. Look up the current slug at <a href="https://openrouter.ai/models" target="_blank" rel="noopener">openrouter.ai/models</a>.</p>';
+        else html += '<p class="muted" style="font-size:.88rem">Both slugs are in the live catalog right now.</p>';
+        box.innerHTML = '<span class="tag t">Your run</span> read just now from the public catalog' + html;
+        if (changed) { renderRoster(); fillModels(); }
+        refreshEst();
+      } catch (e) { box.innerHTML = '<p class="bad">' + esc(e && e.user ? e.message : 'Could not reach the OpenRouter catalog from this page. Open openrouter.ai/api/v1/models in a tab to check by hand.') + '</p>'; }
+    });
+  });
+
+  // ---------------- players ----------------
+  var players = {};
+  var tlRender = function () { };
+  players.p1 = new Player($('#p1'), { labels: ['Vague prompt', 'Directed prompt'], empty: 'Loading the sandbox...' });
+  players.p3 = new Player($('#p3'), { labels: ['Starting beats', 'Your beats'], empty: 'Loading the sandbox...', onTime: function (t) { var h = $('#tlHead'); if (h && D()) h.style.left = (t / D() * 100) + '%'; } });
+  players.p5 = new Player($('#p5'), { labels: ['Generated animation'], empty: 'Press Generate. Nothing has run yet.' });
+  players.p6 = new Player($('#p6'), { labels: ['Current version'], empty: 'Loading the sandbox...' });
+  players.p6b = new Player($('#p6b'), { labels: ['Before', 'After'], empty: 'Revise from your notes in step 2 to compare here.' });
+  players.p7 = new Player($('#p7'), { labels: ['Chart'], empty: 'Press Animate this data.' });
+
+  // ---------------- module 1: vague vs directed ----------------
+  var VAGUE_PROMPT = 'Make a cool animated explainer that shows our signups going up. Make it smooth and modern.';
+  function m1Setup() {
+    $('#p1VagueTxt').textContent = VAGUE_PROMPT;
+    var b = { aud: 'Product team at a Monday standup', where: 'Meeting slide, presented live', len: 6, content: 'Headline: Signups up 18% this week\nBars (weekly signups): Mon 12, Tue 15, Wed 18, with the last bar in the accent color', beatsText: beatsToText(BEATS0), accent: '#5cc8e6', mood: 'crisp', numbers: clone(DEFAULT_NUM) };
+    $('#p1DirTxt').textContent = ML.compileBrief(b);
+    var n = DEFAULT_NUM;
+    function f(t) { return Math.round(t * FPS); }
+    var rows = [
+      ['Headline', 'frame 0, one block fading in', 'frame ' + f(BEATS0.head) + ', words ' + fx(n.stagger / 1000 * FPS) + ' frames apart'],
+      ['Bars', 'frame 0, all three together', 'frame ' + f(BEATS0.bars) + ', one after another'],
+      ['The number', 'frame 0, straight 0 to 18%', 'frame ' + f(BEATS0.num) + ', 30-frame count-up with a spring pop'],
+      ['Accent line', 'frame 0, already drawing', 'frame ' + f(BEATS0.acc) + ', draws in 15 frames'],
+      ['Exit', 'none, it just sits', 'frame ' + f(BEATS0.out) + ', ' + fx(n.exit.ms / 1000 * FPS) + ' frames'],
+      ['Curve', 'linear, 2.5 s for everything', 'cubic-bezier(0.16, 1, 0.3, 1), 600 ms']
+    ];
+    $('#p1Out').innerHTML = '<span class="tag d">Derived</span> <span class="muted" style="font-size:.84rem">from the numbers in the two scene files</span><div class="tbl-wrap"><table><thead><tr><th scope="col">Element</th><th scope="col">Vague scene starts</th><th scope="col">Directed scene starts</th></tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr><th scope="row">' + esc(r[0]) + '</th><td class="num">' + esc(r[1]) + '</td><td class="num">' + esc(r[2]) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+    players.p1.load(0, sceneDoc({ mode: 'vague', D: 6, beats: BEATS0, accent: '#5cc8e6', numbers: DEFAULT_NUM }));
+    players.p1.load(1, sceneDoc({ mode: 'directed', D: 6, beats: BEATS0, accent: '#5cc8e6', numbers: DEFAULT_NUM }));
+  }
+  $('#p1Go').addEventListener('click', function () { players.p1.seekT(0); players.p1.play(); });
+
+  // ---------------- module 2: brief ----------------
+  var ACCENTS = ['#5cc8e6', '#f0a34a', '#b99eff', '#6fd196'];
+  var BG = '#101826';
+  function readBrief() {
+    var b = state.brief;
+    b.aud = $('#brAud').value.trim().slice(0, 90) || 'Not stated';
+    b.where = $('#brWhere').value;
+    b.len = Math.round(clamp($('#brLen').value, 3, 10, 6));
+    b.content = $('#brContent').value.slice(0, 400);
+    b.beatsText = $('#brBeats').value.slice(0, 900);
+    b.accent = $('#brAccent').value;
+  }
+  function renderBrief() {
+    var b = state.brief, pb = ML.parseBeats(b.beatsText, b.len), r = ML.ratio(b.accent, BG);
+    var items = [];
+    items.push([pb.beats.length > 0, pb.beats.length + ' beat' + (pb.beats.length === 1 ? '' : 's') + ' parsed' + (pb.beats.length ? ', the last at ' + pb.beats[pb.beats.length - 1].t.toFixed(2) + ' s of ' + b.len + ' s' : '') + '.']);
+    pb.issues.filter(function (i) { return pb.beats.length || i !== 'No beats parsed yet.'; }).forEach(function (i) { items.push([false, i]); });
+    items.push([r >= 3, 'Accent <span class="num">' + esc(b.accent) + '</span> on the animation background <span class="num">' + BG + '</span>: <span class="num">' + r.toFixed(1) + ':1</span>' + (r >= 3 ? ', enough for large graphics.' : ', below 3:1. Pick a lighter color.')]);
+    $('#brCheck').innerHTML = '<ul class="checklist-res">' + items.map(function (i) { return '<li>' + mark(i[0]) + '<span>' + (typeof i[1] === 'string' && i[1].indexOf('<span') >= 0 ? i[1] : esc(i[1])) + '</span></li>'; }).join('') + '</ul>';
+    $('#brAccHex').textContent = b.accent;
+    $$('#brSw button').forEach(function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-c').toLowerCase() === b.accent.toLowerCase())); });
+    $('#brOut').textContent = ML.compileBrief(briefFull());
+  }
+  function briefChanged() { readBrief(); clampBeats(); renderBrief(); tlRender(); refreshCompiled(); refreshPackage(); }
+  function m2Setup() {
+    $('#brAud').value = 'Product team at a Monday standup';
+    $('#brContent').value = 'Headline: Signups up 18% this week\nBars (weekly signups): Mon 12, Tue 15, Wed 18, with the last bar in the accent color';
+    $('#brBeats').value = beatsToText(BEATS0);
+    $('#brSw').innerHTML = ACCENTS.map(function (c) { return '<button type="button" data-c="' + c + '" style="background:' + c + '" aria-label="Use accent ' + c + '" aria-pressed="false"></button>'; }).join('');
+    $$('#brSw button').forEach(function (b) { b.addEventListener('click', function () { $('#brAccent').value = b.getAttribute('data-c'); briefChanged(); }); });
+    ['brAud', 'brWhere', 'brLen', 'brContent', 'brBeats', 'brAccent'].forEach(function (id) { $('#' + id).addEventListener('input', briefChanged); $('#' + id).addEventListener('change', briefChanged); });
+    $$('#brMood .chip').forEach(function (c) { c.addEventListener('click', function () { state.brief.mood = c.getAttribute('data-v'); $$('#brMood .chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); }); renderBrief(); refreshCompiled(); refreshPackage(); }); });
+    readBrief(); renderBrief();
+  }
+  $('#brCopy').addEventListener('click', function () {
+    copyText(ML.compileBrief(briefFull())).then(function (ok) { setMsg($('#brMsg'), ok ? 'Copied the prompt block.' : 'Copy was blocked here. Select the block above and copy it by hand.', ok ? 'okm' : 'warnm'); });
+  });
+
+  // ---------------- module 3: beat timeline ----------------
+  var tlReloadTimer = null;
+  function tlBuild() {
+    var el = $('#tl'), d = D(), h = '<div class="tl-ruler" aria-hidden="true">';
+    for (var s = 0; s <= d; s++) h += '<span style="left:' + (s / d * 100) + '%">' + s + ' s</span>';
+    h += '</div>';
+    BEAT_DEF.forEach(function (b) {
+      h += '<div class="tl-lane"><div class="tl-name" id="tlN_' + b.id + '">' + esc(b.label) + '</div><div class="tl-track"><div class="tl-bar" role="slider" tabindex="0" data-id="' + b.id + '" aria-labelledby="tlN_' + b.id + '" aria-valuemin="0"></div></div></div>';
+    });
+    h += '<div class="tl-over" aria-hidden="true"><div class="tl-head" id="tlHead"></div></div>';
+    el.innerHTML = h; el.style.setProperty('--n', d);
+    $$('.tl-bar', el).forEach(bindBar);
+    $('#tlBody').innerHTML = BEAT_DEF.map(function (b) {
+      return '<tr><th scope="row">' + esc(b.label) + '</th><td class="n"><input type="number" class="num" data-id="' + b.id + '" step="0.01" min="0" aria-label="' + esc(b.label) + ' start, seconds"></td><td class="n num" data-fr="' + b.id + '"></td><td class="n num" data-len="' + b.id + '"></td></tr>';
+    }).join('');
+    $$('#tlBody input').forEach(function (inp) {
+      inp.addEventListener('change', function () { setBeat(inp.getAttribute('data-id'), parseFloat(inp.value)); });
+    });
+  }
+  tlRender = function () {
+    var d = D(), L = lens();
+    if (+$('#tl').style.getPropertyValue('--n') !== d || !$('.tl-bar')) tlBuild();
+    BEAT_DEF.forEach(function (b) {
+      var bar = $('.tl-bar[data-id="' + b.id + '"]'), t = state.beats[b.id];
+      bar.style.left = (t / d * 100) + '%'; bar.style.width = (L[b.id] / d * 100) + '%';
+      bar.textContent = t.toFixed(2);
+      bar.setAttribute('aria-valuemax', String(fx(d - L[b.id]))); bar.setAttribute('aria-valuenow', String(fx(t)));
+      bar.setAttribute('aria-valuetext', t.toFixed(2) + ' seconds, frame ' + Math.round(t * FPS));
+      var inp = $('#tlBody input[data-id="' + b.id + '"]'); if (document.activeElement !== inp) inp.value = t.toFixed(2);
+      inp.max = String(fx(d - L[b.id]));
+      $('[data-fr="' + b.id + '"]').textContent = Math.round(t * FPS);
+      $('[data-len="' + b.id + '"]').textContent = L[b.id].toFixed(2);
+    });
+  };
+  function tlReload(immediate) {
+    clearTimeout(tlReloadTimer);
+    var go = function () {
+      players.p3.load(0, sceneDoc({ beats: BEATS0W() }), { keepFrame: true });
+      players.p3.load(1, sceneDoc({ beats: state.beats }), { keepFrame: true });
+    };
+    if (immediate) go(); else tlReloadTimer = setTimeout(go, 130);
+  }
+  function BEATS0W() {
+    var L = lens(), d = D(), o = {};
+    BEAT_DEF.forEach(function (b) { o[b.id] = snap(Math.max(0, Math.min(d - L[b.id], BEATS0[b.id]))); });
+    return o;
+  }
+  function setBeat(id, t) {
+    if (!isFinite(t)) { tlRender(); return; }
+    var L = lens();
+    state.beats[id] = snap(Math.max(0, Math.min(D() - L[id], t)));
+    tlRender(); tlReload();
+  }
+  function bindBar(bar) {
+    var id = bar.getAttribute('data-id'), drag = null;
+    bar.addEventListener('pointerdown', function (e) {
+      drag = { x: e.clientX, t: state.beats[id], w: bar.parentNode.getBoundingClientRect().width };
+      try { bar.setPointerCapture(e.pointerId); } catch (x) { }
+      e.preventDefault();
+    });
+    bar.addEventListener('pointermove', function (e) { if (drag) setBeat(id, drag.t + (e.clientX - drag.x) / drag.w * D()); });
+    function end() { drag = null; }
+    bar.addEventListener('pointerup', end); bar.addEventListener('pointercancel', end);
+    bar.addEventListener('keydown', function (e) {
+      var step = e.shiftKey ? 5 : 1, t = state.beats[id], L = lens();
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') setBeat(id, t + step / FPS);
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') setBeat(id, t - step / FPS);
+      else if (e.key === 'Home') setBeat(id, 0);
+      else if (e.key === 'End') setBeat(id, D() - L[id]);
+      else return;
+      e.preventDefault();
+    });
+  }
+  $('#tlReset').addEventListener('click', function () { state.beats = clone(BEATS0); clampBeats(); tlRender(); tlReload(true); setMsg($('#tlMsg'), 'Back to the starting beats.', ''); });
+  $('#tlToBrief').addEventListener('click', function () {
+    $('#brBeats').value = beatsToText(state.beats); briefChanged();
+    setMsg($('#tlMsg'), 'Wrote ' + BEAT_DEF.length + ' beats into the brief in module 2.', 'okm');
+  });
+
+  // ---------------- module 4: easing bench ----------------
+  var ez = { mode: 'bezier', b: [0.16, 1, 0.3, 1], ms: 600, k: 300, c: 26, u: 0, anim: 0 };
+  var EZ_PRE = {
+    bezier: [['Entrance', [0.16, 1, 0.3, 1]], ['Exit', [0.7, 0, 0.84, 0]], ['In-out', [0.65, 0, 0.35, 1]], ['Linear', [0, 0, 1, 1]], ['Overshoot', [0.34, 1.56, 0.64, 1]]],
+    spring: [['Wobbly', [30, 3]], ['Gentle', [120, 14]], ['Snappy', [300, 26]], ['Stiff', [600, 50]]]
+  };
+  function ezStats() { return ez.mode === 'bezier' ? ML.bezierStats(ez.b) : ML.springStats(ez.k, ez.c); }
+  function ezDur() { return ez.mode === 'bezier' ? ez.ms / 1000 : Math.max(0.5, ML.springStats(ez.k, ez.c).settleT * 1.25); }
+  function ezVal(t) {
+    if (ez.mode === 'bezier') return ML.bezierFn(ez.b[0], ez.b[1], ez.b[2], ez.b[3])(t / (ez.ms / 1000));
+    return ML.springFn(ez.k, ez.c, 1)(t);
+  }
+  function ezRender() {
+    $('#ezBez').hidden = ez.mode !== 'bezier'; $('#ezSpr').hidden = ez.mode !== 'spring';
+    $$('#ezMode .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.getAttribute('data-v') === ez.mode)); });
+    $('#ezX1').value = ez.b[0]; $('#ezY1').value = ez.b[1]; $('#ezX2').value = ez.b[2]; $('#ezY2').value = ez.b[3]; $('#ezMs').value = ez.ms; $('#ezK').value = ez.k; $('#ezC').value = ez.c;
+    $('#ezX1v').textContent = fx(ez.b[0]); $('#ezY1v').textContent = fx(ez.b[1]); $('#ezX2v').textContent = fx(ez.b[2]); $('#ezY2v').textContent = fx(ez.b[3]); $('#ezMsv').textContent = ez.ms + ' ms'; $('#ezKv').textContent = fx(ez.k); $('#ezCv').textContent = fx(ez.c);
+    var cur = ez.mode === 'bezier' ? ez.b : [ez.k, ez.c];
+    $('#ezPresets').innerHTML = EZ_PRE[ez.mode].map(function (p, i) {
+      var on = p[1].every(function (v, j) { return Math.abs(v - cur[j]) < 1e-9; });
+      return '<button class="chip" type="button" data-i="' + i + '" aria-pressed="' + on + '">' + p[0] + '</button>';
+    }).join('');
+    $$('#ezPresets .chip').forEach(function (c) {
+      c.addEventListener('click', function () {
+        var v = EZ_PRE[ez.mode][+c.getAttribute('data-i')][1];
+        if (ez.mode === 'bezier') ez.b = v.slice(); else { ez.k = v[0]; ez.c = v[1]; }
+        ezRender();
+      });
+    });
+    var st = ezStats(), r = '';
+    if (ez.mode === 'bezier') {
+      r = 'cubic-bezier(' + ez.b.map(fx).join(', ') + ') \u00b7 ' + ez.ms + ' ms\nreaches 90% at ' + Math.round(st.t90 * ez.ms) + ' ms (frame ' + fx(st.t90 * ez.ms / 1000 * FPS) + ')\n' + (st.overshootPct > 0.05 ? 'peak ' + st.peak.toFixed(3) + ' (+' + st.overshootPct.toFixed(1) + '% past the target)' : 'no overshoot');
+    } else {
+      var z = ez.c / (2 * Math.sqrt(ez.k));
+      r = 'spring(stiffness ' + fx(ez.k) + ', damping ' + fx(ez.c) + ', mass 1) \u00b7 damping ratio ' + z.toFixed(2) + '\npeak ' + st.peak.toFixed(3) + ' at ' + st.peakT.toFixed(2) + ' s (frame ' + st.peakFrame + ')' + (st.overshootPct > 0.05 ? ', +' + st.overshootPct.toFixed(1) + '% past the target' : ', no overshoot') + '\nwithin 1% of rest from ' + st.settleT.toFixed(2) + ' s (frame ' + st.settleFrame + ')';
+    }
+    $('#ezRead').innerHTML = esc(r).replace(/\n/g, '<br>');
+    ezPaint();
+  }
+  function ezPaint() {
+    var dur = ezDur(), t = ez.u * dur, N = 120, i, pts = [], vmin = 0, vmax = 1.15, v;
+    for (i = 0; i <= N; i++) { v = ezVal(dur * i / N); pts.push(v); if (v > vmax) vmax = v * 1.05; if (v < vmin) vmin = v; }
+    var X0 = 34, X1 = 252, Y0 = 134, Y1 = 14;
+    function X(f) { return X0 + (X1 - X0) * f; }
+    function Y(val) { return Y0 - (val - vmin) / (vmax - vmin) * (Y0 - Y1); }
+    var d = pts.map(function (p, j) { return (j ? 'L' : 'M') + X(j / N).toFixed(1) + ' ' + Y(p).toFixed(1); }).join(' ');
+    $('#ezCurve').innerHTML = '<line class="g" x1="' + X0 + '" x2="' + X1 + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"/><line class="t1" x1="' + X0 + '" x2="' + X1 + '" y1="' + Y(1).toFixed(1) + '" y2="' + Y(1).toFixed(1) + '"/>' +
+      '<text x="4" y="' + (Y(1) + 3).toFixed(1) + '">1</text><text x="4" y="' + (Y(0) + 3).toFixed(1) + '">0</text><text x="' + X0 + '" y="147">0</text><text x="' + X1 + '" y="147" text-anchor="end">' + (ez.mode === 'bezier' ? ez.ms + ' ms' : dur.toFixed(2) + ' s') + '</text>' +
+      '<path class="p" d="' + d + '"/><line class="ph" x1="' + X(ez.u).toFixed(1) + '" x2="' + X(ez.u).toFixed(1) + '" y1="' + Y1 + '" y2="' + Y0 + '"/>';
+    var p = ezVal(t), W = $('#ezDemo').clientWidth * 0.86;
+    $('#ezDot').style.transform = 'translateX(' + (p * W).toFixed(1) + 'px)';
+    var card = $('#ezCard');
+    card.style.transform = 'translateX(' + ((1 - p) * -90).toFixed(1) + 'px) scale(' + (0.86 + 0.14 * p).toFixed(3) + ')';
+    card.style.opacity = String(Math.max(0, Math.min(1, p * 1.6)));
+    $('#ezScrub').value = String(Math.round(ez.u * 1000));
+    $('#ezT').textContent = (t * 1000).toFixed(0) + ' ms \u00b7 f ' + fx(t * FPS) + ' \u00b7 ' + p.toFixed(3);
+  }
+  function ezPlay() {
+    cancelAnimationFrame(ez.anim);
+    var t0 = performance.now(), dur = ezDur();
+    $('#ezPlay').textContent = 'Replay';
+    function tick(now) {
+      var u = (now - t0) / 1000 / dur;
+      if (u >= 1) { ez.u = 1; ezPaint(); return; }
+      ez.u = u; ezPaint(); ez.anim = requestAnimationFrame(tick);
+    }
+    ez.u = 0; ez.anim = requestAnimationFrame(tick);
+  }
+  function ezNumbers() { $('#ezNumbers').textContent = ML.numbersText(state.numbers); }
+  function m4Setup() {
+    $$('#ezMode .chip').forEach(function (c) { c.addEventListener('click', function () { ez.mode = c.getAttribute('data-v'); ez.u = 0; cancelAnimationFrame(ez.anim); ezRender(); }); });
+    [['ezX1', 0], ['ezY1', 1], ['ezX2', 2], ['ezY2', 3]].forEach(function (a) { $('#' + a[0]).addEventListener('input', function () { ez.b[a[1]] = parseFloat(this.value); ezRender(); }); });
+    $('#ezMs').addEventListener('input', function () { ez.ms = parseInt(this.value, 10); ezRender(); });
+    $('#ezK').addEventListener('input', function () { ez.k = parseFloat(this.value); ezRender(); });
+    $('#ezC').addEventListener('input', function () { ez.c = parseFloat(this.value); ezRender(); });
+    $('#ezScrub').addEventListener('input', function () { cancelAnimationFrame(ez.anim); ez.u = parseInt(this.value, 10) / 1000; ezPaint(); });
+    $('#ezPlay').addEventListener('click', ezPlay);
+    $('#ezUse').addEventListener('click', function () {
+      var role = $('#ezRole').value, msg = $('#ezMsg'), n = state.numbers;
+      n.stagger = Math.round(clamp($('#ezStag').value, 0, 400, 90));
+      if (role === 'emphasis') {
+        if (ez.mode !== 'spring') { setMsg(msg, 'Emphasis uses a spring. Switch the curve type to Spring first. The stagger was still updated.', 'warnm'); }
+        else { n.pop = { k: ez.k, c: ez.c }; setMsg(msg, 'Emphasis is now ' + fx(ez.k) + ' stiffness, ' + fx(ez.c) + ' damping.', 'okm'); }
+      } else {
+        var e = ez.mode === 'bezier' ? { type: 'bezier', b: ez.b.slice(), ms: ez.ms } : { type: 'spring', k: ez.k, c: ez.c, T: Math.round(ML.springStats(ez.k, ez.c).settleT * 100) / 100, ms: Math.round(ML.springStats(ez.k, ez.c).settleT * 1000) };
+        n[role] = e; setMsg(msg, (role === 'enter' ? 'Entrance' : 'Exit') + ' is now ' + ML.easeText(e) + '.', 'okm');
+      }
+      numbersChanged();
+    });
+    $('#ezStag').addEventListener('change', function () { state.numbers.stagger = Math.round(clamp(this.value, 0, 400, 90)); numbersChanged(); });
+    ezRender(); ezNumbers();
+  }
+  function numbersChanged() { clampBeats(); ezNumbers(); renderBrief(); tlRender(); tlReload(true); refreshCompiled(); refreshPackage(); }
+
+  // ---------------- module 5: generate ----------------
+  function userMsg() { return ML.compileBrief(briefFull()); }
+  function refreshCompiled() {
+    $('#genSys').textContent = ML.contractText();
+    $('#genUsr').textContent = userMsg();
+    refreshEst();
+  }
+  function refreshEst() {
+    var m = $('#genModel').value || 'anthropic/claude-opus-5.5';
+    if (!state.live) { $('#genEst').textContent = 'Demo mode: no cost.'; return; }
+    var inT = ML.approxTokens(ML.contractText() + userMsg()), worst = ML.costOf(m, inT, maxTok());
+    $('#genEst').textContent = 'About ' + int(inT) + ' tokens in; worst case ' + usd(worst) + ' for this call (' + int(maxTok()) + ' tokens out).';
+  }
+  function refreshMode() {
+    refreshEst();
+    $('#csvPath').textContent = state.live
+      ? 'Live mode: the model writes the chart. Your rows are sent to OpenRouter and the model\'s provider. The chart is checked against the same contract before it plays.'
+      : 'Demo mode: a hand-authored template draws the chart inside the sandbox. No model is called and your rows never leave this page.';
+    $('#fxIllus').innerHTML = state.fxSrc === 'demo' ? 'The planted-flaw demo is hand-authored. Illustrative, not measurements.' + (state.live ? ' Live mode revises it with the model you pick.' : '') : 'Your module 5 output.';
+  }
+  $('#maxTokIn').addEventListener('input', refreshEst); $('#effortIn').addEventListener('change', refreshEst);
+
+  function statsHtml(src, r, extra, res) {
+    var head = src === 'demo' ? illus('It reads your accent color, length, beats and numbers, not your words.') :
+      '<span class="tag t">Your run</span> <span class="muted" style="font-size:.84rem">' + esc(modelLabel(src)) + ' via OpenRouter, ' + int(r.usage.input) + ' tokens in, ' + int(r.usage.output) + ' out, ' + usd(r.cost) + ', ' + (r.ms / 1000).toFixed(1) + ' s, finish: ' + esc(r.finish || 'unknown') + '.</span>';
+    return head + (extra || '') + '<p class="muted" style="font-size:.88rem;margin:.4rem 0 0">Contract check passed' + (res && res.warnings.length ? ' with ' + res.warnings.length + ' warning' + (res.warnings.length === 1 ? '' : 's') : '') + '. Session spend ' + usd(state.spent) + '.</p>';
+  }
+  async function modelDoc(o, errBox, msgEl) {
+    var r = await callModel(o), html = ML.extractHtml(r.text);
+    if (r.finish === 'length') {
+      errBox.innerHTML = '<div class="errbox"><span class="ttl">The reply was cut off at max_tokens</span><ul><li>The code is incomplete, so it was not run. Raise max_tokens or lower the reasoning effort under Advanced, then try again.</li></ul></div>';
+      return { r: r, html: null };
+    }
+    if (!html) {
+      errBox.innerHTML = '<div class="errbox"><span class="ttl">No HTML document in the reply</span><ul><li>The model answered without an HTML block. The first 400 characters: <code>' + esc(r.text.slice(0, 400)) + '</code></li></ul></div>';
+      return { r: r, html: null };
+    }
+    return { r: r, html: html };
+  }
+  $('#genBtn').addEventListener('click', function () {
+    var msg = $('#genMsg'), errBox = $('#genErr'), model = $('#genModel').value;
+    withBusy(this, async function () {
+      errBox.innerHTML = ''; setMsg(msg, '', '');
+      try {
+        var html, r = null, src = 'demo';
+        if (!state.live) { html = sceneDoc({}); }
+        else {
+          setMsg(msg, 'Waiting for ' + modelLabel(model) + '...', '');
+          var o = await modelDoc({ model: model, system: ML.contractText(), user: userMsg() }, errBox, msg);
+          if (!o.html) { setMsg(msg, 'No animation to show. Details above.', 'warnm'); return; }
+          html = o.html; r = o.r; src = model;
+        }
+        var res = await players.p5.load(0, html);
+        if (!res.ok) { setMsg(msg, 'The output broke the contract, so nothing ran. The list is under the player.', 'warnm'); $('#genStats').innerHTML = ''; return; }
+        state.gen = { html: html, src: src }; players.p5.seekT(0);
+        $('#genStats').innerHTML = statsHtml(src, r, '', res);
+        $('#genCode').textContent = html; setMsg(msg, 'Ready. Press Play, or scrub.', 'okm');
+        $('#fxSrc .chip[data-v="gen"]').disabled = false;
+        refreshPackage();
+      } catch (e) { setMsg(msg, errText(e), 'err'); }
+    });
+  });
+  $('#genCopy').addEventListener('click', function () {
+    if (!state.gen) return; copyText(state.gen.html).then(function (ok) { setMsg($('#genMsg'), ok ? 'Copied the HTML.' : 'Copy was blocked. Select the code and copy it by hand.', ok ? 'okm' : 'warnm'); });
+  });
+
+  // ---------------- module 6: frame-check loop ----------------
+  var fxSheet = null, fxCmpSheets = [];
+  var FLAW = { numbers: (function () { var n = clone(DEFAULT_NUM); n.pop = { k: 30, c: 3 }; return n; })() };
+  function fxBeforeHtml() {
+    if (state.fxSrc === 'gen' && state.gen) return state.gen.html;
+    return sceneDoc({ D: 6, beats: BEATS0, accent: '#5cc8e6', numbers: FLAW.numbers });
+  }
+  function fxAfterDemo() { return sceneDoc({ D: 6, beats: BEATS0, accent: '#5cc8e6', numbers: DEFAULT_NUM }); }
+  function fxLoad() {
+    if (fxSheet) { fxSheet.destroy(); fxSheet = null; $('#fxSheet').innerHTML = ''; $('#fxFacts').innerHTML = ''; }
+    return players.p6.load(0, fxBeforeHtml());
+  }
+  $$('#fxSrc .chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      if (c.disabled) return; state.fxSrc = c.getAttribute('data-v');
+      $$('#fxSrc .chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
+      refreshMode(); fxLoad();
+    });
+  });
+  var fxN = 12;
+  $$('#fxN .chip').forEach(function (c) { c.addEventListener('click', function () { fxN = +c.getAttribute('data-v'); $$('#fxN .chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); }); }); });
+  $('#fxSheetBtn').addEventListener('click', function () {
+    var p = players.p6, total = p.frames(), msg = $('#fxMsg');
+    if (!total) { setMsg(msg, 'The animation did not load, so there is nothing to sheet. See the errors above.', 'warnm'); return; }
+    if (fxSheet) fxSheet.destroy();
+    var frames = [], i; for (i = 0; i < fxN; i++) frames.push(Math.round(i * total / (fxN - 1)));
+    fxSheet = new Sheet($('#fxSheet'), fxBeforeHtml(), frames, { onPick: function (f) { p.seek(f); $('#fxFrame').value = f; fxSheet.mark($('#fxSheet'), f); } });
+    var facts = '';
+    if (state.fxSrc === 'demo') {
+      var s = ML.springStats(30, 3), n = BEATS0.num, pk = Math.round((n + s.peakT) * FPS), st = Math.round((n + s.settleT) * FPS);
+      facts = '<details><summary>Check my reading, derived from the spring numbers in the demo code</summary><p style="margin:.4rem 0 0">The number\'s pop is a spring (stiffness 30, damping 3) that starts at frame ' + Math.round(n * FPS) + '. It peaks at <b class="num">frame ' + pk + '</b>, <b class="num">+' + s.overshootPct.toFixed(0) + '%</b> past rest, and is still more than 1% off rest at <b class="num">frame ' + st + '</b>. The accent line starts drawing at frame ' + Math.round(BEATS0.acc * FPS) + ', while the number is still wobbling. <span class="tag i">Illustrative</span> <span class="tag d">Derived</span></p></details>';
+    } else facts = '<p class="muted" style="font-size:.88rem;margin:0">No derived facts for generated code. Read the sheet yourself: where does something peak, stall or collide?</p>';
+    $('#fxFacts').innerHTML = facts;
+    setMsg(msg, 'Rendered ' + fxN + ' stills. Press a frame label to jump the player there.', 'okm');
+  });
+  function renderNotes() {
+    $('#fxNotes').innerHTML = state.notes.length ? state.notes.map(function (n, i) {
+      return '<div class="note"><span class="num">frame ' + n.f + '<br><span class="faint">' + tsec(n.f) + '</span></span><span>' + esc(n.text) + '</span><button class="btn ghost sm" type="button" data-rm="' + i + '">Remove</button></div>';
+    }).join('') : '<p class="faint" style="font-size:.88rem;margin:.2rem 0">No notes yet. The example above is filled in; press Add note.</p>';
+    $$('#fxNotes [data-rm]').forEach(function (b) { b.addEventListener('click', function () { state.notes.splice(+b.getAttribute('data-rm'), 1); renderNotes(); refreshPackage(); }); });
+  }
+  $('#fxAdd').addEventListener('click', function () {
+    var msg = $('#fxMsg'), total = players.p6.frames() || 180, f = parseInt($('#fxFrame').value, 10), text = $('#fxNote').value.trim().slice(0, 200);
+    if (!isFinite(f) || f < 0 || f > total) { setMsg(msg, 'Frame must be a whole number from 0 to ' + total + '.', 'err'); return; }
+    if (!text) { setMsg(msg, 'Say what is wrong at that frame, and what you want instead.', 'err'); return; }
+    if (state.notes.length >= 6) { setMsg(msg, 'Six notes is the limit. Remove one first.', 'warnm'); return; }
+    state.notes.push({ f: f, text: text }); renderNotes(); refreshPackage();
+    setMsg(msg, 'Added a note at frame ' + f + '. ' + state.notes.length + ' in the list.', 'okm');
+  });
+  function revisePrompt(html) {
+    var d = Math.round(players.p6.D) || 6;
+    return 'Current document:\n```html\n' + html + '\n```\n\nFix notes. Frame n is n / ' + FPS + ' seconds into the animation, which is ' + d + ' seconds long:\n' +
+      state.notes.map(function (n) { return '- frame ' + n.f + ' (' + (n.f / FPS).toFixed(2) + ' s): ' + n.text; }).join('\n') +
+      '\n\nRevise the document so every note is fixed. Keep every other timing, curve, color and element exactly as it is, and keep the contract. Reply with the full revised document in one ```html block.';
+  }
+  function fxCompare(beforeHtml, afterHtml, demoFacts) {
+    fxCmpSheets.forEach(function (s) { s.destroy(); }); fxCmpSheets = [];
+    var total = players.p6b.frames(), f = state.notes[0].f, fr = [-8, -4, 0, 4, 8, 12].map(function (d) { return Math.max(0, Math.min(total, f + d)); });
+    $('#fxCmp').innerHTML = '<div class="sheet-row"><span class="lbl-sm">Before, around frame ' + f + '</span><div class="sheet six" id="fxCmpA"></div></div><div class="sheet-row"><span class="lbl-sm">After, same frames</span><div class="sheet six" id="fxCmpB"></div></div><div id="fxCmpFacts"></div>';
+    fxCmpSheets.push(new Sheet($('#fxCmpA'), beforeHtml, fr, { onPick: function (x) { players.p6b.seek(x); } }));
+    fxCmpSheets.push(new Sheet($('#fxCmpB'), afterHtml, fr, { onPick: function (x) { players.p6b.seek(x); } }));
+    $('#fxCmpFacts').innerHTML = demoFacts || '';
+  }
+  $('#fxRevise').addEventListener('click', function () {
+    var msg = $('#fxMsg'), errBox = $('#fxErr'), model = $('#fxModel').value;
+    withBusy(this, async function () {
+      errBox.innerHTML = '';
+      if (!state.notes.length) { setMsg(msg, 'Add at least one note first. Each note names a frame.', 'err'); return; }
+      if (!players.p6.frames()) { setMsg(msg, 'The current animation did not load. Fix that first.', 'warnm'); return; }
+      try {
+        var before = fxBeforeHtml(), after, facts = '', r = null;
+        if (!state.live) {
+          if (state.fxSrc !== 'demo') { setMsg(msg, 'Demo mode can only revise the planted-flaw animation. Switch the source above, or connect a key to revise your own output.', 'warnm'); return; }
+          after = fxAfterDemo();
+          var a = ML.springStats(30, 3), b = ML.springStats(300, 26), nn = BEATS0.num;
+          facts = illus('The demo revision is canned: it replaces the planted spring whatever your notes say. Your notes are saved in the package for module 8.') +
+            '<span class="tag d">Derived</span> <span class="muted" style="font-size:.84rem">from the spring numbers in the two scene files</span><div class="tbl-wrap"><table><thead><tr><th scope="col">The number\'s pop</th><th scope="col" class="n">Spring</th><th scope="col" class="n">Peak at</th><th scope="col" class="n">Past rest</th><th scope="col" class="n">Within 1% of rest</th></tr></thead><tbody>' +
+            '<tr><th scope="row">Before</th><td class="n num">30 / 3</td><td class="n num">frame ' + Math.round((nn + a.peakT) * FPS) + '</td><td class="n num">+' + a.overshootPct.toFixed(0) + '%</td><td class="n num">frame ' + Math.round((nn + a.settleT) * FPS) + '</td></tr>' +
+            '<tr><th scope="row">After</th><td class="n num">300 / 26</td><td class="n num">frame ' + Math.round((nn + b.peakT) * FPS) + '</td><td class="n num">+' + b.overshootPct.toFixed(1) + '%</td><td class="n num">frame ' + Math.round((nn + b.settleT) * FPS) + '</td></tr></tbody></table></div>';
+        } else {
+          setMsg(msg, 'Waiting for ' + modelLabel(model) + '...', '');
+          var o = await modelDoc({ model: model, system: ML.contractText(), user: revisePrompt(before) }, errBox, msg);
+          if (!o.html) { setMsg(msg, 'No revision to show. Details above.', 'warnm'); return; }
+          after = o.html; r = o.r;
+          facts = statsHtml(model, r, '', { warnings: [] });
+        }
+        players.p6b.load(0, before);
+        var res = await players.p6b.load(1, after);
+        if (!res.ok) { setMsg(msg, 'The revision broke the contract, so it was not shown. The list is in the compare area.', 'warnm'); return; }
+        state.rev = { before: before, after: after };
+        players.p6b.seek(state.notes[0].f);
+        fxCompare(before, after, facts);
+        setMsg(msg, 'Revised. Compare the same frames in step 3.', 'okm');
+      } catch (e) { setMsg(msg, errText(e), 'err'); }
+    });
+  });
+
+  // ---------------- module 7: data to motion ----------------
+  var csvType = 'bar';
+  $$('#csvType .chip').forEach(function (c) { c.addEventListener('click', function () { csvType = c.getAttribute('data-v'); $$('#csvType .chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); }); }); });
+  function chartParams(rows) { var n = state.numbers; return { rows: rows, type: csvType, title: $('#csvTitle').value.trim().slice(0, 60) || 'Chart', accent: state.brief.accent, enter: n.enter, stagger: n.stagger }; }
+  async function buildChart(live, quiet) {
+    var msg = $('#csvMsg'), errBox = $('#csvErr'); errBox.innerHTML = '';
+    var p = ML.parseCSV($('#csvIn').value);
+    if (p.error) { setMsg(msg, p.error, 'err'); return; }
+    try {
+      var P = chartParams(p.rows), html, r = null, src = 'demo';
+      if (!live) html = ML.buildDoc(ML.chartMain, ML.CHART_CSS, P);
+      else {
+        var model = $('#csvModel').value;
+        setMsg(msg, 'Waiting for ' + modelLabel(model) + '...', '');
+        var user = 'Animate this data as a ' + (P.type === 'line' ? 'line' : 'bar') + ' chart titled "' + P.title + '".\nCSV rows (label,value):\n' + p.rows.map(function (x) { return x.l + ',' + x.v; }).join('\n') +
+          '\n\nLength 5 seconds. Accent color ' + P.accent + ' (the only accent). Show each value as a label. Axis starts at zero.\n' + ML.numbersText(state.numbers);
+        var o = await modelDoc({ model: model, system: ML.contractText(), user: user }, errBox, msg);
+        if (!o.html) { setMsg(msg, 'No chart to show. Details above.', 'warnm'); return; }
+        html = o.html; r = o.r; src = model;
+      }
+      var res = await players.p7.load(0, html);
+      if (!res.ok) { setMsg(msg, 'The output broke the contract, so nothing ran. The list is under the player.', 'warnm'); return; }
+      players.p7.seekT(0);
+      setMsg(msg, (live ? 'Live: ' + usd(r.cost) + ' this call. ' : 'Demo template. ') + p.rows.length + ' rows' + (p.header ? ' with a header' : '') + '. Press Play.', quiet ? '' : 'okm');
+    } catch (e) { setMsg(msg, errText(e), 'err'); }
+  }
+  $('#csvBtn').addEventListener('click', function () { withBusy(this, function () { return buildChart(state.live, false); }); });
+
+  // ---------------- module 8: package ----------------
+  function packageText() {
+    var b = state.brief, pb = ML.parseBeats(b.beatsText, b.len), n = state.numbers;
+    var L = ['I want a short animation made with Claude Motion.', '',
+      'Who will watch it: ' + b.aud,
+      'Where it will play: ' + b.where,
+      'Length: about ' + b.len + ' seconds',
+      'Accent color: ' + b.accent + ', used for the one thing that matters; keep everything else neutral',
+      'Mood: ' + b.mood + ' (' + ML.MOODS[b.mood] + ')', '',
+      'What it should show:', String(b.content || '').trim(), '',
+      'Beats (seconds from the start):'];
+    if (pb.beats.length) pb.beats.forEach(function (x) { L.push(x.t.toFixed(2) + ' s - ' + x.label); }); else L.push(String(b.beatsText || '').trim() || '(none yet)');
+    L.push('', 'Motion numbers to follow:', 'Entrance: ' + ML.easeText(n.enter), 'Exit: ' + ML.easeText(n.exit), 'Emphasis (a spring): stiffness ' + fx(n.pop.k) + ', damping ' + fx(n.pop.c) + ', mass 1', 'Stagger: ' + n.stagger + ' ms between items', '');
+    L.push('Notes from reviewing a first version (frame n is n / ' + FPS + ' seconds):');
+    if (state.notes.length) state.notes.forEach(function (x) { L.push('- frame ' + x.f + ' (' + (x.f / FPS).toFixed(2) + ' s): ' + x.text); }); else L.push('(none yet: this is a first version)');
+    L.push('', 'Please keep to these timings and tell me which beat times you used, so I can adjust them.');
+    return L.join('\n');
+  }
+  function refreshPackage() { $('#pkOut').textContent = packageText(); }
+  $('#pkCopy').addEventListener('click', function () {
+    copyText(packageText()).then(function (ok) { setMsg($('#pkMsg'), ok ? 'Copied the package.' : 'Copy was blocked here. Select the text above and copy it by hand.', ok ? 'okm' : 'warnm'); });
+  });
+
+  // ---------------- ship gate ----------------
+  var GATE = [
+    'I wrote a brief: who watches it, where it plays, how long, the beats, one accent color and a mood.',
+    'Every beat has a time in seconds, in order, and the last one fits inside the length.',
+    'Entrances, exits and springs have numbers (curve, milliseconds, stiffness, damping, stagger), not adjectives.',
+    'Model-written code ran only in a sandboxed iframe with scripts allowed and nothing else.',
+    'The output passed the contract: renderAt(t), a fixed duration, a fixed stage size, no network, no libraries.',
+    'I looked at a contact sheet and stepped frames before I called it done.',
+    'My fix notes name a frame number and say what is wrong and what I want instead.',
+    'I compared before and after on the same frames.',
+    'I set a credit limit on my OpenRouter key and a session budget, and I know what one call can cost.',
+    'If I take it to Claude Motion, I will check that render myself and not assume it matches the preview.'
+  ];
+  var gateState = {}; try { gateState = JSON.parse(store('mow-gate') || '{}') || {}; } catch (e) { gateState = {}; }
+  var CHECK_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3" fill="none" stroke="var(--bg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  $('#gate').innerHTML = GATE.map(function (g, i) { return '<li><button type="button" data-g="' + i + '" aria-pressed="' + (!!gateState[i]) + '"><span class="box">' + CHECK_SVG + '</span><span>' + esc(g) + '</span></button></li>'; }).join('');
+  function gateCount() { var n = GATE.filter(function (g, i) { return gateState[i]; }).length; $('#gateCount').textContent = n + ' of ' + GATE.length + ' ticked.'; }
+  $$('#gate button').forEach(function (b) {
+    b.addEventListener('click', function () { var i = b.getAttribute('data-g'); gateState[i] = !gateState[i]; b.setAttribute('aria-pressed', String(!!gateState[i])); store('mow-gate', JSON.stringify(gateState)); gateCount(); });
+  });
+  gateCount();
+
+  wsTrack.gate('#gate button', function (b) { return b.getAttribute('aria-pressed') === 'true'; });
+  wsTrack.labs({
+    '#rosterCheck': 'm0-catalog', '#p1Go': 'm1-compare', '#brCopy': 'm2-brief', '#tlToBrief': 'm3-beats', '#ezUse': 'm4-numbers',
+    '#genBtn': ['m5-generate', 'genModel'], '#fxSheetBtn': 'm6-sheet', '#fxRevise': ['m6-revise', 'fxModel'],
+    '#csvBtn': ['m7-chart', 'csvModel'], '#pkCopy': 'm8-package'
+  });
+
+  // ---------------- scroll spy and progress ----------------
+  var mods = $$('.mod'), links = $$('#navList a'), seen = {};
+  function setActive(i) {
+    links.forEach(function (a, j) { a.classList.toggle('active', j === i); if (j === i) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+    wsTrack.module(i);
+    seen[i] = true;
+    links.forEach(function (a, j) { a.classList.toggle('seen', !!seen[j]); });
+    var n = Object.keys(seen).length;
+    $('#meterFill').style.transform = 'scaleX(' + (n / mods.length) + ')';
+    $('#meter').setAttribute('aria-valuenow', String(n));
+    $('#progressLabel').textContent = n + ' of ' + mods.length + ' modules visited';
+    renderRail(i);
+  }
+  if ('IntersectionObserver' in window) {
+    var spy = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) setActive(+e.target.getAttribute('data-mod')); });
+    }, { rootMargin: '-35% 0px -60% 0px' });
+    mods.forEach(function (m) { spy.observe(m); });
+  }
+
+  // ---------------- init ----------------
+  renderRoster(); fillModels();
+  m1Setup(); m2Setup();
+  clampBeats(); tlBuild(); tlRender(); tlReload(true);
+  m4Setup(); refreshCompiled(); refreshPackage(); renderNotes();
+  fxLoad(); buildChart(false, true);
+  refreshMode(); setActive(0);
+  window.__labs = { state: state, ML: ML, players: players, Stage: Stage, buildSrcdoc: buildSrcdoc, Sheet: Sheet, activeStages: function () { return activeStages; }, ez: ez, lens: lens };
+})();
+</script>
+</body>
+</html>
