@@ -307,6 +307,46 @@ footer.legal{
 }
 footer.legal a{ color:var(--ink-faint); }
 </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain}
+   card_click {workshop} is set on the hub with data-umami-event attributes. */
+window.wsTrack=(function(){
+  var WS='jev-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
 </head>
 <body>
 
@@ -647,6 +687,7 @@ async function routeSignal(state, attempt = 1) {
 <footer class="legal">
   <p>Independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by TypeSafe AI, Anthropic, or OpenAI. "Jev" and "TypeSafe" are marks of TypeSafe AI; this workshop discusses their publicly announced product and links to their own published claims and caveats.</p>
   <p>Live labs in this workshop call OpenRouter's API directly from your browser using a key you provide. That key is held in memory for this tab only, never written to storage, and cleared the moment you disconnect or close the page. Set a spend limit on any key you use here. Review <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter's terms</a> and <a href="https://typesafe.ai/legal/terms" target="_blank" rel="noopener">TypeSafe's terms</a> before connecting one.</p>
+  <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data.</p>
 </footer>
 
 </main>
@@ -917,6 +958,7 @@ function initScrollSpy(){
       if (e.isIntersecting) {
         e.target.classList.add("revealed");
         setActiveModule(Number(e.target.dataset.modidx));
+        wsTrack.module(Number(e.target.dataset.modidx) + 1);
       }
     });
   }, { rootMargin: "-20% 0px -60% 0px", threshold: 0.01 });
@@ -1189,6 +1231,7 @@ function updateConnectUI(){
   $("#spendAmt").textContent = "$" + sessionSpend.toFixed(4);
 }
 function connect(){
+  wsTrack('connect_click');
   const val = $("#orKey").value.trim();
   if (!val) { $("#connectStatus").textContent = "Paste an OpenRouter API key first."; return; }
   liveKey = val;
@@ -1196,6 +1239,7 @@ function connect(){
   $("#orKey").value = "";
   $("#connectStatus").textContent = "Connected. Key held in memory for this tab only.";
   updateConnectUI();
+  wsTrack('connected');
 }
 function disconnect(){
   liveKey = null; liveMode = false;
@@ -1309,6 +1353,13 @@ document.addEventListener("DOMContentLoaded", () => {
   updateConnectUI();
   initScrollSpy();
 
+  wsTrack.gate("#shipGate li", li => li.classList.contains("done"));
+  wsTrack.labs({
+    "#sortGrid .signal-card":"m1-sort", "#raceBtn":"m2-race", "#schemaSignalGrid .signal-card":"m3-schema",
+    "#calibLLM":"m4-calib", "#calibJev":"m4-calib", "#gapGrid .signal-card":"m5-gap",
+    "#oldWayRun4":"m6-oldway", "#oldWayRun8":"m6-oldway", "#liveCompareBtn":"m6-live",
+    "#oncallStage1Btn":"m8-oncall", "#oncallStage2Btn":"m8-oncall", "#guardGrid .signal-card":"m9-guard"
+  });
   $("#raceBtn").addEventListener("click", runRace);
   $("#calibLLM").addEventListener("click", () => renderCalibChart("llm"));
   $("#calibJev").addEventListener("click", () => renderCalibChart("jev"));

@@ -379,6 +379,46 @@ footer.legal a{ color:var(--ink-faint); }
   .rail{ border-top:1px solid var(--border-soft); }
 }
 </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain}
+   card_click {workshop} is set on the hub with data-umami-event attributes. */
+window.wsTrack=(function(){
+  var WS='mcp-07-28-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
 </head>
 <body>
 <div class="shell">
@@ -980,6 +1020,7 @@ GET /callback?code=abc123&state=xyz&iss=https://auth.legit-mcp.com
     <p style="margin-top:var(--sp-4)">Independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, the Model Context Protocol project (a Series of LF Projects, LLC), Microsoft, or OpenRouter. "Claude," "Model Context Protocol," and "MCP" are marks of their respective owners, referenced here for identification and education only.</p>
     <p>Usage policies: <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener">Anthropic</a> · <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter</a> · <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">Model Context Protocol</a>.</p>
     <p>Module 11 makes a real, metered call to a model through your own OpenRouter key. Set a spend limit on that key before connecting. Demo mode (no key) teaches the same lesson with a scripted transcript.</p>
+    <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data.</p>
   </footer>
 </main>
 
@@ -1304,6 +1345,7 @@ const spyObserver = new IntersectionObserver((entries)=>{
       const id = e.target.id;
       const meta = MODULES.find(m=>m.id===id);
       if(meta){
+        wsTrack.module(meta.n);
         document.querySelectorAll('.navlist a').forEach(a=>a.classList.toggle('active', a.dataset.target===id));
         renderRail(id, `Module ${String(meta.n).padStart(2,'0')} — ${meta.title}`);
         const pct = Math.round((meta.n / MODULES.length) * 100);
@@ -1317,6 +1359,14 @@ const spyObserver = new IntersectionObserver((entries)=>{
 function wireScrollObservers(){
   modEls().forEach(el=>{ revealObserver.observe(el); spyObserver.observe(el); });
 }
+
+wsTrack.gate('#recap input[type=checkbox]', cb => cb.checked);
+wsTrack.labs({
+  '#m1send':'m1-pool', '#m2build':'m2-wire', '#m3run':'m3-gateway', '#m4run':'m4-handle',
+  '#m5callA':'m5-cache', '#m5callB':'m5-cache', '#m6call1':'m6-mrtr', '#m6call2':'m6-mrtr',
+  '#m7run':'m7-ext', '#m8start':'m8-task', '#m8poll':'m8-task', '#m8cancel':'m8-task',
+  '[data-m10]':'m10-auth', '#m11run':'m11-capstone'
+});
 
 /* code tabs (Python / C#) */
 document.addEventListener('click', (e)=>{
@@ -1369,6 +1419,7 @@ function setConnectMsg(text, cls){
   connectMsg.className = 'connect-msg' + (cls ? ' '+cls : '');
 }
 connectBtn.addEventListener('click', ()=>{
+  wsTrack('connect_click');
   const v = orKeyInput.value.trim();
   if(!v){ setConnectMsg('Paste an OpenRouter key first — it should start with sk-or-.', 'err'); return; }
   if(!/^sk-or-/.test(v)){ setConnectMsg('That doesn\u2019t look like an OpenRouter key (expected sk-or-…). Get one at openrouter.ai/keys.', 'err'); return; }
@@ -1380,7 +1431,7 @@ connectBtn.addEventListener('click', ()=>{
   connectBtn.disabled = true;
   disconnectBtn.disabled = false;
   setConnectMsg('Connected. Module 11 will now call a real model.', 'ok');
-  updateCapstoneGate();
+  wsTrack('connected');
 });
 disconnectBtn.addEventListener('click', ()=>{
   liveKey = null;
@@ -1390,7 +1441,6 @@ disconnectBtn.addEventListener('click', ()=>{
   connectBtn.disabled = false;
   disconnectBtn.disabled = true;
   setConnectMsg('Disconnected — back to demo mode.', '');
-  updateCapstoneGate();
 });
 function estimateSpend(promptTokens, completionTokens, model){
   // rough per-1M pricing table for the session estimate only — not billing-accurate
