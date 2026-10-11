@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy: AI Workshops by Kevin Phillips</title>
+<meta name="description" content="How the AI Workshops site handles your data: cookie-free Umami analytics, no personal data, and API keys that stay in your browser and go only to OpenRouter. Independent project by Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/privacy/">
+<meta property="og:title" content="Privacy: AI Workshops by Kevin Phillips">
+<meta property="og:description" content="Cookie-free analytics, no personal data, and API keys that never leave your browser except to reach OpenRouter.">
+<meta property="og:url" content="https://www.kpphillips.com/ai-workshops/privacy/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Privacy: AI Workshops by Kevin Phillips">
+<meta name="twitter:description" content="Cookie-free analytics, no personal data, and API keys that never leave your browser except to reach OpenRouter.">
+<meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Privacy: AI Workshops by Kevin Phillips",
+  "url": "https://www.kpphillips.com/ai-workshops/privacy/",
+  "description": "How the AI Workshops site handles analytics, cookies, and API keys.",
+  "author": { "@type": "Person", "name": "Kevin Phillips" },
+  "isPartOf": { "@type": "WebSite", "name": "AI Workshops", "url": "https://www.kpphillips.com/ai-workshops/" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+(function(){
+  var r=document.documentElement,p='tide',m=null;
+  try{p=localStorage.getItem('fg-palette')||p;m=localStorage.getItem('fg-theme');}catch(e){}
+  if(['tide','ember','iris'].indexOf(p)<0)p='tide';
+  if(m!=='light'&&m!=='dark')m=(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';
+  r.setAttribute('data-palette',p);r.setAttribute('data-theme',m);
+})();
+</script>
+<style>
+:root{--r:6px;--f-display:'Fraunces',Georgia,serif;--f-body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace}
+html,html[data-palette="tide"]{--bg:#0b1620;--surface:#102130;--surface-2:#162a3b;--ink:#e6eef5;--ink-soft:#b5c5d3;--ink-faint:#93a8ba;--line:#24394c;--line-strong:#3a536a;--accent:#5cc8e6;--accent-ink:#04141c;--green:#5fd39a;--clay:#e8b75e;--red:#f28b85;--alt:#bcaaf4}
+html[data-palette="tide"][data-theme="light"]{--bg:#f3f6f8;--surface:#ffffff;--surface-2:#e8eef2;--ink:#0e1d29;--ink-soft:#34495a;--ink-faint:#4e6376;--line:#cfd9e1;--line-strong:#9fb0bd;--accent:#0a6583;--accent-ink:#ffffff;--green:#136b45;--clay:#835406;--red:#ad2a22;--alt:#5a3eae}
+html[data-palette="ember"]{--bg:#17110c;--surface:#211811;--surface-2:#2c2118;--ink:#f3ebe3;--ink-soft:#d0c2b4;--ink-faint:#ad9e8f;--line:#3b2d21;--line-strong:#5a4634;--accent:#f0a34a;--accent-ink:#1c1005;--green:#72d39b;--clay:#ebc56e;--red:#f38c7d;--alt:#a3bbf2}
+html[data-palette="ember"][data-theme="light"]{--bg:#faf5ef;--surface:#ffffff;--surface-2:#f1e8dd;--ink:#24170c;--ink-soft:#4d3b2b;--ink-faint:#67533f;--line:#e2d4c3;--line-strong:#b9a58f;--accent:#94490a;--accent-ink:#ffffff;--green:#1d6a42;--clay:#7a5500;--red:#aa2b20;--alt:#3a51a4}
+html[data-palette="iris"]{--bg:#120f1e;--surface:#1a1629;--surface-2:#231e36;--ink:#ece8f7;--ink-soft:#c5bedc;--ink-faint:#a39bbd;--line:#322b4b;--line-strong:#4c4370;--accent:#b99eff;--accent-ink:#150d2b;--green:#72d6a3;--clay:#e8c070;--red:#f39191;--alt:#82cbea}
+html[data-palette="iris"][data-theme="light"]{--bg:#f6f5fb;--surface:#ffffff;--surface-2:#ece9f6;--ink:#1a1530;--ink-soft:#433b63;--ink-faint:#5a537c;--line:#d9d4eb;--line-strong:#aaa2c9;--accent:#5732c4;--accent-ink:#ffffff;--green:#18693f;--clay:#785300;--red:#a8262a;--alt:#0a5f7a}
+*{box-sizing:border-box}
+html{color-scheme:dark;scrollbar-color:var(--line-strong) var(--bg)}
+html[data-theme="light"]{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--f-body);-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-0.02em;line-height:1.15;margin:0 0 .6rem;color:var(--ink)}
+h1{font-size:clamp(2.1rem,5vw,3.2rem)}
+h2{font-size:clamp(1.35rem,2.4vw,1.7rem);margin-top:0}
+p{margin:0 0 .9rem}
+ul{margin:0 0 .9rem;padding-left:1.2rem}
+li{margin:.3rem 0}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:.08em .38em}
+.skip{position:absolute;left:-999px;top:0;background:var(--accent);color:var(--accent-ink);padding:.5rem .9rem;border-radius:0 0 var(--r) 0;z-index:10}
+.skip:focus{left:0}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem 1.5rem;padding:.9rem clamp(1rem,4vw,2.5rem);border-bottom:1px solid var(--line);background:var(--surface)}
+.back{font:500 .78rem var(--f-mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none}
+.back:hover{text-decoration:underline}
+.ctl{display:flex;align-items:center;gap:.7rem}
+.ctl .lbl{font:600 .72rem var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.swatches{display:flex;gap:.45rem}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);background:var(--sw);padding:0;cursor:pointer}
+.swatch[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg)}
+.swatch[data-p="tide"]{--sw:#5cc8e6}
+.swatch[data-p="ember"]{--sw:#f0a34a}
+.swatch[data-p="iris"]{--sw:#b99eff}
+.btn{font:600 .85rem var(--f-body);color:var(--ink);background:var(--surface-2);border:1px solid var(--line-strong);border-radius:var(--r);padding:.45rem .8rem;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+main{width:min(760px,calc(100% - 2rem));margin:0 auto;padding:clamp(2rem,6vw,4rem) 0 3rem}
+.kicker{font:500 .78rem var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 .8rem}
+.lede{font-size:1.15rem;color:var(--ink-soft);max-width:60ch;margin-bottom:2rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.4rem 1.5rem;margin:0 0 1rem}
+.card :last-child{margin-bottom:0}
+.facts{display:grid;gap:.6rem;list-style:none;padding:0;margin:0 0 2rem}
+.facts li{margin:0;padding:.7rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.facts b{color:var(--green)}
+.tbl{overflow-x:auto;margin:0 0 .9rem;border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:.55rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 .74rem var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+.small{font-size:.88rem;color:var(--ink-soft)}
+footer{border-top:1px solid var(--line);padding:1.5rem clamp(1rem,4vw,2.5rem) 2.5rem;font-size:.86rem;color:var(--ink-soft);background:var(--surface)}
+footer p{max-width:760px;margin:0 auto .5rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar">
+  <a class="back" href="../">Back to all workshops</a>
+  <div class="ctl">
+    <span class="lbl" id="palLbl">Palette</span>
+    <div class="swatches" role="group" aria-labelledby="palLbl">
+      <button class="swatch" type="button" data-p="tide" aria-label="Tide palette" aria-pressed="true"></button>
+      <button class="swatch" type="button" data-p="ember" aria-label="Ember palette" aria-pressed="false"></button>
+      <button class="swatch" type="button" data-p="iris" aria-label="Iris palette" aria-pressed="false"></button>
+    </div>
+    <button class="btn" id="modeBtn" type="button">Switch to light</button>
+  </div>
+</header>
+
+<main id="main">
+  <p class="kicker">Privacy</p>
+  <h1>What this site knows about you</h1>
+  <p class="lede">Very little. These workshops are a free personal education project by Kevin Phillips. The only thing measured is how many people visit and how far through a workshop they get, with no way to tell who you are.</p>
+
+  <ul class="facts">
+    <li><b>No cookies.</b> This site sets none, and the analytics script uses none.</li>
+    <li><b>No personal data.</b> No accounts, no names, no email addresses, no profiles.</li>
+    <li><b>Your API key stays with you.</b> It lives in your browser's memory and goes only to OpenRouter.</li>
+    <li><b>No ads, no selling.</b> There are no advertisers, and no data to sell.</li>
+  </ul>
+
+  <section class="card" aria-labelledby="h-what">
+    <h2 id="h-what">What is counted</h2>
+    <p>The site uses <a href="https://umami.is/" target="_blank" rel="noopener">Umami Cloud</a>, a privacy-focused analytics service. Umami says it does not use cookies and does not collect personally identifiable information. It reports aggregate page views, referrers, browser and device type, and the country a visit came from.</p>
+    <p>On top of page views, the workshops send a few small events so Kevin can see which parts are useful. Each event carries only fixed labels such as a workshop name, a module number, or a lab name. Nothing you type is ever included.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th scope="col">Event</th><th scope="col">When it fires</th><th scope="col">Labels sent</th></tr></thead>
+        <tbody>
+          <tr><td><code>module</code></td><td>You scroll to (or open) a module, once per module per visit</td><td><code>workshop</code>, <code>module</code></td></tr>
+          <tr><td><code>lab_run</code></td><td>You press a lab's run or submit button</td><td><code>workshop</code>, <code>lab</code>, sometimes <code>model</code> (a model name picked from a fixed list)</td></tr>
+          <tr><td><code>connect_click</code></td><td>You press Connect</td><td><code>workshop</code></td></tr>
+          <tr><td><code>connected</code></td><td>Live mode switches on after you connect</td><td><code>workshop</code></td></tr>
+          <tr><td><code>gate_item</code></td><td>You tick an item on the ship gate or recap checklist</td><td><code>workshop</code>, <code>item</code> (its position)</td></tr>
+          <tr><td><code>gate_done</code></td><td>You have ticked every item on that checklist</td><td><code>workshop</code></td></tr>
+          <tr><td><code>card_click</code></td><td>You open a workshop from the home page</td><td><code>workshop</code></td></tr>
+          <tr><td><code>ref_click</code></td><td>You follow a link to another website from a workshop page</td><td><code>workshop</code>, <code>domain</code> (the site's domain only, not the full address)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">Connect events record that a press happened. They never include the key, its length, or any error text.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-not">
+    <h2 id="h-not">What is never sent to analytics</h2>
+    <ul>
+      <li>API keys, or anything derived from them.</li>
+      <li>Prompts, lab inputs, pasted text, or model outputs.</li>
+      <li>Anything else you type into a page.</li>
+    </ul>
+    <p>The site does not use fingerprinting, and it does not load any other analytics or tracking scripts. If you block the Umami script with a browser extension, every page and lab still works the same.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-store">
+    <h2 id="h-store">Cookies and browser storage</h2>
+    <p>This site sets no cookies. Some pages use your browser's local storage to remember your palette, your light or dark choice, and which checklist items you ticked. These values stay on your device, are never sent anywhere, and carry no identifier. Clear your site data to remove them.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-keys">
+    <h2 id="h-keys">Your OpenRouter key</h2>
+    <p>The live labs call AI models through <a href="https://openrouter.ai/" target="_blank" rel="noopener">OpenRouter</a> using a key you paste in. The key is held in your browser's memory for that tab only. When you reload, close the tab, or press Disconnect, it is gone.</p>
+    <p>Your browser sends the key, along with the lab's prompt, directly to OpenRouter. It does not pass through a server run by Kevin, and it is never sent to analytics. OpenRouter handles those requests under its own terms and privacy policy, and live runs spend real money on your account, so set a credit limit on any key you use here.</p>
+    <p class="small">Some workshops have an Advanced section where you can change the endpoint. If you type in a different address, your key goes there instead, so only do that with a service you trust.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-third">
+    <h2 id="h-third">Other services involved</h2>
+    <ul>
+      <li><strong>Umami Cloud</strong> receives page views and the events above.</li>
+      <li><strong>Google Fonts</strong> serves the typefaces. Google sees your IP address when your browser fetches them, as with any font host.</li>
+      <li><strong>The page host</strong> serves these files and may keep ordinary server logs under its own policy.</li>
+      <li><strong>OpenRouter</strong> is contacted only when you connect a key and run a live lab.</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="h-money">
+    <h2 id="h-money">Ads and money</h2>
+    <p>The site is free, has no ads, and is not monetized. No data is sold or shared for marketing.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-contact">
+    <h2 id="h-contact">Questions</h2>
+    <p>Contact Kevin Phillips through <a href="https://www.kpphillips.com/" target="_blank" rel="noopener">kpphillips.com</a>. If this page changes in a meaningful way, the update will appear here.</p>
+    <p class="small">This page describes how the site works. It is not legal advice and it does not claim any legal or regulatory certification.</p>
+  </section>
+</main>
+
+<footer>
+  <p>An independent project by Kevin Phillips. <a href="../">All workshops</a></p>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement,mb=document.getElementById('modeBtn');
+  function sync(){
+    var p=root.getAttribute('data-palette'),t=root.getAttribute('data-theme');
+    [].forEach.call(document.querySelectorAll('.swatch'),function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-p')===p));});
+    mb.textContent=t==='light'?'Switch to dark':'Switch to light';
+  }
+  function set(p,t){
+    root.setAttribute('data-palette',p);root.setAttribute('data-theme',t);sync();
+    try{localStorage.setItem('fg-palette',p);localStorage.setItem('fg-theme',t);}catch(e){}
+  }
+  [].forEach.call(document.querySelectorAll('.swatch'),function(b){
+    b.addEventListener('click',function(){set(b.getAttribute('data-p'),root.getAttribute('data-theme'));});
+  });
+  mb.addEventListener('click',function(){set(root.getAttribute('data-palette'),root.getAttribute('data-theme')==='light'?'dark':'light');});
+  sync();
+})();
+</script>
+</body>
+</html>
