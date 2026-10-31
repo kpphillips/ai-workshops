@@ -2,7 +2,7 @@
 <html lang="en" data-palette="tide" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-z7F84rS9ym84aiTRz+LzoPNQjrmv8d98jstKciPo49I=' 'sha256-/BswCzMRmotWt8IC6sKabk1uKwAynQxwqmCTFlc1UBw=' https://cloud.umami.is; style-src 'sha256-gyMNJ3cbuo5vMaA3HPjTPAl6DMB/pfQ0dy+XlkfPK/k=' https://fonts.googleapis.com; style-src-attr 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src https://openrouter.ai https://gateway.umami.is; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-z7F84rS9ym84aiTRz+LzoPNQjrmv8d98jstKciPo49I=' 'sha256-6s3R2NoPWbT8HAG9mOnd2wNisjhPic51bzLOoe4NUPM=' https://cloud.umami.is; style-src 'sha256-gyMNJ3cbuo5vMaA3HPjTPAl6DMB/pfQ0dy+XlkfPK/k=' https://fonts.googleapis.com; style-src-attr 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src https://openrouter.ai https://gateway.umami.is; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Agent harnesses vs. software factories: build a tiny software factory in Python</title>
@@ -416,7 +416,7 @@ window.wsTrack=(function(){
   <h2>Before you start</h2>
   <div class="lab">
     <div class="lab-head"><h3>The starter repo</h3><span class="lab-kind">Read</span></div>
-    <p class="muted" style="font-size:.92rem;margin-top:0">The hands-on code is a separate public Python repo: FastAPI with a server-rendered UI in the same Field Guide style. Each module below ends with a <b>Build it in the repo</b> step that points at the matching lab.</p>
+    <p class="muted" style="font-size:.92rem;margin-top:0">The hands-on code is a separate public Python repo: FastAPI with a server-rendered UI in the same Field Guide style. Each module below ends with a <b>Build it in the repo</b> step that links to its lab folder, and each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</p>
     <div class="row"><a class="btn sm" href="https://github.com/kpphillips/agent-factory-workshop" target="_blank" rel="noopener noreferrer">Open kpphillips/agent-factory-workshop</a><a class="btn ghost sm" href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs" target="_blank" rel="noopener noreferrer">Open the labs/ folder</a></div>
   </div>
 
@@ -459,7 +459,7 @@ window.wsTrack=(function(){
     </div>
     <div class="out" id="bareOut" aria-live="polite"></div>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Open the <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs" target="_blank" rel="noopener noreferrer">labs/ folder</a> and find the bare-model lab: call a model with no tools, confirm nothing changes on disk, then give it one tool.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Call a model with no tools, confirm nothing changes on disk, then give it one tool. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/01-bare-model" target="_blank" rel="noopener noreferrer"><code>labs/01-bare-model</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 2 ============ -->
@@ -476,7 +476,7 @@ window.wsTrack=(function(){
     <p class="faint" style="font-size:.84rem">Layer definitions and example products: the workshop source outline, Part 2 (Kevin's outline of the four reference talks). The "agent = model + harness" and "CLI is an interface, not a harness" framing is from <a href="https://www.youtube.com/watch?v=ebILGCoN4UU" target="_blank" rel="noopener noreferrer">Theo's video</a>.</p>
   </div>
   <div class="callout"><span class="ttl">Where "software factory" comes from</span><span class="tag q">Quoted</span> Cusumano credits R.W. Bemer (GE, 1968) with the first working definition, and M.D. McIlroy used "factory" at the 1968 NATO software engineering conference (<a href="https://www.gregorystrachta.com/resources/Touchstones/swp-3268-23661042.pdf" target="_blank" rel="noopener noreferrer">Cusumano, MIT</a>). Dex Horthy dates the term to the same NATO conference at [00:03:45] in <a href="https://www.youtube.com/watch?v=Ib5GBkD555M&t=225s" target="_blank" rel="noopener noreferrer">his talk</a>.</div>
-  <div class="build"><span class="ttl">Build it in the repo</span>In the labs/ folder, tag each component of your starter project with exactly one layer and write the six definitions into its README.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Tag each component of your starter project with exactly one of the six layers. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/02-taxonomy" target="_blank" rel="noopener noreferrer"><code>labs/02-taxonomy</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 
   <div class="debate">
     <span class="ttl">Facilitator prompt</span>
@@ -503,7 +503,7 @@ window.wsTrack=(function(){
     <ol class="evt" id="lpOut" aria-live="polite"></ol>
     <p class="faint" style="font-size:.84rem">Right-hand names are the <code>codex exec --json</code> item types (<span class="tag q">Quoted</span> <a href="https://github.com/openai/codex/blob/67f0994/codex-rs/exec/src/exec_events.rs" target="_blank" rel="noopener noreferrer">exec_events.rs</a>).</p>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Find the harness-loop lab: call the model, run tool calls, append results, stop on no tool call or max_turns, and write every event to an append-only log.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Write the loop: call the model, run tool calls, append results, stop on no tool call or max_turns, and log every event append-only. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/03-harness-loop" target="_blank" rel="noopener noreferrer"><code>labs/03-harness-loop</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 4 ============ -->
@@ -535,7 +535,7 @@ window.wsTrack=(function(){
     </div>
     <div class="out" id="cpResumeOut" aria-live="polite"></div>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>In the compaction lab, add a token budget, an auto-compaction trigger and resume-from-log to your loop.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Add a token budget, an auto-compaction trigger and resume-from-log to your loop. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/04-state-and-compaction" target="_blank" rel="noopener noreferrer"><code>labs/04-state-and-compaction</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 5 ============ -->
@@ -558,7 +558,7 @@ window.wsTrack=(function(){
     <div class="out" id="shOut" aria-live="polite"></div>
     <p class="faint" style="font-size:.84rem">The flywheel and the dashboard-plus-deletion-PR practice: Jediah Katz, [00:05:57] and [00:16:42] in <a href="https://www.youtube.com/watch?v=7Y4sbZgBdnc&t=357s" target="_blank" rel="noopener noreferrer">his talk</a> (<span class="tag q">Quoted</span>). Hit counts here are made up.</p>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Add a shim registry with a hit counter per shim, and a report that lists the shims that did not fire.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Add a shim registry with a hit counter per shim, and a report of the shims that did not fire. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/05-shims-and-guardrails" target="_blank" rel="noopener noreferrer"><code>labs/05-shims-and-guardrails</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 6 ============ -->
@@ -577,7 +577,7 @@ window.wsTrack=(function(){
     <div class="out" id="plOut" aria-live="polite"></div>
     <p class="faint" style="font-size:.84rem">Plane definitions: Theo, [00:17:43] to [00:23:27] in <a href="https://www.youtube.com/watch?v=ebILGCoN4UU&t=1063s" target="_blank" rel="noopener noreferrer">his video</a> (<span class="tag q">Quoted</span>). The token cost per definition is an input you set, not a measurement.</p>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Expose one external data source through an MCP server and keep edit and bash compiled into your loop.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Expose one external data source through an MCP server and keep edit and bash compiled into your loop. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/06-tool-plane-data-plane" target="_blank" rel="noopener noreferrer"><code>labs/06-tool-plane-data-plane</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 
   <div class="debate">
     <span class="ttl">Facilitator prompt</span>
@@ -607,7 +607,7 @@ window.wsTrack=(function(){
     <div class="out" id="lcOut" aria-live="polite"></div>
     <p class="faint" style="font-size:.84rem">Loop definitions: Dru Knox, [00:07:00] to [00:08:31] in <a href="https://www.youtube.com/watch?v=X6l4lpA0_NY&t=420s" target="_blank" rel="noopener noreferrer">his talk</a> (<span class="tag q">Quoted</span>). Catch rates, costs and bug counts are invented for the simulation.</p>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Wrap your loop in a fast inner check set and a slower outer check set, and log which check caught each defect.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Wrap your loop in a fast inner check set and a slower outer check set, and log which check caught each defect. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/07-inner-outer-meta-loops" target="_blank" rel="noopener noreferrer"><code>labs/07-inner-outer-meta-loops</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 8 ============ -->
@@ -639,7 +639,7 @@ window.wsTrack=(function(){
     <div class="row" style="margin-top:.6rem"><button class="btn" id="pdLint" type="button">Check the draft</button></div>
     <div class="out" id="pdOut" aria-live="polite"></div>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Add the four stages as artifacts a human approves before the build stage may start.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Add the four stages as artifacts a human approves before the build stage may start. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/08-plan-review-build-gates" target="_blank" rel="noopener noreferrer"><code>labs/08-plan-review-build-gates</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 9 ============ -->
@@ -679,7 +679,7 @@ window.wsTrack=(function(){
     </table></div>
     <p class="faint" style="font-size:.84rem;margin:0">Sources: <a href="https://pages.faros.ai/hubfs/AI_Engineering_Report_2026_The_Acceleration_Whiplash_Faros.pdf" target="_blank" rel="noopener noreferrer">Faros AI Engineering Report 2026</a> (22,000 developers, 4,000 teams) and the <a href="https://www.faros.ai/blog/ai-speed-trap-takeaways" target="_blank" rel="noopener noreferrer">later update</a>. The two use different bases, so do not subtract one from the other.</p>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Compute autonomy, automation and quality from your own run log instead of from sliders.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Compute autonomy, automation and quality from your own run log instead of from sliders. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/09-software-factory" target="_blank" rel="noopener noreferrer"><code>labs/09-software-factory</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 
   <div class="debate">
     <span class="ttl">Facilitator prompt</span>
@@ -717,7 +717,7 @@ window.wsTrack=(function(){
     </div>
     <div class="out" id="hpCost" aria-live="polite"></div>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Find the plug-in lab: put your loop, the Claude Agent SDK and <code>codex exec</code> behind one interface that returns the same result record.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Put your loop, the Claude Agent SDK and <code>codex exec</code> behind one interface that returns the same result record. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/10-swappable-harnesses" target="_blank" rel="noopener noreferrer"><code>labs/10-swappable-harnesses</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 11 ============ -->
@@ -739,7 +739,7 @@ window.wsTrack=(function(){
     <div class="out" id="cxOut" aria-live="polite"></div>
   </div>
   <div class="callout caution"><span class="ttl">Two flags to know</span><span class="tag q">Quoted</span> <code>--full-auto</code> is gone from <code>codex exec</code>, so older tutorials break, and <code>wire_api</code> accepts only <code>responses</code> (read from <code>exec/src/cli.rs</code> and <code>model-provider-info/src/lib.rs</code>).</div>
-  <div class="build"><span class="ttl">Build it in the repo</span>After reading, pick two ideas (the apply_patch format is a good one) and copy them into your own loop, with a note saying where each came from.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Read the Codex files above, then pick two ideas (the apply_patch format is a good one) and copy them into your own loop with a note saying where each came from. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/11-codex-source-tour" target="_blank" rel="noopener noreferrer"><code>labs/11-codex-source-tour</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 12 ============ -->
@@ -760,11 +760,11 @@ window.wsTrack=(function(){
   </div>
   <div class="lab">
     <div class="lab-head"><h3>Import your results JSON</h3><span class="lab-kind">Local only</span></div>
-    <p class="muted" style="font-size:.9rem;margin-top:0">Export results from the starter repo, then load them here to replace the illustrative charts in modules 12 and 13 with your measured data. Expected shape, schema <code>agent-factory-results/v1</code>:</p>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Export results from the starter repo (or load its <code>examples/results.demo.json</code>), then load them here to replace the illustrative charts in modules 12 and 13 with your data. Expected shape, schema <code>agent-factory-results/v1</code>:</p>
     <pre><code>{"schema":"agent-factory-results/v1",
- "runs":[{"task":"t1","config":"bare","harness":"own","repeat":1,
+ "runs":[{"task":"T01","config":"bare","harness":"own","repeat":1,
           "passed":true,"cost_usd":0.04,"turns":7}]}</code></pre>
-    <p class="faint" style="font-size:.84rem">Required per run: <code>task</code>, <code>config</code>, <code>passed</code> (true or false). Optional: <code>harness</code>, <code>model</code>, <code>repeat</code>, <code>cost_usd</code>, <code>turns</code>. If your export differs, the importer names the missing field.</p>
+    <p class="faint" style="font-size:.84rem">Required per run: <code>task</code>, <code>config</code> (bare, tools, inner, spec or outer) and <code>passed</code> (true or false). Optional: <code>harness</code> (own, claude or codex), <code>model</code>, <code>repeat</code>, <code>cost_usd</code>, <code>turns</code>. Extra per-run detail and top-level <code>meta</code> are ignored. A top-level <code>"example": true</code> marks demo data, and the charts then stay labelled illustrative. The repo exports the bare rung once, under harness own, so the cross-harness chart compares only configs every harness ran.</p>
     <div class="dropzone">
       <div class="row"><label class="field grow"><span>Choose a .json file</span><input type="file" id="imFile" accept=".json,application/json"></label></div>
       <label class="field"><span>Or paste JSON</span><textarea id="imText" rows="4" spellcheck="false" placeholder="Paste results JSON"></textarea></label>
@@ -772,7 +772,7 @@ window.wsTrack=(function(){
     </div>
     <div class="out" id="imOut" aria-live="polite"></div>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Run your suite N times per task in the eval lab and print pass rate with a Wilson interval, then export the results JSON.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Run your suite N times per task and print pass rate with an interval, then export the results JSON. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/12-evals-with-repeats" target="_blank" rel="noopener noreferrer"><code>labs/12-evals-with-repeats</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 13 ============ -->
@@ -803,7 +803,7 @@ window.wsTrack=(function(){
     </table></div>
     <p class="faint" style="font-size:.84rem;margin:0">Long-horizon benchmarks that try to measure what 15-minute pass/fail tasks cannot: <a href="https://arxiv.org/abs/2606.07682" target="_blank" rel="noopener noreferrer">SWE-Marathon</a> (Abundant; 20 tasks, expert-human estimates from 40 to 400 hours, frontier agents solve fewer than 30%), <a href="https://arxiv.org/abs/2607.07946" target="_blank" rel="noopener noreferrer">DeepSWE</a> (DataCurve; 113 tasks in 91 repositories) and <a href="https://cognition.com/blog/frontier-code" target="_blank" rel="noopener noreferrer">FrontierCode</a> (Cognition; graded with unit tests, rubrics and verifiers).</p>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Run the five-rung ladder and the cross-harness comparison with the same model, export the results JSON, and import it in module 12.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Run the five-rung ladder and the cross-harness comparison with the same model, export the results JSON, and import it in module 12. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/13-ablations-and-benchmarks" target="_blank" rel="noopener noreferrer"><code>labs/13-ablations-and-benchmarks</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 14 ============ -->
@@ -838,7 +838,7 @@ window.wsTrack=(function(){
     <div class="row" style="margin-top:.6rem"><button class="btn" id="jdgRun" type="button">Judge this answer</button></div>
     <div class="out" id="jdgOut" aria-live="polite"></div>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Run a cross-vendor judge with a JSON schema at temperature 0, then hand-label a sample and compute agreement.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Run a cross-vendor judge with a JSON schema at temperature 0, then hand-label a sample and compute agreement. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/14-judge-calibration" target="_blank" rel="noopener noreferrer"><code>labs/14-judge-calibration</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 
   <div class="debate">
     <span class="ttl">Facilitator prompt</span>
@@ -891,7 +891,7 @@ window.wsTrack=(function(){
     </table></div>
     <p class="faint" style="font-size:.84rem;margin:0">Licenses read from each repository on 2026-10-31. Licenses can change, so check before you vendor. These repositories are credited here as sources and starting points.</p>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Write an AGENTS.md of about 100 lines for the starter project and add one blocking hook.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Write an AGENTS.md of about 100 lines for the starter project and add one blocking hook. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/15-agent-config" target="_blank" rel="noopener noreferrer"><code>labs/15-agent-config</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 16 ============ -->
@@ -911,7 +911,7 @@ window.wsTrack=(function(){
     <div class="row"><label class="field grow"><span>Cycles: <b class="num" id="lrCyclesVal">8</b></span><input type="range" id="lrCycles" min="1" max="20" value="8"></label><button class="btn" id="lrApp" type="button">Compare file length</button></div>
     <div class="out" id="lrAppOut" aria-live="polite"></div>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Add the learnings cycle: it rewrites LEARNINGS.md in full and only replaces it if held-out evals do not regress.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Add the learnings cycle: it rewrites LEARNINGS.md in full and only replaces it if held-out evals do not regress. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/16-learnings-loop" target="_blank" rel="noopener noreferrer"><code>labs/16-learnings-loop</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 17 ============ -->
@@ -936,7 +936,7 @@ window.wsTrack=(function(){
       <li>Package installs need egress: use a separate allowlisted-proxy phase, and keep the sandbox default at <code>--network none</code>.</li>
     </ul>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Run your loop's tool execution in a hardened container, then deploy the compose stack on a VPS.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Run your loop's tool execution in a hardened container, then deploy the compose stack on a VPS. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/17-deploy" target="_blank" rel="noopener noreferrer"><code>labs/17-deploy</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
 </section>
 
 <!-- ============ 18 ============ -->
@@ -1107,7 +1107,7 @@ window.wsTrack=(function(){
   function refLi(k) { var s = S[k]; return s ? '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(s[0]) + '</a></li>' : ''; }
   var RAIL = [
     { name: 'Start here',
-      tips: ['Every lab works in demo mode. Live calls need an OpenRouter key and cost money.', 'Quoted means a linked source published the number. Derived means this page computed it from inputs you can see.', 'Illustrative means simulated. Those outputs say so in the output itself.', 'Jediah Katz appears here with the affiliation shown on his video title: SpaceXAI.', 'The starter repo is built in parallel with this page, so module links point at its labs/ folder generally.'],
+      tips: ['Every lab works in demo mode. Live calls need an OpenRouter key and cost money.', 'Quoted means a linked source published the number. Derived means this page computed it from inputs you can see.', 'Illustrative means simulated. Those outputs say so in the output itself.', 'Jediah Katz appears here with the affiliation shown on his video title: SpaceXAI.', 'Each module links to its lab folder in the starter repo, with a starter/ to complete and a solution/ to compare against.'],
       refs: ['repo', 'orModels', 'orKeys'],
       gloss: [['Harness', 'The deterministic runtime that runs the model in a loop, executes its tool calls and manages context.'], ['Software factory', 'A system where specs or tickets go in and fleets of harnessed agents ship PRs through verification gates.']] },
     { name: 'A bare model',
@@ -1794,10 +1794,11 @@ window.wsTrack=(function(){
     return { rows: rows, k: K, n: N * probs.length };
   }
   function rowFor(label, k, n, you) { var w = wilson(k, n); return { label: label, k: k, n: n, p: n ? k / n : 0, lo: w[0], hi: w[1], you: you }; }
-  function groupResults(field, filterField, filterVal) {
+  function groupResults(field, filterField, filterVal, allow) {
     var g = Object.create(null);
     RESULTS.runs.forEach(function (r) {
       if (filterVal && String(r[filterField] == null ? '' : r[filterField]) !== filterVal) return;
+      if (allow && !allow[r.config]) return;
       var key = r[field] == null ? '(none)' : r[field];
       var o = g[key] = g[key] || { k: 0, n: 0, cost: 0, cn: 0, tasks: Object.create(null) };
       o.n++; if (r.passed) o.k++;
@@ -1806,14 +1807,26 @@ window.wsTrack=(function(){
     });
     return g;
   }
+  function dataLabel() {
+    return RESULTS.example ? TG.i + ' <span class="muted">demo data from an example file (' + RESULTS.runs.length + ' runs, read locally), not measurements</span>'
+      : TG.y + ' <span class="muted">measured, from ' + RESULTS.runs.length + ' runs you loaded; read locally</span>';
+  }
+  function sharedConfigs() {
+    var per = Object.create(null), hs = [];
+    RESULTS.runs.forEach(function (r) { if (r.harness == null) return; if (!per[r.harness]) { per[r.harness] = Object.create(null); hs.push(r.harness); } per[r.harness][r.config] = 1; });
+    if (hs.length < 2) return null;
+    var shared = Object.create(null), any = false;
+    Object.keys(per[hs[0]]).forEach(function (c) { if (hs.every(function (h) { return per[h][c]; })) { shared[c] = 1; any = true; } });
+    return any ? shared : null;
+  }
   var LADDER = ['bare', 'tools', 'inner', 'spec', 'outer'];
   function orderCfg(keys) { return keys.sort(function (a, b) { var ia = LADDER.indexOf(a), ib = LADDER.indexOf(b); if (ia < 0 && ib < 0) return a < b ? -1 : 1; if (ia < 0) return 1; if (ib < 0) return -1; return ia - ib; }); }
   function evRun() {
     var N = +$('#evN').value, seed = num($('#evSeed'), 7, 1, 9999), html;
     if (RESULTS) {
       var g = groupResults('config'), keys = orderCfg(Object.keys(g));
-      var rows = keys.map(function (k) { return rowFor(k, g[k].k, g[k].n, true); });
-      html = TG.y + ' <span class="muted">measured, from ' + RESULTS.runs.length + ' runs you loaded; read locally</span>' + dotChart(rows, { title: 'Pass rate by config, 95% Wilson interval', label: 'Your pass rate by config' }) +
+      var rows = keys.map(function (k) { return rowFor(k, g[k].k, g[k].n, !RESULTS.example); });
+      html = dataLabel() + dotChart(rows, { title: 'Pass rate by config, 95% Wilson interval', label: 'Imported pass rate by config' }) +
         '<p class="muted">' + keys.length + ' configs. Task-level repeats are not independent tasks, so read these intervals as optimistic.</p>';
     } else {
       var A = runConfig(seed, 'A', TASKS, N), B = runConfig(seed, 'B', TASKS.map(function (p) { return Math.min(.98, p + .06); }), N);
@@ -1871,7 +1884,7 @@ window.wsTrack=(function(){
     var tasks = Object.create(null), cfgs = Object.create(null), hs = Object.create(null);
     RESULTS.runs.forEach(function (r) { tasks[r.task] = 1; cfgs[r.config] = 1; if (r.harness != null) hs[r.harness] = 1; });
     fillFilters(Object.keys(hs), Object.keys(cfgs));
-    out.innerHTML = TG.y + ' <p>Loaded <b class="num">' + RESULTS.runs.length + '</b> runs: ' + Object.keys(tasks).length + ' tasks, ' + Object.keys(cfgs).length + ' configs' + (Object.keys(hs).length ? ', ' + Object.keys(hs).length + ' harnesses' : '') + '. Charts in modules 12 and 13 now show your data. It stayed in this page.</p>' +
+    out.innerHTML = (RESULTS.example ? TG.i : TG.y) + ' <p>Loaded <b class="num">' + RESULTS.runs.length + '</b> runs: ' + Object.keys(tasks).length + ' tasks, ' + Object.keys(cfgs).length + ' configs' + (Object.keys(hs).length ? ', ' + Object.keys(hs).length + ' harnesses' : '') + '. Charts in modules 12 and 13 now show this file. It stayed in this page.</p>' +
       (RESULTS.example ? '<p class="warn">This file is flagged as an example, so the numbers are still illustrative, not measurements.</p>' : '');
     evRun(); abRun();
   }
@@ -1908,13 +1921,13 @@ window.wsTrack=(function(){
     if (RESULTS) {
       var hf = $('#abHarn').value, cf = $('#abCfg').value;
       var g1 = groupResults('config', 'harness', hf), k1 = orderCfg(Object.keys(g1));
-      var g2 = groupResults('harness', 'config', cf), k2 = Object.keys(g2).sort();
-      html = TG.y + ' <span class="muted">measured, read locally</span>' + dotChart(k1.map(function (k) { return rowFor(k, g1[k].k, g1[k].n, true); }), { title: 'Ablation ladder' + (hf ? ' (harness: ' + hf + ')' : ''), label: 'Your ablation ladder' });
+      var shared = cf ? null : sharedConfigs(), g2 = groupResults('harness', 'config', cf, shared), k2 = Object.keys(g2).sort(), you = !RESULTS.example;
+      html = dataLabel() + dotChart(k1.map(function (k) { return rowFor(k, g1[k].k, g1[k].n, !RESULTS.example); }), { title: 'Ablation ladder' + (hf ? ' (harness: ' + hf + ')' : ''), label: 'Imported ablation ladder' });
       if (k2.length && !(k2.length === 1 && k2[0] === '(none)')) {
-        html += dotChart(k2.map(function (k) { return rowFor(k, g2[k].k, g2[k].n, true); }), { title: 'Cross-harness' + (cf ? ' (config: ' + cf + ')' : ''), label: 'Your cross-harness comparison' });
-        html += '<p class="muted">Mean cost per run: ' + k2.map(function (k) { return esc(k) + ' ' + (g2[k].cn ? usd(g2[k].cost / g2[k].cn) : 'n/a'); }).join(', ') + ' ' + TG.y + '.</p>';
+        html += dotChart(k2.map(function (k) { return rowFor(k, g2[k].k, g2[k].n, you); }), { title: 'Cross-harness' + (cf ? ' (config: ' + cf + ')' : shared ? ' (configs every harness ran: ' + orderCfg(Object.keys(shared)).join(', ') + ')' : ''), label: 'Imported cross-harness comparison' });
+        html += '<p class="muted">Mean cost per run: ' + k2.map(function (k) { return esc(k) + ' ' + (g2[k].cn ? usd(g2[k].cost / g2[k].cn) : 'n/a'); }).join(', ') + ' ' + (you ? TG.y : TG.i) + '.</p>';
         var rs = k2.map(function (k) { var w = wilson(g2[k].k, g2[k].n); return [w[0], w[1]]; }), ov = rs.every(function (a) { return rs.every(function (b) { return !(a[1] < b[0] || b[1] < a[0]); }); });
-        html += '<p>' + (ov ? 'Every harness interval overlaps the others: your data does not show a harness gap.' : 'At least one pair of harness intervals separates in your data.') + '</p>';
+        html += '<p>' + (ov ? 'Every harness interval overlaps the others: this data does not show a harness gap.' : 'At least one pair of harness intervals separates in this data.') + '</p>';
       } else html += '<p class="muted">No "harness" field in your runs, so there is no cross-harness chart.</p>';
     } else {
       var rows = RUNGS.map(function (r, i) { var o = runConfig(seed, 'L' + i, DIFF.map(function (d) { return Math.min(.97, r[1] * d); }), N); return rowFor(r[0], o.k, o.n); });
