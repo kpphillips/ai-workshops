@@ -2,7 +2,7 @@
 <html lang="en" data-palette="tide" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-z7F84rS9ym84aiTRz+LzoPNQjrmv8d98jstKciPo49I=' 'sha256-6s3R2NoPWbT8HAG9mOnd2wNisjhPic51bzLOoe4NUPM=' https://cloud.umami.is; style-src 'sha256-gyMNJ3cbuo5vMaA3HPjTPAl6DMB/pfQ0dy+XlkfPK/k=' https://fonts.googleapis.com; style-src-attr 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src https://openrouter.ai https://gateway.umami.is; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-z7F84rS9ym84aiTRz+LzoPNQjrmv8d98jstKciPo49I=' 'sha256-RH++ozbIP0+2YncgXlTDfDpsJWCOpV4OIL5JWWsECTU=' https://cloud.umami.is; style-src 'sha256-gyMNJ3cbuo5vMaA3HPjTPAl6DMB/pfQ0dy+XlkfPK/k=' https://fonts.googleapis.com; style-src-attr 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src https://openrouter.ai https://gateway.umami.is; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Agent harnesses vs. software factories: build a tiny software factory in Python</title>
@@ -473,7 +473,7 @@ window.wsTrack=(function(){
     <div class="cards" id="sortList"></div>
     <div class="row" style="margin-top:.8rem"><button class="btn" id="sortRun" type="button">Compare with the source table</button></div>
     <div class="out" id="sortOut" aria-live="polite"></div>
-    <p class="faint" style="font-size:.84rem">Layer definitions and example products: the workshop source outline, Part 2 (Kevin's outline of the four reference talks). The "agent = model + harness" and "CLI is an interface, not a harness" framing is from <a href="https://www.youtube.com/watch?v=ebILGCoN4UU" target="_blank" rel="noopener noreferrer">Theo's video</a>.</p>
+    <p class="faint" style="font-size:.84rem">Layer definitions and example products follow the author's own outline of the four reference talks, which is not published. The "agent = model + harness" and "CLI is an interface, not a harness" framing is from <a href="https://www.youtube.com/watch?v=ebILGCoN4UU" target="_blank" rel="noopener noreferrer">Theo's video</a>.</p>
   </div>
   <div class="callout"><span class="ttl">Where "software factory" comes from</span><span class="tag q">Quoted</span> Cusumano credits R.W. Bemer (GE, 1968) with the first working definition, and M.D. McIlroy used "factory" at the 1968 NATO software engineering conference (<a href="https://www.gregorystrachta.com/resources/Touchstones/swp-3268-23661042.pdf" target="_blank" rel="noopener noreferrer">Cusumano, MIT</a>). Dex Horthy dates the term to the same NATO conference at [00:03:45] in <a href="https://www.youtube.com/watch?v=Ib5GBkD555M&t=225s" target="_blank" rel="noopener noreferrer">his talk</a>.</div>
   <div class="build"><span class="ttl">Build it in the repo</span>Tag each component of your starter project with exactly one of the six layers. Open <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs/02-taxonomy" target="_blank" rel="noopener noreferrer"><code>labs/02-taxonomy</code></a>; each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</div>
@@ -1732,7 +1732,7 @@ window.wsTrack=(function(){
     if (k === 'claude' && model.indexOf('anthropic/') !== 0) warn = '<p class="warn">OpenRouter: "Claude Code with OpenRouter is only guaranteed to work with the Anthropic first-party provider." Pick an anthropic/* slug for this plug-in, or use the own-loop or Codex plug-in for cross-vendor runs.</p>';
     if (k === 'codex' && m && m.vendor !== 'openai') warn = '<p class="warn">Codex speaks the Responses API only. A non-OpenAI slug works only if OpenRouter\'s Responses endpoint serves it; test it before a sweep.</p>';
     var rec = '{"harness":"' + k + '","model":"' + model + '","status":"passed","turns":6,"cost_usd":' + costOf(model, 180000, 9000, 120000).toFixed(4) + '}';
-    $('#hpOut').innerHTML = TG.q + ' <span class="muted">invocation and config from the research brief and linked docs</span><h4>' + esc(p.title) + '</h4>' + warn +
+    $('#hpOut').innerHTML = TG.q + ' <span class="muted">invocation and config from the linked docs</span><h4>' + esc(p.title) + '</h4>' + warn +
       '<pre><code>' + esc(p.code) + '</code></pre><pre><code>' + esc(p.cfg) + '</code></pre>' +
       '<dl class="kv"><dt>Cost source</dt><dd>' + esc(p.cost) + '</dd><dt>License</dt><dd>' + esc(p.license) + '</dd><dt>Native result</dt><dd><code>' + esc(p.events) + '</code></dd></dl>' +
       '<p class="muted">Every plug-in is normalized to one record so the factory and the evals read the same fields ' + TG.i + ':</p><pre><code>' + esc(rec) + '</code></pre><p class="faint" style="font-size:.84rem">Sketches, not the repo\'s tested code. Whether the Claude plug-in and Codex with a non-OpenAI model work through OpenRouter still needs a live test.</p>';
@@ -2123,7 +2123,7 @@ window.wsTrack=(function(){
     $('#dkOut').innerHTML = (danger ? '<p class="bad"><b>Docker socket mounted.</b> This undoes every other flag.</p>' : '') +
       '<div class="stat-row"><div class="stat"><span class="k">Open risks</span><span class="big num ' + (risks.length ? (danger ? 'bad' : 'warn') : 'ok') + '">' + risks.length + '</span></div><div class="stat"><span class="k">Hardening flags on</span><span class="big num">' + score + ' / ' + (FLAGS.length - 1) + '</span></div></div>' +
       (risks.length ? '<ul>' + risks.map(function (r) { return '<li><code>' + esc(r[1]) + '</code>: ' + esc(r[3]) + '</li>'; }).join('') + '</ul>' : '<p class="ok">All flags on and no socket mount.</p>') +
-      '<pre><code>' + esc(cmd) + '</code></pre><pre><code>' + esc(yml) + '</code></pre><p class="muted">' + TG.q + ' the flag set is from the research brief and Docker docs. With <code>--network none</code>, installs need a separate allowlisted egress step. The compose file is a sketch ' + TG.c + '.</p>';
+      '<pre><code>' + esc(cmd) + '</code></pre><pre><code>' + esc(yml) + '</code></pre><p class="muted">' + TG.q + ' the flag set is from the Docker docs and the linked sources. With <code>--network none</code>, installs need a separate allowlisted egress step. The compose file is a sketch ' + TG.c + '.</p>';
   });
 
   // ================= 18: ship gate =================
