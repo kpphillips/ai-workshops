@@ -2,6 +2,8 @@
 <html lang="en" data-palette="tide" data-theme="dark">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-z7F84rS9ym84aiTRz+LzoPNQjrmv8d98jstKciPo49I=' 'sha256-/BswCzMRmotWt8IC6sKabk1uKwAynQxwqmCTFlc1UBw=' https://cloud.umami.is; style-src 'sha256-gyMNJ3cbuo5vMaA3HPjTPAl6DMB/pfQ0dy+XlkfPK/k=' https://fonts.googleapis.com; style-src-attr 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src https://openrouter.ai https://gateway.umami.is; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Agent harnesses vs. software factories: build a tiny software factory in Python</title>
 <meta name="description" content="A seven-part, hands-on guide to the agent stack: harness loop, state and compaction, shims, tool and data planes, factory loops and gates, evals with repeats and judge calibration, and a hardened deploy. Labs with a demo mode, plus a public Python starter repo. Independent project by Kevin Phillips.">
@@ -415,7 +417,7 @@ window.wsTrack=(function(){
   <div class="lab">
     <div class="lab-head"><h3>The starter repo</h3><span class="lab-kind">Read</span></div>
     <p class="muted" style="font-size:.92rem;margin-top:0">The hands-on code is a separate public Python repo: FastAPI with a server-rendered UI in the same Field Guide style. Each module below ends with a <b>Build it in the repo</b> step that points at the matching lab.</p>
-    <div class="row"><a class="btn sm" href="https://github.com/kpphillips/agent-factory-workshop" target="_blank" rel="noopener">Open kpphillips/agent-factory-workshop</a><a class="btn ghost sm" href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs" target="_blank" rel="noopener">Open the labs/ folder</a></div>
+    <div class="row"><a class="btn sm" href="https://github.com/kpphillips/agent-factory-workshop" target="_blank" rel="noopener noreferrer">Open kpphillips/agent-factory-workshop</a><a class="btn ghost sm" href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs" target="_blank" rel="noopener noreferrer">Open the labs/ folder</a></div>
   </div>
 
   <div class="lab">
@@ -424,7 +426,7 @@ window.wsTrack=(function(){
       <thead><tr><th scope="col">Role</th><th scope="col">OpenRouter slug</th><th scope="col" class="n">In / out per 1M tokens</th><th scope="col" class="n">Context</th></tr></thead>
       <tbody id="rosterBody"></tbody>
     </table></div>
-    <p class="faint" style="font-size:.84rem;margin:0 0 .6rem">Read from OpenRouter's <a href="https://openrouter.ai/api/v1/models" target="_blank" rel="noopener">model catalog</a> on 2026-10-31. Prices change: the button below re-reads the live catalog (public, no key) and reports any slug or price that moved.</p>
+    <p class="faint" style="font-size:.84rem;margin:0 0 .6rem">Read from OpenRouter's <a href="https://openrouter.ai/api/v1/models" target="_blank" rel="noopener noreferrer">model catalog</a> on 2026-10-31. Prices change: the button below re-reads the live catalog (public, no key) and reports any slug or price that moved.</p>
     <div class="row"><button class="btn ghost sm" id="rosterCheck" type="button">Check these against the live catalog</button></div>
     <div class="out" id="rosterOut" aria-live="polite"></div>
   </div>
@@ -457,7 +459,7 @@ window.wsTrack=(function(){
     </div>
     <div class="out" id="bareOut" aria-live="polite"></div>
   </div>
-  <div class="build"><span class="ttl">Build it in the repo</span>Open the <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs" target="_blank" rel="noopener">labs/ folder</a> and find the bare-model lab: call a model with no tools, confirm nothing changes on disk, then give it one tool.</div>
+  <div class="build"><span class="ttl">Build it in the repo</span>Open the <a href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs" target="_blank" rel="noopener noreferrer">labs/ folder</a> and find the bare-model lab: call a model with no tools, confirm nothing changes on disk, then give it one tool.</div>
 </section>
 
 <!-- ============ 2 ============ -->
@@ -471,9 +473,9 @@ window.wsTrack=(function(){
     <div class="cards" id="sortList"></div>
     <div class="row" style="margin-top:.8rem"><button class="btn" id="sortRun" type="button">Compare with the source table</button></div>
     <div class="out" id="sortOut" aria-live="polite"></div>
-    <p class="faint" style="font-size:.84rem">Layer definitions and example products: the workshop source outline, Part 2 (Kevin's outline of the four reference talks). The "agent = model + harness" and "CLI is an interface, not a harness" framing is from <a href="https://www.youtube.com/watch?v=ebILGCoN4UU" target="_blank" rel="noopener">Theo's video</a>.</p>
+    <p class="faint" style="font-size:.84rem">Layer definitions and example products: the workshop source outline, Part 2 (Kevin's outline of the four reference talks). The "agent = model + harness" and "CLI is an interface, not a harness" framing is from <a href="https://www.youtube.com/watch?v=ebILGCoN4UU" target="_blank" rel="noopener noreferrer">Theo's video</a>.</p>
   </div>
-  <div class="callout"><span class="ttl">Where "software factory" comes from</span><span class="tag q">Quoted</span> Cusumano credits R.W. Bemer (GE, 1968) with the first working definition, and M.D. McIlroy used "factory" at the 1968 NATO software engineering conference (<a href="https://www.gregorystrachta.com/resources/Touchstones/swp-3268-23661042.pdf" target="_blank" rel="noopener">Cusumano, MIT</a>). Dex Horthy dates the term to the same NATO conference at [00:03:45] in <a href="https://www.youtube.com/watch?v=Ib5GBkD555M&t=225s" target="_blank" rel="noopener">his talk</a>.</div>
+  <div class="callout"><span class="ttl">Where "software factory" comes from</span><span class="tag q">Quoted</span> Cusumano credits R.W. Bemer (GE, 1968) with the first working definition, and M.D. McIlroy used "factory" at the 1968 NATO software engineering conference (<a href="https://www.gregorystrachta.com/resources/Touchstones/swp-3268-23661042.pdf" target="_blank" rel="noopener noreferrer">Cusumano, MIT</a>). Dex Horthy dates the term to the same NATO conference at [00:03:45] in <a href="https://www.youtube.com/watch?v=Ib5GBkD555M&t=225s" target="_blank" rel="noopener noreferrer">his talk</a>.</div>
   <div class="build"><span class="ttl">Build it in the repo</span>In the labs/ folder, tag each component of your starter project with exactly one layer and write the six definitions into its README.</div>
 
   <div class="debate">
@@ -499,7 +501,7 @@ window.wsTrack=(function(){
     <div class="row"><button class="btn" id="lpStep" type="button">Step</button><button class="btn ghost" id="lpAll" type="button">Run to end</button><button class="btn ghost" id="lpReset" type="button">Reset</button></div>
     <div class="stat-row" id="lpState"></div>
     <ol class="evt" id="lpOut" aria-live="polite"></ol>
-    <p class="faint" style="font-size:.84rem">Right-hand names are the <code>codex exec --json</code> item types (<span class="tag q">Quoted</span> <a href="https://github.com/openai/codex/blob/67f0994/codex-rs/exec/src/exec_events.rs" target="_blank" rel="noopener">exec_events.rs</a>).</p>
+    <p class="faint" style="font-size:.84rem">Right-hand names are the <code>codex exec --json</code> item types (<span class="tag q">Quoted</span> <a href="https://github.com/openai/codex/blob/67f0994/codex-rs/exec/src/exec_events.rs" target="_blank" rel="noopener noreferrer">exec_events.rs</a>).</p>
   </div>
   <div class="build"><span class="ttl">Build it in the repo</span>Find the harness-loop lab: call the model, run tool calls, append results, stop on no tool call or max_turns, and write every event to an append-only log.</div>
 </section>
@@ -554,7 +556,7 @@ window.wsTrack=(function(){
     </table></div>
     <div class="row"><button class="btn" id="shPR" type="button">Open a deletion PR (simulated)</button><label class="field"><span>Replay deleted set on</span><select id="shReplay"><option value="0">Older model</option><option value="1">Mid model</option><option value="2" selected>Current model</option></select></label></div>
     <div class="out" id="shOut" aria-live="polite"></div>
-    <p class="faint" style="font-size:.84rem">The flywheel and the dashboard-plus-deletion-PR practice: Jediah Katz, [00:05:57] and [00:16:42] in <a href="https://www.youtube.com/watch?v=7Y4sbZgBdnc&t=357s" target="_blank" rel="noopener">his talk</a> (<span class="tag q">Quoted</span>). Hit counts here are made up.</p>
+    <p class="faint" style="font-size:.84rem">The flywheel and the dashboard-plus-deletion-PR practice: Jediah Katz, [00:05:57] and [00:16:42] in <a href="https://www.youtube.com/watch?v=7Y4sbZgBdnc&t=357s" target="_blank" rel="noopener noreferrer">his talk</a> (<span class="tag q">Quoted</span>). Hit counts here are made up.</p>
   </div>
   <div class="build"><span class="ttl">Build it in the repo</span>Add a shim registry with a hit counter per shim, and a report that lists the shims that did not fire.</div>
 </section>
@@ -573,7 +575,7 @@ window.wsTrack=(function(){
       <button class="btn" id="plRun" type="button">Show the consequences</button>
     </div>
     <div class="out" id="plOut" aria-live="polite"></div>
-    <p class="faint" style="font-size:.84rem">Plane definitions: Theo, [00:17:43] to [00:23:27] in <a href="https://www.youtube.com/watch?v=ebILGCoN4UU&t=1063s" target="_blank" rel="noopener">his video</a> (<span class="tag q">Quoted</span>). The token cost per definition is an input you set, not a measurement.</p>
+    <p class="faint" style="font-size:.84rem">Plane definitions: Theo, [00:17:43] to [00:23:27] in <a href="https://www.youtube.com/watch?v=ebILGCoN4UU&t=1063s" target="_blank" rel="noopener noreferrer">his video</a> (<span class="tag q">Quoted</span>). The token cost per definition is an input you set, not a measurement.</p>
   </div>
   <div class="build"><span class="ttl">Build it in the repo</span>Expose one external data source through an MCP server and keep edit and bash compiled into your loop.</div>
 
@@ -581,7 +583,7 @@ window.wsTrack=(function(){
     <span class="ttl">Facilitator prompt</span>
     <h3>Is the harness dead?</h3>
     <div class="ab">
-      <div><h4>Thesis</h4><p>Labs train models on harness traces, so coding skill moves into the weights and harnesses converge. Theo's rough guess is a 3 to 5% gap between Claude Code and Codex when running Codex models (<span class="tag q">Quoted</span> informal, [00:44:48] in <a href="https://www.youtube.com/watch?v=ebILGCoN4UU&t=2688s" target="_blank" rel="noopener">his video</a>).</p></div>
+      <div><h4>Thesis</h4><p>Labs train models on harness traces, so coding skill moves into the weights and harnesses converge. Theo's rough guess is a 3 to 5% gap between Claude Code and Codex when running Codex models (<span class="tag q">Quoted</span> informal, [00:44:48] in <a href="https://www.youtube.com/watch?v=ebILGCoN4UU&t=2688s" target="_blank" rel="noopener noreferrer">his video</a>).</p></div>
       <div><h4>Counter-thesis</h4><p>Prompts and shims shrink, but sandboxes, persistence, subscriptions, permissions, cache efficiency and multi-agent coordination matter more (Jediah Katz, Harrison Chase).</p></div>
     </div>
     <ul><li>Which guardrails ("shims") in your workflow exist only because of an older model, and which are permanent infrastructure?</li><li>The measured figure is HarnessTax, covered in module 13, not the 3 to 5%.</li></ul>
@@ -603,7 +605,7 @@ window.wsTrack=(function(){
       <button class="btn" id="lcRun" type="button">Simulate 70 bugs</button>
     </div>
     <div class="out" id="lcOut" aria-live="polite"></div>
-    <p class="faint" style="font-size:.84rem">Loop definitions: Dru Knox, [00:07:00] to [00:08:31] in <a href="https://www.youtube.com/watch?v=X6l4lpA0_NY&t=420s" target="_blank" rel="noopener">his talk</a> (<span class="tag q">Quoted</span>). Catch rates, costs and bug counts are invented for the simulation.</p>
+    <p class="faint" style="font-size:.84rem">Loop definitions: Dru Knox, [00:07:00] to [00:08:31] in <a href="https://www.youtube.com/watch?v=X6l4lpA0_NY&t=420s" target="_blank" rel="noopener noreferrer">his talk</a> (<span class="tag q">Quoted</span>). Catch rates, costs and bug counts are invented for the simulation.</p>
   </div>
   <div class="build"><span class="ttl">Build it in the repo</span>Wrap your loop in a fast inner check set and a slower outer check set, and log which check caught each defect.</div>
 </section>
@@ -628,12 +630,12 @@ window.wsTrack=(function(){
       <button class="btn" id="gtRun" type="button">Trace the defect</button>
     </div>
     <div class="out" id="gtOut" aria-live="polite"></div>
-    <p class="faint" style="font-size:.84rem">The four stages and "30 minutes over here in pre-planning and alignment can save you hours in review": Dex Horthy, [00:15:15] to [00:17:00] in <a href="https://www.youtube.com/watch?v=Ib5GBkD555M&t=915s" target="_blank" rel="noopener">his talk</a> (<span class="tag q">Quoted</span>). The hours to fix are assumptions (<span class="tag c">Convention</span>).</p>
+    <p class="faint" style="font-size:.84rem">The four stages and "30 minutes over here in pre-planning and alignment can save you hours in review": Dex Horthy, [00:15:15] to [00:17:00] in <a href="https://www.youtube.com/watch?v=Ib5GBkD555M&t=915s" target="_blank" rel="noopener noreferrer">his talk</a> (<span class="tag q">Quoted</span>). The hours to fix are assumptions (<span class="tag c">Convention</span>).</p>
   </div>
   <div class="lab">
     <div class="lab-head"><h3>Lint a Program Design</h3><span class="lab-kind">Edit and check</span></div>
     <p class="muted" style="font-size:.9rem;margin-top:0">Program Design is types, method signatures, layout and call stacks. Edit the draft and see which parts are still missing.</p>
-    <label class="field"><span>Program Design draft</span><textarea id="pdText" spellcheck="false" rows="11"></textarea></label>
+    <label class="field"><span>Program Design draft</span><textarea id="pdText" maxlength="20000" spellcheck="false" rows="11"></textarea></label>
     <div class="row" style="margin-top:.6rem"><button class="btn" id="pdLint" type="button">Check the draft</button></div>
     <div class="out" id="pdOut" aria-live="polite"></div>
   </div>
@@ -675,7 +677,7 @@ window.wsTrack=(function(){
         <tr><th scope="row">Median review time</th><td class="n">5x</td><td class="n">not restated here</td></tr>
       </tbody>
     </table></div>
-    <p class="faint" style="font-size:.84rem;margin:0">Sources: <a href="https://pages.faros.ai/hubfs/AI_Engineering_Report_2026_The_Acceleration_Whiplash_Faros.pdf" target="_blank" rel="noopener">Faros AI Engineering Report 2026</a> (22,000 developers, 4,000 teams) and the <a href="https://www.faros.ai/blog/ai-speed-trap-takeaways" target="_blank" rel="noopener">later update</a>. The two use different bases, so do not subtract one from the other.</p>
+    <p class="faint" style="font-size:.84rem;margin:0">Sources: <a href="https://pages.faros.ai/hubfs/AI_Engineering_Report_2026_The_Acceleration_Whiplash_Faros.pdf" target="_blank" rel="noopener noreferrer">Faros AI Engineering Report 2026</a> (22,000 developers, 4,000 teams) and the <a href="https://www.faros.ai/blog/ai-speed-trap-takeaways" target="_blank" rel="noopener noreferrer">later update</a>. The two use different bases, so do not subtract one from the other.</p>
   </div>
   <div class="build"><span class="ttl">Build it in the repo</span>Compute autonomy, automation and quality from your own run log instead of from sliders.</div>
 
@@ -683,7 +685,7 @@ window.wsTrack=(function(){
     <span class="ttl">Facilitator prompt</span>
     <h3>Dark factories vs. human-aligned factories</h3>
     <div class="ab">
-      <div><h4>Lights off</h4><p>Dan Shapiro's "dark factory", popularized by StrongDM: humans neither write nor review code, and put their effort into specs, scenario environments and the outer and meta loops (<a href="https://factory.strongdm.ai/" target="_blank" rel="noopener">StrongDM</a>, <a href="https://www.danshapiro.com/blog/2026/01/the-five-levels-from-spicy-autocomplete-to-the-software-factory/" target="_blank" rel="noopener">Shapiro</a>).</p></div>
+      <div><h4>Lights off</h4><p>Dan Shapiro's "dark factory", popularized by StrongDM: humans neither write nor review code, and put their effort into specs, scenario environments and the outer and meta loops (<a href="https://factory.strongdm.ai/" target="_blank" rel="noopener noreferrer">StrongDM</a>, <a href="https://www.danshapiro.com/blog/2026/01/the-five-levels-from-spicy-autocomplete-to-the-software-factory/" target="_blank" rel="noopener noreferrer">Shapiro</a>).</p></div>
       <div><h4>Lights back on</h4><p>Models trained on short pass/fail tasks optimize for passing tests, so brownfield systems decay without humans steering Program Design (Dex Horthy).</p></div>
     </div>
     <ul><li>Where should humans sit: reviewing huge diffs after the fact, or specifying types and signatures before the harness runs?</li><li>Where is your biggest bottleneck: the inner loop (agents fail to one-shot), the outer loop (PR review) or the meta loop (the same mistakes repeat)?</li></ul>
@@ -731,8 +733,8 @@ window.wsTrack=(function(){
       <button class="btn ghost sm" id="cxMark" type="button">Mark all as read</button>
     </div>
     <div class="cards" id="cxList"></div>
-    <p class="faint" style="font-size:.84rem">File map and line numbers: <span class="tag q">Quoted</span> from a read-only clone of <a href="https://github.com/openai/codex" target="_blank" rel="noopener">openai/codex</a> at commit 67f0994 (2026-10-30). Links are pinned to that commit, so line numbers will drift on main.</p>
-    <label class="field"><span>Your reading notes (stay in this page)</span><textarea id="cxNotes" class="prose" rows="4" placeholder="Ideas to copy into your own loop"></textarea></label>
+    <p class="faint" style="font-size:.84rem">File map and line numbers: <span class="tag q">Quoted</span> from a read-only clone of <a href="https://github.com/openai/codex" target="_blank" rel="noopener noreferrer">openai/codex</a> at commit 67f0994 (2026-10-30). Links are pinned to that commit, so line numbers will drift on main.</p>
+    <label class="field"><span>Your reading notes (stay in this page)</span><textarea id="cxNotes" maxlength="20000" class="prose" rows="4" placeholder="Ideas to copy into your own loop"></textarea></label>
     <div class="row" style="margin-top:.6rem"><button class="btn" id="cxExport" type="button">Summarize my reading</button></div>
     <div class="out" id="cxOut" aria-live="polite"></div>
   </div>
@@ -794,12 +796,12 @@ window.wsTrack=(function(){
     <div class="tbl-wrap"><table>
       <thead><tr><th scope="col">Study</th><th scope="col">What it found</th><th scope="col">Caveat</th></tr></thead>
       <tbody>
-        <tr><th scope="row"><a href="https://arena.ai/blog/coding-agents-harness-tax" target="_blank" rel="noopener">HarnessTax</a> (blog post on arena.ai, 2026-09-16; Pan, Yang, Arabzadeh, Chiang, Stoica, Zaharia)</th><td>21 model-harness pairs, seven models, Claude Code, Codex CLI and Pi. Average harness effect within about 2% on SWE-bench Lite and about 5% on Terminal-Bench 2.0. The same model can reach similar success "at up to 5x costs".</td><td>A blog post, not a paper. Only 30 tasks per benchmark, so small-n.</td></tr>
-        <tr><th scope="row"><a href="https://arxiv.org/abs/2609.40303" target="_blank" rel="noopener">Brilliantov, Hernandez-Cano and Abbe</a> (arXiv 2609.40303, EPFL, Apple)</th><td>On MLE-bench, under an equal time budget and the same frontier backbone, open-source state-of-the-art harnesses give no advantage over a minimal single-session baseline.</td><td>With the smaller Gemma 4 31B backbone, MLEvolve is ahead on the mean, so weaker models still gain from scaffolding.</td></tr>
-        <tr><th scope="row"><a href="https://www.youtube.com/watch?v=ebILGCoN4UU&t=2688s" target="_blank" rel="noopener">Theo, [00:44:48]</a></th><td>"The gap between Claude Code and Codex for using Codex models is like three to 5% maybe it washes out."</td><td>An informal estimate by Theo, not a measurement, and it is about Codex models only.</td></tr>
+        <tr><th scope="row"><a href="https://arena.ai/blog/coding-agents-harness-tax" target="_blank" rel="noopener noreferrer">HarnessTax</a> (blog post on arena.ai, 2026-09-16; Pan, Yang, Arabzadeh, Chiang, Stoica, Zaharia)</th><td>21 model-harness pairs, seven models, Claude Code, Codex CLI and Pi. Average harness effect within about 2% on SWE-bench Lite and about 5% on Terminal-Bench 2.0. The same model can reach similar success "at up to 5x costs".</td><td>A blog post, not a paper. Only 30 tasks per benchmark, so small-n.</td></tr>
+        <tr><th scope="row"><a href="https://arxiv.org/abs/2609.40303" target="_blank" rel="noopener noreferrer">Brilliantov, Hernandez-Cano and Abbe</a> (arXiv 2609.40303, EPFL, Apple)</th><td>On MLE-bench, under an equal time budget and the same frontier backbone, open-source state-of-the-art harnesses give no advantage over a minimal single-session baseline.</td><td>With the smaller Gemma 4 31B backbone, MLEvolve is ahead on the mean, so weaker models still gain from scaffolding.</td></tr>
+        <tr><th scope="row"><a href="https://www.youtube.com/watch?v=ebILGCoN4UU&t=2688s" target="_blank" rel="noopener noreferrer">Theo, [00:44:48]</a></th><td>"The gap between Claude Code and Codex for using Codex models is like three to 5% maybe it washes out."</td><td>An informal estimate by Theo, not a measurement, and it is about Codex models only.</td></tr>
       </tbody>
     </table></div>
-    <p class="faint" style="font-size:.84rem;margin:0">Long-horizon benchmarks that try to measure what 15-minute pass/fail tasks cannot: <a href="https://arxiv.org/abs/2606.07682" target="_blank" rel="noopener">SWE-Marathon</a> (Abundant; 20 tasks, expert-human estimates from 40 to 400 hours, frontier agents solve fewer than 30%), <a href="https://arxiv.org/abs/2607.07946" target="_blank" rel="noopener">DeepSWE</a> (DataCurve; 113 tasks in 91 repositories) and <a href="https://cognition.com/blog/frontier-code" target="_blank" rel="noopener">FrontierCode</a> (Cognition; graded with unit tests, rubrics and verifiers).</p>
+    <p class="faint" style="font-size:.84rem;margin:0">Long-horizon benchmarks that try to measure what 15-minute pass/fail tasks cannot: <a href="https://arxiv.org/abs/2606.07682" target="_blank" rel="noopener noreferrer">SWE-Marathon</a> (Abundant; 20 tasks, expert-human estimates from 40 to 400 hours, frontier agents solve fewer than 30%), <a href="https://arxiv.org/abs/2607.07946" target="_blank" rel="noopener noreferrer">DeepSWE</a> (DataCurve; 113 tasks in 91 repositories) and <a href="https://cognition.com/blog/frontier-code" target="_blank" rel="noopener noreferrer">FrontierCode</a> (Cognition; graded with unit tests, rubrics and verifiers).</p>
   </div>
   <div class="build"><span class="ttl">Build it in the repo</span>Run the five-rung ladder and the cross-harness comparison with the same model, export the results JSON, and import it in module 12.</div>
 </section>
@@ -831,8 +833,8 @@ window.wsTrack=(function(){
       <label class="field"><span>Agent that produced the answer</span><select id="jdgAgent"></select></label>
       <label class="field"><span>Judge</span><select id="jdgModel"></select></label>
     </div>
-    <label class="field"><span>Answer to judge</span><textarea id="jdgAnswer" class="prose" rows="4" spellcheck="false"></textarea></label>
-    <label class="field" style="margin-top:.5rem"><span>Rubric line</span><input type="text" id="jdgRubric" value="Does not wrap the failing code in a broad try/except to hide the error."></label>
+    <label class="field"><span>Answer to judge</span><textarea id="jdgAnswer" maxlength="8000" class="prose" rows="4" spellcheck="false"></textarea></label>
+    <label class="field" style="margin-top:.5rem"><span>Rubric line</span><input type="text" id="jdgRubric" maxlength="500" value="Does not wrap the failing code in a broad try/except to hide the error."></label>
     <div class="row" style="margin-top:.6rem"><button class="btn" id="jdgRun" type="button">Judge this answer</button></div>
     <div class="out" id="jdgOut" aria-live="polite"></div>
   </div>
@@ -854,16 +856,16 @@ window.wsTrack=(function(){
   <p class="lead">Instruction files are a short map, skills are loaded on demand, and hooks are the code that enforces the rules a model might ignore.</p>
   <div class="lab">
     <div class="lab-head"><h3>Lint an AGENTS.md</h3><span class="lab-kind">Edit and check</span></div>
-    <label class="field"><span>AGENTS.md (or CLAUDE.md)</span><textarea id="amText" spellcheck="false" rows="12"></textarea></label>
+    <label class="field"><span>AGENTS.md (or CLAUDE.md)</span><textarea id="amText" maxlength="20000" spellcheck="false" rows="12"></textarea></label>
     <div class="row" style="margin-top:.6rem"><button class="btn" id="amLint" type="button">Lint it</button></div>
     <div class="out" id="amOut" aria-live="polite"></div>
-    <p class="faint" style="font-size:.84rem">"A short AGENTS.md (roughly 100 lines) is injected into context and serves primarily as a map" (<span class="tag q">Quoted</span> <a href="https://openai.com/index/harness-engineering/" target="_blank" rel="noopener">OpenAI, Harness engineering</a>). Codex concatenates every AGENTS.md from the project root down to the working directory and honours <code>AGENTS.override.md</code>. The other thresholds here are <span class="tag c">Convention</span>.</p>
+    <p class="faint" style="font-size:.84rem">"A short AGENTS.md (roughly 100 lines) is injected into context and serves primarily as a map" (<span class="tag q">Quoted</span> <a href="https://openai.com/index/harness-engineering/" target="_blank" rel="noopener noreferrer">OpenAI, Harness engineering</a>). Codex concatenates every AGENTS.md from the project root down to the working directory and honours <code>AGENTS.override.md</code>. The other thresholds here are <span class="tag c">Convention</span>.</p>
   </div>
   <div class="lab">
     <div class="lab-head"><h3>Fire a hook</h3><span class="lab-kind">Simulate</span></div>
     <div class="row">
       <label class="field"><span>Event</span><select id="hkEvent"><option value="PreToolUse">PreToolUse</option><option value="Stop">Stop</option></select></label>
-      <label class="field grow"><span>Bash command the agent wants to run (PreToolUse)</span><input type="text" id="hkCmd" value="rm -rf build/ && pytest | tail -5"></label>
+      <label class="field grow"><span>Bash command the agent wants to run (PreToolUse)</span><input type="text" id="hkCmd" maxlength="500" value="rm -rf build/ && pytest | tail -5"></label>
     </div>
     <div class="checks" id="hkRules" role="group" aria-label="Hook rules">
       <label><input type="checkbox" id="hk_rm" checked> Block <code>rm -rf</code></label>
@@ -872,19 +874,19 @@ window.wsTrack=(function(){
     </div>
     <div class="row" style="margin-top:.6rem"><div class="checks"><label><input type="checkbox" id="hkRan"> Tests have run this session (Stop)</label></div><button class="btn" id="hkRun" type="button">Fire the hook</button></div>
     <div class="out" id="hkOut" aria-live="polite"></div>
-    <p class="faint" style="font-size:.84rem">Exit code 2 blocks, and a PreToolUse hook can return <code>hookSpecificOutput.permissionDecision</code> as allow, deny, ask or defer (<span class="tag q">Quoted</span> <a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener">Claude Code hooks docs</a>). The three rules mirror examples in <a href="https://github.com/anthropics/claude-plugins-official" target="_blank" rel="noopener">hookify</a> and <a href="https://github.com/humanlayer/humanlayer" target="_blank" rel="noopener">HumanLayer</a>.</p>
+    <p class="faint" style="font-size:.84rem">Exit code 2 blocks, and a PreToolUse hook can return <code>hookSpecificOutput.permissionDecision</code> as allow, deny, ask or defer (<span class="tag q">Quoted</span> <a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener noreferrer">Claude Code hooks docs</a>). The three rules mirror examples in <a href="https://github.com/anthropics/claude-plugins-official" target="_blank" rel="noopener noreferrer">hookify</a> and <a href="https://github.com/humanlayer/humanlayer" target="_blank" rel="noopener noreferrer">HumanLayer</a>.</p>
   </div>
   <div class="lab">
     <div class="lab-head"><h3>Skills and hooks you can reuse</h3><span class="tag q">Quoted</span></div>
     <div class="tbl-wrap"><table>
       <thead><tr><th scope="col">Repository</th><th scope="col">License</th><th scope="col">Use it for</th></tr></thead>
       <tbody>
-        <tr><th scope="row"><a href="https://github.com/obra/superpowers" target="_blank" rel="noopener">obra/superpowers</a></th><td>MIT</td><td>Planning, TDD, debugging and review skills</td></tr>
-        <tr><th scope="row"><a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills</a></th><td>Per skill (Apache-2.0 ones only)</td><td>Skill spec, template, skill-creator. Not the docx, pdf, pptx or xlsx skills: those are proprietary</td></tr>
-        <tr><th scope="row"><a href="https://github.com/openai/skills" target="_blank" rel="noopener">openai/skills</a></th><td>Per skill (Apache-2.0 ones only)</td><td>Curated skills such as CI fixing and security review. Check Figma and Notion ones before use</td></tr>
-        <tr><th scope="row"><a href="https://github.com/anthropics/claude-plugins-official" target="_blank" rel="noopener">anthropics/claude-plugins-official</a></th><td>Apache-2.0</td><td>ralph-loop (Stop-hook loop), hookify, security-guidance, code-review</td></tr>
-        <tr><th scope="row"><a href="https://github.com/agentsmd/agents.md" target="_blank" rel="noopener">agentsmd/agents.md</a></th><td>MIT</td><td>The AGENTS.md format and a canonical example</td></tr>
-        <tr><th scope="row"><a href="https://github.com/humanlayer/humanlayer" target="_blank" rel="noopener">humanlayer/humanlayer</a></th><td>Apache-2.0 (keep the NOTICE)</td><td>Hooks and research, design and plan skills that map to Dex's stages</td></tr>
+        <tr><th scope="row"><a href="https://github.com/obra/superpowers" target="_blank" rel="noopener noreferrer">obra/superpowers</a></th><td>MIT</td><td>Planning, TDD, debugging and review skills</td></tr>
+        <tr><th scope="row"><a href="https://github.com/anthropics/skills" target="_blank" rel="noopener noreferrer">anthropics/skills</a></th><td>Per skill (Apache-2.0 ones only)</td><td>Skill spec, template, skill-creator. Not the docx, pdf, pptx or xlsx skills: those are proprietary</td></tr>
+        <tr><th scope="row"><a href="https://github.com/openai/skills" target="_blank" rel="noopener noreferrer">openai/skills</a></th><td>Per skill (Apache-2.0 ones only)</td><td>Curated skills such as CI fixing and security review. Check Figma and Notion ones before use</td></tr>
+        <tr><th scope="row"><a href="https://github.com/anthropics/claude-plugins-official" target="_blank" rel="noopener noreferrer">anthropics/claude-plugins-official</a></th><td>Apache-2.0</td><td>ralph-loop (Stop-hook loop), hookify, security-guidance, code-review</td></tr>
+        <tr><th scope="row"><a href="https://github.com/agentsmd/agents.md" target="_blank" rel="noopener noreferrer">agentsmd/agents.md</a></th><td>MIT</td><td>The AGENTS.md format and a canonical example</td></tr>
+        <tr><th scope="row"><a href="https://github.com/humanlayer/humanlayer" target="_blank" rel="noopener noreferrer">humanlayer/humanlayer</a></th><td>Apache-2.0 (keep the NOTICE)</td><td>Hooks and research, design and plan skills that map to Dex's stages</td></tr>
       </tbody>
     </table></div>
     <p class="faint" style="font-size:.84rem;margin:0">Licenses read from each repository on 2026-10-31. Licenses can change, so check before you vendor. These repositories are credited here as sources and starting points.</p>
@@ -923,14 +925,14 @@ window.wsTrack=(function(){
     <div class="checks" id="dkFlags" role="group" aria-label="Sandbox flags"></div>
     <div class="row" style="margin-top:.6rem"><button class="btn" id="dkRun" type="button">Generate command and compose</button></div>
     <div class="out" id="dkOut" aria-live="polite"></div>
-    <p class="faint" style="font-size:.84rem">Flags: <a href="https://docs.docker.com/reference/cli/docker/container/run/" target="_blank" rel="noopener">docker run reference</a> (<span class="tag q">Quoted</span>). Never mount the Docker socket into the agent container; per <a href="https://docs.docker.com/engine/security/" target="_blank" rel="noopener">Docker's security docs</a> only trusted users should control the daemon. The compose file is a sketch: the repo's own file is the tested one.</p>
+    <p class="faint" style="font-size:.84rem">Flags: <a href="https://docs.docker.com/reference/cli/docker/container/run/" target="_blank" rel="noopener noreferrer">docker run reference</a> (<span class="tag q">Quoted</span>). Never mount the Docker socket into the agent container; per <a href="https://docs.docker.com/engine/security/" target="_blank" rel="noopener noreferrer">Docker's security docs</a> only trusted users should control the daemon. The compose file is a sketch: the repo's own file is the tested one.</p>
   </div>
   <div class="lab">
     <div class="lab-head"><h3>VPS notes</h3><span class="tag q">Quoted</span></div>
     <ul style="font-size:.92rem;margin:0;padding-left:1.1rem">
-      <li>Run Docker <a href="https://docs.docker.com/engine/security/rootless/" target="_blank" rel="noopener">rootless</a> on the host.</li>
-      <li>Optionally add the gVisor <code>runsc</code> runtime, an application kernel in userspace (<a href="https://gvisor.dev/docs/user_guide/quick_start/docker/" target="_blank" rel="noopener">quick start</a>).</li>
-      <li>Docker Sandboxes (<code>sbx</code>) run a microVM with its own kernel, but need KVM, which most cheap VPSes lack (<a href="https://docs.docker.com/ai/sandboxes/security/isolation/" target="_blank" rel="noopener">isolation docs</a>).</li>
+      <li>Run Docker <a href="https://docs.docker.com/engine/security/rootless/" target="_blank" rel="noopener noreferrer">rootless</a> on the host.</li>
+      <li>Optionally add the gVisor <code>runsc</code> runtime, an application kernel in userspace (<a href="https://gvisor.dev/docs/user_guide/quick_start/docker/" target="_blank" rel="noopener noreferrer">quick start</a>).</li>
+      <li>Docker Sandboxes (<code>sbx</code>) run a microVM with its own kernel, but need KVM, which most cheap VPSes lack (<a href="https://docs.docker.com/ai/sandboxes/security/isolation/" target="_blank" rel="noopener noreferrer">isolation docs</a>).</li>
       <li>Package installs need egress: use a separate allowlisted-proxy phase, and keep the sandbox default at <code>--network none</code>.</li>
     </ul>
   </div>
@@ -956,7 +958,7 @@ window.wsTrack=(function(){
     <div class="lamp-row"><h2 id="connectTitle">Live labs</h2><span class="lamp" id="lamp"><i aria-hidden="true"></i><span id="lampText">Demo</span></span></div>
     <p class="msg" id="connectMsg" role="status">Demo mode: labs use simulations, labelled illustrative.</p>
     <div class="row">
-      <input type="password" id="keyIn" autocomplete="off" placeholder="OpenRouter key (sk-or-...)" aria-label="OpenRouter API key">
+      <input type="password" id="keyIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="OpenRouter key (sk-or-...)" aria-label="OpenRouter API key">
       <button class="btn sm" id="connectBtn" type="button">Connect</button>
       <button class="btn ghost sm" id="disconnectBtn" type="button" hidden>Disconnect</button>
     </div>
@@ -975,8 +977,8 @@ window.wsTrack=(function(){
 
 <footer>
   <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, OpenAI, OpenRouter, Cursor or SpaceXAI, Tessl, HumanLayer, Faros, StrongDM, Cognition, DataCurve, Abundant, or any other company, product or author named here. Product and model names belong to their owners.</p>
-  <p>Live labs call paid models through your own OpenRouter key and cost real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a> before connecting, and set the session budget in the Live labs panel. The starter repo's own labs can spend much more, so cap that key too.</p>
-  <p>Usage policies and terms: <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener">Anthropic Usage Policy</a>, <a href="https://openai.com/policies/usage-policies/" target="_blank" rel="noopener">OpenAI Usage Policies</a>, and <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter Terms</a>. Code in openai/codex is Apache-2.0; Claude Code is proprietary and only its MIT-licensed SDK is used here.</p>
+  <p>Live labs call paid models through your own OpenRouter key and cost real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">openrouter.ai/keys</a> before connecting, and set the session budget in the Live labs panel. The starter repo's own labs can spend much more, so cap that key too.</p>
+  <p>Usage policies and terms: <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener noreferrer">Anthropic Usage Policy</a>, <a href="https://openai.com/policies/usage-policies/" target="_blank" rel="noopener noreferrer">OpenAI Usage Policies</a>, and <a href="https://openrouter.ai/terms" target="_blank" rel="noopener noreferrer">OpenRouter Terms</a>. Code in openai/codex is Apache-2.0; Claude Code is proprietary and only its MIT-licensed SDK is used here.</p>
   <p>Facts checked against primary sources on October 31, 2026. Model slugs, prices, repository licenses and docs change; re-check them before relying on them. Simulated outputs are labelled "illustrative, not measurements".</p>
   <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data. Results files you import are read in your browser and never uploaded.</p>
 </footer>
@@ -1102,7 +1104,7 @@ window.wsTrack=(function(){
     dockerSbx: ['Docker Sandboxes isolation', 'https://docs.docker.com/ai/sandboxes/security/isolation/'],
     repo: ['kpphillips/agent-factory-workshop (starter repo)', 'https://github.com/kpphillips/agent-factory-workshop']
   };
-  function refLi(k) { var s = S[k]; return s ? '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + esc(s[0]) + '</a></li>' : ''; }
+  function refLi(k) { var s = S[k]; return s ? '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(s[0]) + '</a></li>' : ''; }
   var RAIL = [
     { name: 'Start here',
       tips: ['Every lab works in demo mode. Live calls need an OpenRouter key and cost money.', 'Quoted means a linked source published the number. Derived means this page computed it from inputs you can see.', 'Illustrative means simulated. Those outputs say so in the output itself.', 'Jediah Katz appears here with the affiliation shown on his video title: SpaceXAI.', 'The starter repo is built in parallel with this page, so module links point at its labs/ folder generally.'],
@@ -1218,9 +1220,9 @@ window.wsTrack=(function(){
     var input = $('#keyIn'), msg = $('#connectMsg');
     wsTrack('connect_click');
     var cand = input.value.trim();
-    var problem = validateKey(cand);
-    if (problem) { setMsg(msg, problem, 'err'); return; }
     input.value = '';
+    var problem = validateKey(cand);
+    if (problem) { cand = null; setMsg(msg, problem + ' The field was cleared; paste the key again.', 'err'); return; }
     setMsg(msg, 'Checking the key with OpenRouter...', '');
     try {
       var res = await fetch('https://openrouter.ai/api/v1/key', { headers: { Authorization: 'Bearer ' + cand } });
@@ -1245,7 +1247,7 @@ window.wsTrack=(function(){
   $('#budgetIn').addEventListener('change', function () { var v = parseFloat(this.value); state.budget = isFinite(v) && v > 0 ? v : 1; this.value = state.budget; });
   function UserError(m) { this.message = m; this.user = true; }
   function httpError(status, data) {
-    var d = data && data.error && (data.error.message || data.error.type) ? String(data.error.message || data.error.type) : '';
+    var d = data && data.error && (data.error.message || data.error.type) ? scrub(String(data.error.message || data.error.type)).slice(0, 300) : '';
     if (status === 401) return new UserError('OpenRouter says the key is not valid anymore (401). Disconnect and connect with a fresh key.');
     if (status === 402) return new UserError('OpenRouter says the account is out of credits (402). Add credits or raise the key limit, then retry.');
     if (status === 429) return new UserError('Rate limited (429). Wait a minute, then retry.');
@@ -1269,7 +1271,7 @@ window.wsTrack=(function(){
     catch (e) { throw new UserError('Network error reaching openrouter.ai. Check your connection and any extension that blocks requests.'); }
     try { data = await res.json(); } catch (e) { data = null; }
     if (!res.ok) throw httpError(res.status, data);
-    if (data && data.error && !data.choices) throw new UserError('OpenRouter returned an error: ' + String(data.error.message || data.error.code || 'unknown') + '.');
+    if (data && data.error && !data.choices) throw new UserError('OpenRouter returned an error: ' + scrub(String(data.error.message || data.error.code || 'unknown')).slice(0, 300) + '.');
     var ch = data && data.choices && data.choices[0];
     var content = ch && ch.message ? ch.message.content : '';
     if (Array.isArray(content)) content = content.map(function (p) { return p && p.text ? p.text : ''; }).join('');
@@ -1280,7 +1282,8 @@ window.wsTrack=(function(){
     if (!text.trim()) throw new UserError('The model returned an empty reply (finish_reason: ' + ((ch && ch.finish_reason) || 'unknown') + '). If reasoning used up the tokens, raise max_tokens under Advanced.');
     return { text: text, cost: cost, usage: u };
   }
-  function showErr(box, e) { box.innerHTML = '<p class="bad">' + esc(e && e.user ? e.message : 'Something went wrong: ' + (e && e.message ? e.message : e)) + '</p>'; }
+  function scrub(s) { s = String(s == null ? '' : s); if (apiKey) s = s.split(apiKey).join('[key]'); return s.replace(/sk-or-[A-Za-z0-9_-]{6,}/g, '[key]').replace(/Bearer\s+\S+/gi, 'Bearer [key]'); }
+  function showErr(box, e) { box.innerHTML = '<p class="bad">' + esc(scrub(e && e.user ? e.message : 'Something went wrong: ' + (e && e.message ? e.message : e))) + '</p>'; }
   async function withBusy(btn, fn) { btn.disabled = true; var t = btn.textContent; btn.textContent = 'Running...'; try { await fn(); } finally { btn.disabled = false; btn.textContent = t; } }
 
   // ---------------- charts ----------------
@@ -1325,7 +1328,7 @@ window.wsTrack=(function(){
     var box = $('#rosterOut');
     box.innerHTML = '<p class="muted">Reading the public catalog...</p>';
     fetch('https://openrouter.ai/api/v1/models').then(function (r) { if (!r.ok) throw new Error('status ' + r.status); return r.json(); }).then(function (j) {
-      var by = {}; (j.data || []).forEach(function (m) { by[m.id] = m; });
+      var by = Object.create(null); (j.data || []).forEach(function (m) { by[m.id] = m; });
       var html = '<h4>Live catalog check ' + TG.t + '</h4><ul class="checklist-res">';
       var moved = 0;
       ROSTER.forEach(function (m) {
@@ -1766,7 +1769,7 @@ window.wsTrack=(function(){
     var f = $('#cxFilter').value || 'all';
     $('#cxList').innerHTML = TOUR.map(function (t, i) { return { t: t, i: i }; }).filter(function (x) { return f === 'all' || x.t[0] === f; }).map(function (x) {
       var t = x.t, i = x.i;
-      return '<div class="card2"><b>' + esc(t[2]) + '</b><span class="mono" style="font-size:.78rem;word-break:break-all"><a href="' + CXB + t[3] + (t[4] ? '#' + t[4] : '') + '" target="_blank" rel="noopener">' + esc(t[3]) + (t[4] ? ' ' + t[4] : '') + '</a></span><span class="why">' + esc(t[5]) + '</span><div class="checks"><label><input type="checkbox" data-cx="' + i + '"' + (cxRead[i] ? ' checked' : '') + '> I read this</label></div></div>';
+      return '<div class="card2"><b>' + esc(t[2]) + '</b><span class="mono" style="font-size:.78rem;word-break:break-all"><a href="' + CXB + t[3] + (t[4] ? '#' + t[4] : '') + '" target="_blank" rel="noopener noreferrer">' + esc(t[3]) + (t[4] ? ' ' + t[4] : '') + '</a></span><span class="why">' + esc(t[5]) + '</span><div class="checks"><label><input type="checkbox" data-cx="' + i + '"' + (cxRead[i] ? ' checked' : '') + '> I read this</label></div></div>';
     }).join('');
     $$('#cxList input').forEach(function (cb) { cb.addEventListener('change', function () { cxRead[cb.getAttribute('data-cx')] = cb.checked; }); });
   }
@@ -1792,14 +1795,14 @@ window.wsTrack=(function(){
   }
   function rowFor(label, k, n, you) { var w = wilson(k, n); return { label: label, k: k, n: n, p: n ? k / n : 0, lo: w[0], hi: w[1], you: you }; }
   function groupResults(field, filterField, filterVal) {
-    var g = {};
+    var g = Object.create(null);
     RESULTS.runs.forEach(function (r) {
       if (filterVal && String(r[filterField] == null ? '' : r[filterField]) !== filterVal) return;
-      var key = String(r[field] == null ? '(none)' : r[field]);
-      g[key] = g[key] || { k: 0, n: 0, cost: 0, cn: 0, tasks: {} };
-      g[key].n++; if (r.passed) g[key].k++;
-      if (typeof r.cost_usd === 'number') { g[key].cost += r.cost_usd; g[key].cn++; }
-      var t = g[key].tasks[r.task] = g[key].tasks[r.task] || { k: 0, n: 0 }; t.n++; if (r.passed) t.k++;
+      var key = r[field] == null ? '(none)' : r[field];
+      var o = g[key] = g[key] || { k: 0, n: 0, cost: 0, cn: 0, tasks: Object.create(null) };
+      o.n++; if (r.passed) o.k++;
+      if (r.cost_usd != null) { o.cost += r.cost_usd; o.cn++; }
+      var t = o.tasks[r.task] = o.tasks[r.task] || { k: 0, n: 0 }; t.n++; if (r.passed) t.k++;
     });
     return g;
   }
@@ -1825,29 +1828,51 @@ window.wsTrack=(function(){
   }
   bindRange('evN', 'evNVal'); $('#evN').addEventListener('input', evRun); $('#evSeed').addEventListener('input', evRun); $('#evRun').addEventListener('click', evRun);
 
+  var MAX_TEXT = 20 * 1024 * 1024, MAX_RUNS = 100000, MAX_STR = 80, MAX_KEYS = 40, MAX_TASKS = 2000;
+  function strField(r, i, name, required) {
+    var v = r[name];
+    if (v == null) return required ? 'runs[' + i + '] has no "' + name + '" field' + (name === 'config' ? ' (for example bare, tools, inner, spec, outer)' : '') + '.' : '';
+    if (typeof v !== 'string' && typeof v !== 'number') return 'runs[' + i + '].' + name + ' must be a string or number.';
+    if (String(v).length > MAX_STR) return 'runs[' + i + '].' + name + ' is longer than ' + MAX_STR + ' characters.';
+    return '';
+  }
   function validateResults(o) {
-    if (!o || typeof o !== 'object') return 'This is not a JSON object. Expected {"schema":"agent-factory-results/v1","runs":[...]}.';
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return 'This is not a JSON object. Expected {"schema":"agent-factory-results/v1","runs":[...]}.';
     if (o.schema !== 'agent-factory-results/v1') return 'Missing or different "schema" (found ' + JSON.stringify(String(o.schema)).slice(0, 40) + '). Expected "agent-factory-results/v1". If the repo export uses another name, tell the maintainer.';
     if (!Array.isArray(o.runs) || !o.runs.length) return 'The "runs" array is missing or empty.';
+    if (o.runs.length > MAX_RUNS) return 'The file has ' + o.runs.length + ' runs; this page reads at most ' + MAX_RUNS + '. Export a subset.';
+    var keys = { config: Object.create(null), harness: Object.create(null), task: Object.create(null) }, counts = { config: 0, harness: 0, task: 0 };
     for (var i = 0; i < o.runs.length; i++) {
       var r = o.runs[i];
-      if (!r || typeof r !== 'object') return 'runs[' + i + '] is not an object.';
-      if (r.task == null) return 'runs[' + i + '] has no "task" field.';
-      if (r.config == null) return 'runs[' + i + '] has no "config" field (for example bare, tools, inner, spec, outer).';
+      if (!r || typeof r !== 'object' || Array.isArray(r)) return 'runs[' + i + '] is not an object.';
+      var p = strField(r, i, 'task', true) || strField(r, i, 'config', true) || strField(r, i, 'harness', false);
+      if (p) return p;
       if (typeof r.passed !== 'boolean') return 'runs[' + i + '] needs "passed" as true or false (found ' + typeof r.passed + ').';
+      ['config', 'harness', 'task'].forEach(function (f) { if (r[f] != null && !keys[f][r[f]]) { keys[f][r[f]] = 1; counts[f]++; } });
+      if (counts.config > MAX_KEYS) return 'More than ' + MAX_KEYS + ' distinct configs. Export fewer configs.';
+      if (counts.harness > MAX_KEYS) return 'More than ' + MAX_KEYS + ' distinct harnesses. Export fewer harnesses.';
+      if (counts.task > MAX_TASKS) return 'More than ' + MAX_TASKS + ' distinct tasks. Export fewer tasks.';
     }
     return '';
   }
+  function normalizeResults(o) {
+    return { example: o.example === true, runs: o.runs.map(function (r) {
+      return { task: String(r.task), config: String(r.config), harness: r.harness == null ? null : String(r.harness), passed: r.passed,
+        cost_usd: typeof r.cost_usd === 'number' && isFinite(r.cost_usd) && r.cost_usd >= 0 ? r.cost_usd : null };
+    }) };
+  }
   function loadResults(text) {
     var out = $('#imOut'), o;
-    try { o = JSON.parse(text); } catch (e) { out.innerHTML = '<p class="bad">That is not valid JSON (' + esc(e.message) + '). Check for a trailing comma or a truncated paste.</p>'; return; }
+    if (text.length > MAX_TEXT) { out.innerHTML = '<p class="bad">That is over 20 MB of text. Export fewer runs.</p>'; return; }
+    try { o = JSON.parse(text); } catch (e) { out.innerHTML = '<p class="bad">That is not valid JSON (' + esc(String(e.message).slice(0, 120)) + '). Check for a trailing comma or a truncated paste.</p>'; return; }
     var problem = validateResults(o);
     if (problem) { out.innerHTML = '<p class="bad">' + esc(problem) + '</p>'; return; }
-    RESULTS = o;
-    var tasks = {}, cfgs = {}, hs = {}; o.runs.forEach(function (r) { tasks[r.task] = 1; cfgs[r.config] = 1; if (r.harness != null) hs[r.harness] = 1; });
+    RESULTS = normalizeResults(o);
+    var tasks = Object.create(null), cfgs = Object.create(null), hs = Object.create(null);
+    RESULTS.runs.forEach(function (r) { tasks[r.task] = 1; cfgs[r.config] = 1; if (r.harness != null) hs[r.harness] = 1; });
     fillFilters(Object.keys(hs), Object.keys(cfgs));
-    out.innerHTML = TG.y + ' <p>Loaded <b class="num">' + o.runs.length + '</b> runs: ' + Object.keys(tasks).length + ' tasks, ' + Object.keys(cfgs).length + ' configs' + (Object.keys(hs).length ? ', ' + Object.keys(hs).length + ' harnesses' : '') + '. Charts in modules 12 and 13 now show your data. It stayed in this page.</p>' +
-      (o.example ? '<p class="warn">This file is flagged as an example, so the numbers are still illustrative, not measurements.</p>' : '');
+    out.innerHTML = TG.y + ' <p>Loaded <b class="num">' + RESULTS.runs.length + '</b> runs: ' + Object.keys(tasks).length + ' tasks, ' + Object.keys(cfgs).length + ' configs' + (Object.keys(hs).length ? ', ' + Object.keys(hs).length + ' harnesses' : '') + '. Charts in modules 12 and 13 now show your data. It stayed in this page.</p>' +
+      (RESULTS.example ? '<p class="warn">This file is flagged as an example, so the numbers are still illustrative, not measurements.</p>' : '');
     evRun(); abRun();
   }
   function fillFilters(hs, cfgs) {
@@ -2159,7 +2184,6 @@ window.wsTrack=(function(){
   fillModelSelect($('#jdgModel'), 'openai/gpt-6.1-sol', ['openai/gpt-6.1-sol', 'anthropic/claude-sonnet-5.5', 'openai/gpt-6-luna', 'anthropic/claude-haiku-5.5']);
   lrReset(); lrAppRun(); dkInit();
   setActive(0);
-  window.__labs = { state: state, ROSTER: ROSTER, wilson: wilson };
 })();
 </script>
 </body>
