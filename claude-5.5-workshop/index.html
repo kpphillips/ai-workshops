@@ -3,15 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Claude 5.5: Haiku, Sonnet and Opus</title>
-<meta name="description" content="A hands-on workshop on Claude Haiku 5.5, Sonnet 5.5 and Opus 5.5: sourced facts, which model to pick for which job, cost per task, effort sweeps, migration linting, and repeatable A/B tests. Independent project by Kevin Phillips.">
+<title>Which Claude Model Should I Use? Haiku, Sonnet, Opus, Fable and Mythos by Task</title>
+<meta name="description" content="Which Claude model to use for each use case: Haiku 5.5, Sonnet 5.5, Opus 5.5, Fable 5.2, and gated Mythos 5.2. Quoted prices and task guidance from Anthropic, then labs to test on your own work.">
 <meta name="author" content="Kevin Phillips">
 <link rel="canonical" href="https://www.kpphillips.com/ai-workshops/claude-5.5-workshop/">
-<meta property="og:title" content="Claude 5.5: Haiku, Sonnet and Opus — an interactive workshop">
-<meta property="og:description" content="A hands-on workshop on Claude Haiku 5.5, Sonnet 5.5 and Opus 5.5: sourced facts, which model to pick for which job, cost per task, effort sweeps, migration linting, and repeatable A/B tests.">
+<meta property="og:title" content="Which Claude Model Should I Use? Haiku, Sonnet, Opus, Fable and Mythos by Task">
+<meta property="og:description" content="Which Claude model to use for each use case: Haiku 5.5, Sonnet 5.5, Opus 5.5, Fable 5.2, and gated Mythos 5.2. Quoted prices and task guidance from Anthropic, then labs to test on your own work.">
 <meta property="og:url" content="https://www.kpphillips.com/ai-workshops/claude-5.5-workshop/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Which Claude Model Should I Use? Haiku, Sonnet, Opus, Fable and Mythos by Task">
+<meta name="twitter:description" content="Which Claude model to use for each use case: Haiku 5.5, Sonnet 5.5, Opus 5.5, Fable 5.2, and gated Mythos 5.2. Quoted prices and task guidance from Anthropic, then labs to test on your own work.">
+<meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "What Claude model should I use for each task?",
+  "description": "Which Claude model to use for each use case: Haiku 5.5, Sonnet 5.5, Opus 5.5, Fable 5.2, and gated Mythos 5.2. Quoted prices and task guidance from Anthropic, then labs to test on your own work.",
+  "url": "https://www.kpphillips.com/ai-workshops/claude-5.5-workshop/",
+  "author": { "@type": "Person", "name": "Kevin Phillips" },
+  "educationalLevel": "Intermediate",
+  "learningResourceType": "Interactive workshop"
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -271,7 +287,7 @@ window.wsTrack=(function(){
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell">
 <nav class="nav" aria-label="Workshop modules">
-  <div class="brand">Claude 5.5<span>Haiku, Sonnet and Opus, measured</span></div>
+  <div class="brand">Claude models<span>Which model for which task</span></div>
   <a href="https://www.kpphillips.com/ai-workshops/" style="align-self:flex-start;font-family:var(--f-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);text-decoration:none;">← All workshops</a>
   <div class="tick" aria-hidden="true"></div>
   <div class="progress">
@@ -309,8 +325,8 @@ window.wsTrack=(function(){
 
 <section class="mod" id="m0" data-mod="0">
   <div class="tick" aria-hidden="true"></div>
-  <h1>Claude 5.5: Haiku, Sonnet and Opus</h1>
-  <p class="lead">Anthropic shipped Opus 5.5 on September 22, 2026, Sonnet 5.5 six days later and Haiku 5.5 on October 7. This page covers all three, with Fable 5.1 where it is the tier above. Every lab either checks a published number or runs a test you can repeat with your own key, and <a href="#m11">module 11</a> helps you choose which model to start with.</p>
+  <h1>What Claude model should I use for each task?</h1>
+  <p class="lead">Use the model Anthropic names for that kind of work, then test it on your own tasks. Opus 5.5 shipped September 22, 2026, Sonnet 5.5 six days later, and Haiku 5.5 on October 7. Fable 5.2, released November 9, 2026, is the current step up when Opus at higher effort still falls short. Mythos 5.2 is that tier for verified organizations only, so this page does not call it. Fable 5.1 is still listed as a legacy model. Every lab either checks a published number or runs a test you can repeat with your own key, and <a href="#m11">module 11</a> is the choice guide.</p>
   <div class="legend" aria-label="Evidence labels">
     <span><span class="tag q">Quoted</span> published by the linked source</span>
     <span><span class="tag d">Derived</span> computed on this page from quoted numbers</span>
@@ -322,26 +338,51 @@ window.wsTrack=(function(){
   <div class="lab">
     <div class="lab-head"><h3>The lineup side by side</h3><span class="tag q">Quoted</span></div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th scope="col">Spec</th><th scope="col">Haiku 5.5</th><th scope="col">Sonnet 5.5</th><th scope="col">Opus 5.5</th><th scope="col">Fable 5.1</th></tr></thead>
+      <thead><tr><th scope="col">Spec</th><th scope="col">Haiku 5.5</th><th scope="col">Sonnet 5.5</th><th scope="col">Opus 5.5</th><th scope="col">Fable 5.2</th></tr></thead>
       <tbody>
-        <tr><td>API model ID</td><td><code>claude-haiku-5-5</code></td><td><code>claude-sonnet-5-5</code></td><td><code>claude-opus-5-5</code></td><td><code>claude-fable-5-1</code></td></tr>
-        <tr><td>OpenRouter slug (live labs)</td><td><code>anthropic/claude-haiku-5.5</code></td><td><code>anthropic/claude-sonnet-5.5</code></td><td><code>anthropic/claude-opus-5.5</code></td><td><code>anthropic/claude-fable-5.1</code></td></tr>
-        <tr><td>Input / output per 1M tokens</td><td class="num">$0.10 / $0.50 up to 100K-token prompts; $0.50 / $2.50 over</td><td class="num">$2 / $10</td><td class="num">$4 / $20</td><td class="num">$10 / $50</td></tr>
-        <tr><td>Cache read per 1M tokens</td><td class="num">$0.01 up to 100K; $0.05 over</td><td class="num">$0.10 (was $0.20 until Oct 7)</td><td class="num">$0.20</td><td class="num">$0.25</td></tr>
-        <tr><td>5-minute cache write per 1M tokens</td><td class="num">$0.125 up to 100K; $0.625 over</td><td class="num">$2.50</td><td class="num">$5</td><td class="num">$12.50</td></tr>
+        <tr><td>API model ID</td><td><code>claude-haiku-5-5</code></td><td><code>claude-sonnet-5-5</code></td><td><code>claude-opus-5-5</code></td><td><code>claude-fable-5-2</code></td></tr>
+        <tr><td>OpenRouter slug</td><td><code>anthropic/claude-haiku-5.5</code></td><td><code>anthropic/claude-sonnet-5.5</code></td><td><code>anthropic/claude-opus-5.5</code></td><td><code>anthropic/claude-fable-5.2</code></td></tr>
+        <tr><td>Input / output per 1M tokens</td><td class="num">$0.10 / $0.50 up to 100K-token prompts; $0.50 / $2.50 over</td><td class="num">$2 / $10</td><td class="num">$4 / $20</td><td class="num">$8 / $40</td></tr>
+        <tr><td>Cache read per 1M tokens</td><td class="num">$0.01 up to 100K; $0.05 over</td><td class="num">$0.10 (was $0.20 until Oct 7)</td><td class="num">$0.20</td><td class="num">$0.20</td></tr>
+        <tr><td>5-minute cache write per 1M tokens</td><td class="num">$0.125 up to 100K; $0.625 over</td><td class="num">$2.50</td><td class="num">$5</td><td class="num">$10</td></tr>
         <tr><td>Default effort on the Claude API</td><td><code>medium</code></td><td><code>high</code> (Medium in Claude Code and the apps)</td><td><code>medium</code></td><td><code>high</code></td></tr>
         <tr><td>Lowest thinking setting</td><td>Adaptive, on by default; <code>disabled</code> works at high effort or below</td><td><code>between_tools</code> (no up-front thinking, high effort or below)</td><td>Adaptive, always on; lower effort instead</td><td>Adaptive, always on</td></tr>
         <tr><td>Context / max output</td><td class="num">1M / 128K</td><td class="num">1M / 128K</td><td class="num">1M / 128K</td><td class="num">1M / 128K</td></tr>
-        <tr><td>Latency, Anthropic's comparison</td><td>Fastest</td><td>Fast</td><td>Moderate</td><td>Slower</td></tr>
-        <tr><td>Anthropic's positioning</td><td>High-volume, latency-sensitive tasks such as classification, extraction, and routing</td><td>Well-scoped everyday tasks, bug fixes, documents, slides, spreadsheets; "the best combination of speed and intelligence"</td><td>Complex work requiring careful judgment; long-running agentic coding and knowledge work</td><td>Demanding reasoning and long-horizon agentic work</td></tr>
+        <tr><td>Latency, Anthropic's comparison</td><td>Fastest</td><td>Fast</td><td>Moderate</td><td>Moderate</td></tr>
+        <tr><td>Anthropic's positioning</td><td>High-volume, latency-sensitive tasks such as classification, extraction, and routing</td><td>Well-scoped everyday tasks, bug fixes, documents, slides, spreadsheets; "the best combination of speed and intelligence"</td><td>Complex work requiring careful judgment; long-running agentic coding and knowledge work</td><td>Demanding reasoning and long-horizon agentic work. The step up when Opus 5.5 at higher effort still falls short</td></tr>
       </tbody>
     </table></div>
-    <p class="faint" style="font-size:.84rem;margin:0 0 .6rem">Sources: <a href="https://platform.claude.com/docs/en/models/overview">Models overview</a>, <a href="https://platform.claude.com/docs/en/models/haiku-5-5/overview">Haiku 5.5 model page</a>, <a href="https://www.anthropic.com/claude-haiku-5-5">Haiku 5.5 announcement</a>, <a href="https://www.anthropic.com/claude-opus-5-5">Opus 5.5 announcement</a>, <a href="https://platform.claude.com/docs/en/models/opus-5-5/whats-new-opus-5-5">What's new in Opus 5.5</a>, <a href="https://www.anthropic.com/claude-sonnet-5-5">Sonnet 5.5 announcement</a>, <a href="https://platform.claude.com/docs/en/models/sonnet-5-5/overview">Sonnet 5.5 model page</a>, <a href="https://platform.claude.com/docs/en/models/fable-5-1/overview">Fable 5.1 model page</a>. OpenRouter slugs: <a href="https://openrouter.ai/api/v1/models">OpenRouter models API</a>, checked October 9, 2026.</p>
-    <p class="faint" style="font-size:.84rem;margin:0">Not published in the sources reviewed, so left out: a Haiku 5.5 price on OpenRouter above the 100K split (its listing shows one rate, $0.10 / $0.50), how Fable 5.1's tokenizer compares with the others, and Haiku 5.5 scores at default effort other than GDPval-AA and AA-Briefcase. Haiku 5.5 does not support Priority Tier or a server-side refusal fallback (<a href="https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide">migration guide</a>).</p>
+    <p class="faint" style="font-size:.84rem;margin:0 0 .6rem">Sources: <a href="https://platform.claude.com/docs/en/models/overview">Models overview</a>, <a href="https://platform.claude.com/docs/en/about-claude/pricing">Pricing</a>, <a href="https://platform.claude.com/docs/en/models/haiku-5-5/overview">Haiku 5.5 model page</a>, <a href="https://www.anthropic.com/claude-haiku-5-5">Haiku 5.5 announcement</a>, <a href="https://www.anthropic.com/claude-opus-5-5">Opus 5.5 announcement</a>, <a href="https://platform.claude.com/docs/en/models/opus-5-5/whats-new-opus-5-5">What's new in Opus 5.5</a>, <a href="https://www.anthropic.com/claude-sonnet-5-5">Sonnet 5.5 announcement</a>, <a href="https://platform.claude.com/docs/en/models/sonnet-5-5/overview">Sonnet 5.5 model page</a>, <a href="https://platform.claude.com/docs/en/models/fable-5-2/overview">Fable 5.2 model page</a>. OpenRouter slugs: <a href="https://openrouter.ai/api/v1/models">OpenRouter models API</a>, checked November 10, 2026. Live labs on this page call Haiku 5.5, Sonnet 5.5 and Opus 5.5 only.</p>
+    <p class="faint" style="font-size:.84rem;margin:0 0 .6rem">Still listed, and not the current step-up: the models overview keeps Claude Fable 5.1 under legacy models. The pricing page lists it at $10 / $50 per million tokens, with cache reads at $0.25. API ID <code>claude-fable-5-1</code>. OpenRouter still lists <code>anthropic/claude-fable-5.1</code> at that price. Checked November 10, 2026.</p>
+    <p class="faint" style="font-size:.84rem;margin:0">Not published in the sources reviewed on November 10, 2026, so left out: a Haiku 5.5 price on OpenRouter above the 100K split (its listing shows one rate, $0.10 / $0.50), a separate Fable 5.2 or Mythos 5.2 token count against Opus 5.5, and Haiku 5.5 scores at default effort other than GDPval-AA and AA-Briefcase. Haiku 5.5 does not support Priority Tier or a server-side refusal fallback (<a href="https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide">migration guide</a>).</p>
+  </div>
+  <div class="lab">
+    <div class="lab-head"><h3>Mythos 5.2</h3><span class="tag q">Quoted</span></div>
+    <p>Claude Mythos 5.2 "has the same specifications and pricing as Claude Fable 5.2" and is "available only to organizations verified through Anthropic's verification programs, such as the Cyber Verification Program." This page does not call it. The OpenRouter models API on November 10, 2026 has no Mythos slug.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th scope="col">Spec</th><th scope="col">Mythos 5.2</th></tr></thead>
+      <tbody>
+        <tr><td>API model ID</td><td><code>claude-mythos-5-2</code></td></tr>
+        <tr><td>Access</td><td>Verification required. No live lab on this page.</td></tr>
+        <tr><td>Input / output per 1M tokens</td><td class="num">$8 / $40</td></tr>
+        <tr><td>Cache read per 1M tokens</td><td class="num">$0.20</td></tr>
+        <tr><td>5-minute / 1-hour cache write per 1M tokens</td><td class="num">$10 / $16</td></tr>
+        <tr><td>Default effort on the Claude API</td><td><code>high</code></td></tr>
+        <tr><td>Thinking</td><td>Adaptive, always on</td></tr>
+        <tr><td>Context / max output</td><td class="num">1M / 128K</td></tr>
+        <tr><td>Latency, Anthropic's comparison</td><td>Moderate</td></tr>
+        <tr><td>Benchmarks</td><td>Not published on the Mythos 5.2 model page or the pricing page reviewed November 10, 2026.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="faint" style="font-size:.84rem;margin:0">Sources: <a href="https://platform.claude.com/docs/en/models/mythos-5-2/overview">Mythos 5.2 model page</a>, <a href="https://platform.claude.com/docs/en/about-claude/pricing">Pricing</a>, <a href="https://platform.claude.com/docs/en/about-claude/models/choosing-a-model">Choosing a model</a>. The model page says it offers "the same capabilities" as Fable 5.2 for verified organizations.</p>
   </div>
   <div class="callout caution">
     <span class="ttl">A price that changed after launch <span class="tag q">Quoted</span></span>
     The Sonnet 5.5 launch page (September 28) still lists cache reads at $0.20 per million tokens. The Haiku 5.5 announcement says that from October 7 they cost $0.10, "around 20% cheaper" on most agentic work, and the Sonnet 5.5 model page and OpenRouter now show $0.10. Every Sonnet 5.5 price line is now exactly half the matching Opus 5.5 line. Opus 5.5's cache read is still $0.20.
+  </div>
+  <div class="callout">
+    <span class="ttl">Cache reads on a long run <span class="tag q">Quoted</span></span>
+    The pricing page lists cache reads at $0.20 per million tokens for Fable 5.2, Mythos 5.2 and Opus 5.5, and at $0.10 for Sonnet 5.5. It prices Fable and Mythos cache reads at 2.5% of the $8 input price, and Opus 5.5 and Sonnet 5.5 cache reads at 5% of theirs. Addy Osmani, in <a href="https://claude.dev/blog/which-claude-model-should-you-build-with/">Which Claude model should you build with?</a> (November 9, 2026): "Fable 5.2 charges the same $0.20, so on a long, cache-heavy run the gap between Fable and Opus comes down to uncached input and output, where Fable costs twice as much per token." <span class="tag d">Derived</span> Twice is $8 / $4 on input and $40 / $20 on output.
   </div>
   <div class="callout">
     <span class="ttl">The case study</span>
@@ -607,7 +648,11 @@ window.wsTrack=(function(){
 <section class="mod" id="m10" data-mod="10">
   <div class="tick" aria-hidden="true"></div>
   <h2>10. Route by cost per passing task</h2>
-  <p class="intro">Sonnet 5.5 is two Elo points behind Opus 5.5 on GDPval-AA, yet Anthropic says Opus stays clearly stronger on complex open-ended work. For prompts up to 100K tokens Haiku 5.5's input price is one twentieth of Sonnet 5.5's, and Anthropic says it is best for narrowly scoped work. Run both checkable tasks on the models you tick and let the cheapest passing configuration write your routing rule.</p>
+  <p class="intro">Sonnet 5.5 is two Elo points behind Opus 5.5 on GDPval-AA, yet Anthropic says Opus stays clearly stronger on complex open-ended work. For prompts up to 100K tokens Haiku 5.5's input price is one twentieth of Sonnet 5.5's, and Anthropic says it is best for narrowly scoped work. Run both checkable tasks on the models you tick and let the cheapest passing configuration write your routing rule. Fable 5.2 is the step up outside this chart, priced in module 2, for when Opus 5.5 at higher effort still fails your own evals.</p>
+  <div class="callout">
+    <span class="ttl">Subagents on a cheaper model <span class="tag q">Quoted</span></span>
+    Addy Osmani, <a href="https://claude.dev/blog/which-claude-model-should-you-build-with/">Which Claude model should you build with?</a> (November 9, 2026): "Haiku 5.5 is also good to use with subagents that work on a larger model's side tasks." "Put subagents on smaller models." "Keep code edits and judgment calls on the main model." His task table starts subagents on Haiku 5.5 or Sonnet 5.5 because "Wrong answers are cheap to spot, and the main model has the judgment calls anyway." The choosing-a-model page lists "subagent tasks" under Haiku 5.5. <span class="tag j">Workshop judgment</span> This lab prices the main model on two checkable tasks. Price a helper on its own token mix before you copy a routing rule onto it.
+  </div>
   <div class="lab">
     <div class="lab-head"><h3>Cost versus pass rate</h3><span class="lab-kind">Test it yourself</span></div>
     <div class="row">
@@ -643,7 +688,12 @@ window.wsTrack=(function(){
 <section class="mod" id="m11" data-mod="11">
   <div class="tick" aria-hidden="true"></div>
   <h2>11. Pick the model for the job</h2>
-  <p class="intro">Anthropic's model guide gives two ways to start: efficiency-first, beginning with Haiku 5.5 and moving up only where it falls short, or capability-first, beginning with Opus 5.5 and moving down as your evals allow. It adds that tuning effort "is often a better lever than switching models." Choose a model for each task below, then see what the sources say. There is no score: several picks are defensible, and the point is to see what each one buys and risks.</p>
+  <p class="intro">Anthropic's model guide gives two ways to start: efficiency-first, beginning with Haiku 5.5 and moving up only where it falls short, or capability-first, beginning with Opus 5.5 and moving down as your evals allow. It adds that tuning effort "is often a better lever than switching models." A November 9, 2026 playbook by Addy Osmani says to start most coding and knowledge work on Opus 5.5, step down to Sonnet or Haiku, step up to Fable 5.2 when Opus at high effort still fails, put cheaper models on subagents, and raise effort before switching models. The platform guide names xhigh or max for that step up. Both are quoted below. Choose a model for each task, then see what the sources say. There is no score: several picks are defensible, and the point is to see what each one buys and risks.</p>
+  <div class="callout">
+    <span class="ttl">Playbook, November 9, 2026 <span class="tag q">Quoted</span></span>
+    Addy Osmani, <a href="https://claude.dev/blog/which-claude-model-should-you-build-with/">Which Claude model should you build with?</a>: "The quick answer is that you should start most work on Opus 5.5 at its default effort level, <code>medium</code>." "It's the model we recommend starting with for most coding and knowledge work." "Move down to Sonnet 5.5 for well-scoped everyday work." "Move further down to Haiku 5.5 for the simplest high-volume work, such as classification, routing, and extraction." "Move up to Claude Fable 5.2 for the hardest technical projects in coding, finance and the sciences. Also move up when Opus 5.5 at <code>high</code> still falls short, or for long unattended runs." "Before you move models, try adjusting your effort level. It's a finer dial for both cost and capability."
+    The platform guide sets the step up one notch higher: "If your evals at <code>xhigh</code> or <code>max</code> effort still fall short on demanding reasoning or long-horizon agentic work, move to Claude Fable 5.2." On cache reads, Osmani writes that Fable 5.2 "charges the same $0.20" per million tokens as Opus 5.5, "so on a long, cache-heavy run the gap between Fable and Opus comes down to uncached input and output, where Fable costs twice as much per token." The <a href="https://platform.claude.com/docs/en/about-claude/pricing">pricing page</a> lists both of those cache reads at $0.20. <span class="tag j">Workshop judgment</span> The playbook and the model guide name different effort levels for the step up. Raise effort on the model you have, then test the next model on your own tasks.
+  </div>
   <div class="lab">
     <div class="lab-head"><h3>Pick the model</h3><span class="lab-kind">Think it through</span></div>
     <div class="row">
@@ -655,7 +705,7 @@ window.wsTrack=(function(){
         <label><input type="radio" name="pkModel" value="haiku-5.5"> Haiku 5.5</label>
         <label><input type="radio" name="pkModel" value="sonnet-5.5"> Sonnet 5.5</label>
         <label><input type="radio" name="pkModel" value="opus-5.5"> Opus 5.5</label>
-        <label><input type="radio" name="pkModel" value="fable-5.1"> Fable 5.1</label>
+        <label><input type="radio" name="pkModel" value="fable-5.2"> Fable 5.2</label>
       </div>
     </fieldset>
     <div class="row"><button class="btn" id="pkRun" type="button">Compare with the sources</button></div>
@@ -669,10 +719,11 @@ window.wsTrack=(function(){
         <tr><td>Haiku 5.5</td><td>"High-volume, latency-sensitive tasks such as classification, extraction, and routing." Best suited to "narrowly scoped tasks" such as compaction, summarization and subagent work.</td><td>Volume and speed set your budget, the task is narrow, and you can check its output on a sample. Also as a helper under a larger lead model.</td><td>Complex agentic coding: Terminal-Bench 4.0 <span class="num">39.2%</span> against <span class="num">70.6%</span> for Sonnet 5.5 <span class="tag q">Quoted</span>. In the system card's audit it over-refused more than any other model tested and hallucinated more than other recent models. Published scores are at max effort. No server-side refusal fallback.</td></tr>
         <tr><td>Sonnet 5.5</td><td>"The best combination of speed and intelligence." Strongest at "well-scoped everyday tasks, fixing bugs, and creating polished documents, slides, and spreadsheets."</td><td>Everyday coding, document and agent work where you want strong results at half Opus 5.5's list price on every price line.</td><td>Anthropic: Opus 5.5 "remains clearly stronger at complex, open-ended work requiring sustained judgment." At max effort Sonnet 5.5 can launch review subagents and make out-of-scope edits <span class="tag q">Quoted</span>.</td></tr>
         <tr><td>Opus 5.5</td><td>"Long-running agentic coding and knowledge work"; "complex work requiring careful judgment." The models overview says to start here for most workloads.</td><td>Unattended multi-hour agents, large refactors, open-ended judgment calls, or the capability-first baseline you optimize down from.</td><td>List price $4 / $20 against $2 / $10 for Sonnet 5.5. Its system card flags "asserting unverified inferences as established fact," so keep a verification step.</td></tr>
-        <tr><td>Fable 5.1</td><td>"Demanding reasoning and long-horizon agentic work," for when "your evals on Claude Opus 5.5 at higher effort still fall short."</td><td>Only after Opus 5.5 at xhigh or max misses your bar on your own evals.</td><td>List price $10 / $50 and Anthropic's latency comparison says "Slower." This workshop reviewed no Fable 5.1 system card.</td></tr>
+        <tr><td>Fable 5.2</td><td>"Demanding reasoning and long-horizon agentic work." The model guide: move here when "your evals at xhigh or max effort still fall short." Osmani (November 9, 2026): "when Opus 5.5 at high still falls short," and for "the hardest technical projects." "Anthropic's most capable model open to all customers."</td><td>After you have raised effort on Opus 5.5 and your own evals still miss. The two sources name different effort levels, so test both thresholds on your tasks.</td><td>List price <span class="num">$8 / $40</span>. Cache reads <span class="num">$0.20</span> per million tokens, the same dollar price as Opus 5.5. Latency on the models overview is Moderate, the same label as Opus 5.5. Fable 5.1 remains listed as a legacy model at <span class="num">$10 / $50</span>. <span class="tag q">Quoted</span> <span class="tag d">Derived</span> The "same dollar price" and "same label" lines compare two quoted figures.</td></tr>
+        <tr><td>Mythos 5.2</td><td>"The same specifications and pricing as Claude Fable 5.2," "available only to organizations verified through Anthropic's verification programs, such as the Cyber Verification Program." The choosing-a-model page says it "offers the same capabilities" as Fable 5.2 for those organizations.</td><td>Only if your organization is verified. For everyone else, the published step up is Fable 5.2. Test on your own tasks either way.</td><td>Input <span class="num">$8</span> / output <span class="num">$40</span>, context 1M, max output 128K, cache read <span class="num">$0.20</span>, latency Moderate, default effort high. <span class="tag q">Quoted</span> Benchmark scores are not published on the model page or the pricing page reviewed November 10, 2026. No OpenRouter slug that day, and this page does not call it.</td></tr>
       </tbody>
     </table></div>
-    <p class="faint" style="font-size:.84rem;margin:0">Sources: <a href="https://platform.claude.com/docs/en/models/overview">Models overview</a>, <a href="https://platform.claude.com/docs/en/about-claude/models/choosing-a-model">Choosing the right model</a>, <a href="https://www.anthropic.com/claude-haiku-5-5">Haiku 5.5 announcement</a>, <a href="https://www.anthropic.com/claude-sonnet-5-5">Sonnet 5.5 announcement</a>, <a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf">Haiku 5.5 system card</a>, <a href="https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf">Opus 5.5 system card</a>.</p>
+    <p class="faint" style="font-size:.84rem;margin:0">Sources: <a href="https://platform.claude.com/docs/en/models/overview">Models overview</a>, <a href="https://platform.claude.com/docs/en/about-claude/models/choosing-a-model">Choosing the right model</a>, <a href="https://platform.claude.com/docs/en/about-claude/pricing">Pricing</a>, <a href="https://platform.claude.com/docs/en/models/fable-5-2/overview">Fable 5.2 model page</a>, <a href="https://platform.claude.com/docs/en/models/mythos-5-2/overview">Mythos 5.2 model page</a>, <a href="https://claude.dev/blog/which-claude-model-should-you-build-with/">Which Claude model should you build with?</a> (Addy Osmani, November 9, 2026), <a href="https://www.anthropic.com/claude-haiku-5-5">Haiku 5.5 announcement</a>, <a href="https://www.anthropic.com/claude-sonnet-5-5">Sonnet 5.5 announcement</a>, <a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf">Haiku 5.5 system card</a>, <a href="https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf">Opus 5.5 system card</a>.</p>
   </div>
   <div class="lab">
     <div class="lab-head"><h3>What the published scores say</h3><span class="tag q">Quoted</span></div>
@@ -687,7 +738,7 @@ window.wsTrack=(function(){
         <tr><td>Humanity's Last Exam, no tools (<a href="https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf#page=111">p. 111</a>)</td><td class="n num">45.9%</td><td class="n num">56.9%</td><td class="n">not listed</td></tr>
       </tbody>
     </table></div>
-    <p class="faint" style="font-size:.84rem;margin:0">Haiku 5.5 rows are at max effort, the system card's standard setting. The card does not state the effort used for Sonnet 5.5 and Opus 5.5 on ProgramBench, so treat that row as indicative; it is also the one row where Haiku 5.5 is ahead of Sonnet 5.5. "Not listed" means the Haiku 5.5 sources give no Opus 5.5 figure for that row.</p>
+    <p class="faint" style="font-size:.84rem;margin:0">Haiku 5.5 rows are at max effort, the system card's standard setting. The card does not state the effort used for Sonnet 5.5 and Opus 5.5 on ProgramBench, so treat that row as indicative; it is also the one row where Haiku 5.5 is ahead of Sonnet 5.5. "Not listed" means the Haiku 5.5 sources give no Opus 5.5 figure for that row. Table kept from that system card. Page check date: November 10, 2026. These scores were not re-measured that day. Fable 5.2 and Mythos 5.2 are absent because the Fable 5.2 and Mythos 5.2 model pages reviewed that day do not publish these rows.</p>
   </div>
 </section>
 
@@ -739,7 +790,7 @@ window.wsTrack=(function(){
 <footer>
   <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, OpenRouter, OpenAI, Search Engine Journal, Medium, or any creator named here. Product names belong to their owners.</p>
   <p>Live labs call paid models through your own OpenRouter key and cost real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys">openrouter.ai/keys</a> before connecting. Use is subject to <a href="https://www.anthropic.com/legal/aup">Anthropic's Usage Policy</a> and <a href="https://openrouter.ai/terms">OpenRouter's Terms</a>.</p>
-  <p>Facts checked against primary sources on October 9, 2026. Prices and benchmarks change; re-check before relying on them.</p>
+  <p>Facts checked against primary sources on November 10, 2026. Prices and benchmarks change; re-check before relying on them.</p>
   <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data.</p>
 </footer>
 
@@ -752,12 +803,16 @@ window.wsTrack=(function(){
   // Opus 5.5 + Opus 5: anthropic.com/claude-opus-5-5 pricing table.
   // Sonnet 5.5: platform.claude.com/docs/en/models/sonnet-5-5/overview (cache read $0.10 since Oct 7, 2026; $0.20 at launch). Sonnet 5: "same prices as Sonnet 5" (whats-new-sonnet-5-5).
   // Haiku 5.5: platform.claude.com/docs/en/models/haiku-5-5/overview. Higher rates in `long` apply to prompts over 100,000 tokens.
-  // Fable 5.1: platform.claude.com/docs/en/models/fable-5-1/overview. Slugs checked against openrouter.ai/api/v1/models on Oct 9, 2026.
+  // Prices: platform.claude.com/docs/en/about-claude/pricing and the model pages, checked November 10, 2026.
+  // Fable 5.2 and Mythos 5.2: $8 / $40, cache read $0.20 (0.025x), 5-minute cache write $10.
+  // Fable 5.1 remains on the pricing page at $10 / $50, cache read $0.25. It is legacy, not a calculator option here.
+  // Slugs checked against openrouter.ai/api/v1/models on November 10, 2026. Mythos 5.2 was not listed.
   var MODELS = {
     'haiku-5.5': { label: 'Claude Haiku 5.5', slug: 'anthropic/claude-haiku-5.5', apiId: 'claude-haiku-5-5', input: 0.1, output: 0.5, cacheRead: 0.01, cacheWrite: 0.125, long: { input: 0.5, output: 2.5, cacheRead: 0.05, cacheWrite: 0.625 }, apiDefaultEffort: 'medium', live: true },
     'sonnet-5.5': { label: 'Claude Sonnet 5.5', slug: 'anthropic/claude-sonnet-5.5', apiId: 'claude-sonnet-5-5', input: 2, output: 10, cacheRead: 0.1, cacheWrite: 2.5, apiDefaultEffort: 'high', live: true },
     'opus-5.5': { label: 'Claude Opus 5.5', slug: 'anthropic/claude-opus-5.5', apiId: 'claude-opus-5-5', input: 4, output: 20, cacheRead: 0.2, cacheWrite: 5, apiDefaultEffort: 'medium', live: true },
-    'fable-5.1': { label: 'Claude Fable 5.1', slug: 'anthropic/claude-fable-5.1', apiId: 'claude-fable-5-1', input: 10, output: 50, cacheRead: 0.25, cacheWrite: 12.5, apiDefaultEffort: 'high', live: false },
+    'fable-5.2': { label: 'Claude Fable 5.2', slug: 'anthropic/claude-fable-5.2', apiId: 'claude-fable-5-2', input: 8, output: 40, cacheRead: 0.2, cacheWrite: 10, apiDefaultEffort: 'high', live: false },
+    'mythos-5.2': { label: 'Claude Mythos 5.2', slug: '', apiId: 'claude-mythos-5-2', input: 8, output: 40, cacheRead: 0.2, cacheWrite: 10, apiDefaultEffort: 'high', live: false },
     'opus-5': { label: 'Claude Opus 5', slug: 'anthropic/claude-opus-5', apiId: 'claude-opus-5', input: 5, output: 25, cacheRead: 0.5, cacheWrite: 6.25, apiDefaultEffort: 'high', live: false },
     'sonnet-5': { label: 'Claude Sonnet 5', slug: 'anthropic/claude-sonnet-5', apiId: 'claude-sonnet-5', input: 2, output: 10, cacheRead: 0.2, cacheWrite: 2.5, apiDefaultEffort: null, live: false }
   };
@@ -1284,12 +1339,16 @@ window.wsTrack=(function(){
   var U = {
     overview: 'https://platform.claude.com/docs/en/models/overview',
     choosing: 'https://platform.claude.com/docs/en/about-claude/models/choosing-a-model',
+    pricing: 'https://platform.claude.com/docs/en/about-claude/pricing',
+    fable: 'https://platform.claude.com/docs/en/models/fable-5-2/overview',
+    mythos: 'https://platform.claude.com/docs/en/models/mythos-5-2/overview',
+    playbook: 'https://claude.dev/blog/which-claude-model-should-you-build-with/',
     haikuAnn: 'https://www.anthropic.com/claude-haiku-5-5',
     sonAnn: 'https://www.anthropic.com/claude-sonnet-5-5',
     opusCard: 'https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf',
     card: function (n) { return 'https://www-cdn.anthropic.com/e1080d6bf5ae2018ea3c2f414064be03232f5be5/Claude%20Haiku%205.5%20System%20Card.pdf' + (n ? '#page=' + n : ''); }
   };
-  var PICK_ORDER = ['haiku-5.5', 'sonnet-5.5', 'opus-5.5', 'fable-5.1'];
+  var PICK_ORDER = ['haiku-5.5', 'sonnet-5.5', 'opus-5.5', 'fable-5.2'];
   var PICK_TASKS = [
     { id: 'triage', title: 'Label and route support tickets',
       scenario: 'An inbox gets about 50,000 tickets a day. Each needs one of 12 categories and an urgent yes or no, returned as JSON in well under a second. You can score a sample against human labels.',
@@ -1323,6 +1382,7 @@ window.wsTrack=(function(){
       why: [
         { t: 'q', text: 'Anthropic says Haiku 5.5 "pairs well with Opus 5.5 and Sonnet 5.5 as a subagent on coding work."', src: ['Haiku 5.5 announcement', U.haikuAnn] },
         { t: 'q', text: 'It names "compaction, summarization, or subagent work" as the narrowly scoped jobs Haiku 5.5 suits.', src: ['Haiku 5.5 announcement', U.haikuAnn] },
+        { t: 'q', text: 'Osmani (November 9, 2026): "Haiku 5.5 is also good to use with subagents that work on a larger model\'s side tasks," and "Put subagents on smaller models." Keep code edits and judgment calls on the main model.', src: ['Which Claude model should you build with?', U.playbook] },
         { t: 'q', text: 'Cognition, a customer, reports that with Haiku 5.5 as the sidekick and Opus 5.5 as lead, Devin Fusion "holds a top-tier FrontierCode score of 66.2 while cutting cost and latency." This is one customer\'s result, not an Anthropic measurement.', src: ['Haiku 5.5 announcement', U.haikuAnn] },
         { t: 'j', text: 'Keep the lead on Sonnet 5.5 or Opus 5.5 and give the helper one narrow job whose output you can check.' }
       ],
@@ -1394,16 +1454,19 @@ window.wsTrack=(function(){
         { t: 'j', text: 'Have the lawyer check every clause the memo cites.' }
       ] },
     { id: 'research', title: 'Produce a finished research report over several hours',
-      scenario: 'A deep-research session runs for hours and ends in a finished 40-page report with sources. You have already run it on Opus 5.5 at xhigh and max effort, and your evals still fall short.',
-      unit: 'runs', perN: 1, mix: { turns: 150, fresh: 12000, cached: 300000, out: 8000 }, start: ['fable-5.1'],
+      scenario: 'A deep-research session runs for hours and ends in a finished 40-page report with sources. You have already raised effort on Opus 5.5, and your evals still fall short.',
+      unit: 'runs', perN: 1, mix: { turns: 150, fresh: 12000, cached: 300000, out: 8000 }, start: ['fable-5.2'],
       why: [
-        { t: 'q', text: 'Anthropic\'s model guide says: "If your evals at xhigh or max effort still fall short on demanding reasoning or long-horizon agentic work, move to Claude Fable 5.1."', src: ['Choosing a model', U.choosing] },
-        { t: 'q', text: 'The same guide lists "multistep deep research" and "analysis carried through to a finished document, spreadsheet, or deck" as Fable 5.1 workloads.', src: ['Choosing a model', U.choosing] },
-        { t: 'q', text: 'Fable 5.1 lists at $10 / $50 per million tokens against $4 / $20 for Opus 5.5, and Anthropic\'s latency comparison says "Slower."', src: ['Models overview', U.overview] },
-        { t: 'j', text: 'Fable 5.1 costs 2.5 times Opus 5.5 per token. Move up only after Opus 5.5 at higher effort has failed your evals; if it has not failed, you are paying for headroom you do not use.' }
+        { t: 'q', text: 'The model guide says: "If your evals at xhigh or max effort still fall short on demanding reasoning or long-horizon agentic work, move to Claude Fable 5.2."', src: ['Choosing a model', U.choosing] },
+        { t: 'q', text: 'The same guide lists "multistep deep research" and "analysis carried through to a finished document, spreadsheet, or deck" under Fable 5.2, and calls it "Anthropic\'s most capable model open to all customers."', src: ['Choosing a model', U.choosing] },
+        { t: 'q', text: 'Osmani (November 9, 2026): move up to Fable 5.2 "when Opus 5.5 at high still falls short," and raise effort before you switch models.', src: ['Which Claude model should you build with?', U.playbook] },
+        { t: 'q', text: 'The models overview lists Fable 5.2 at $8 / $40 per million tokens and latency Moderate, the same latency label as Opus 5.5. Opus 5.5 lists at $4 / $20.', src: ['Models overview', U.overview] },
+        { t: 'd', text: 'On fresh input and output, $8 / $4 and $40 / $20 are 2 times Opus 5.5. Cache reads list at the same $0.20, so a cache-heavy mix costs less than twice. The table below applies this task\'s mix.' }
       ],
       watch: [
-        { t: 'n', text: 'This workshop reviewed no Fable 5.1 system card. Its Fable facts come from the models overview and model page.' }
+        { t: 'q', text: 'Fable 5.1 is still listed as a legacy model at $10 / $50, cache read $0.25. It is not the current step up.', src: ['Pricing', U.pricing] },
+        { t: 'q', text: 'Mythos 5.2 has the same published price and specs as Fable 5.2 and requires Anthropic verification. The model page does not publish the benchmark rows in the table on this page. This workshop does not call Mythos.', src: ['Mythos 5.2 model page', U.mythos] },
+        { t: 'j', text: 'The playbook names high effort and the model guide names xhigh or max. Test Opus 5.5 at the next effort, and test Fable 5.2, on your own evals before you treat either sentence as the rule.' }
       ] }
   ];
 
@@ -1553,7 +1616,11 @@ window.wsTrack=(function(){
     haikuPrompt: ['Prompting Claude Haiku 5.5 (docs)', L.DOCS.haikuPrompt],
     overview: ['Models overview (docs)', 'https://platform.claude.com/docs/en/models/overview'],
     choosing: ['Choosing the right model (docs)', 'https://platform.claude.com/docs/en/about-claude/models/choosing-a-model'],
-    fableOverview: ['Claude Fable 5.1 model page (docs)', 'https://platform.claude.com/docs/en/models/fable-5-1/overview'],
+    fableOverview: ['Claude Fable 5.2 model page (docs)', 'https://platform.claude.com/docs/en/models/fable-5-2/overview'],
+    fable51Overview: ['Claude Fable 5.1 model page (docs, legacy)', 'https://platform.claude.com/docs/en/models/fable-5-1/overview'],
+    mythosOverview: ['Claude Mythos 5.2 model page (docs)', 'https://platform.claude.com/docs/en/models/mythos-5-2/overview'],
+    pricing: ['Pricing (docs)', 'https://platform.claude.com/docs/en/about-claude/pricing'],
+    playbook: ['Addy Osmani: Which Claude model should you build with? (Nov 9, 2026)', 'https://claude.dev/blog/which-claude-model-should-you-build-with/'],
     opusAnn: ['Introducing Claude Opus 5.5 (Anthropic)', 'https://www.anthropic.com/claude-opus-5-5'],
     opusCard: ['Claude Opus 5.5 System Card (PDF)', 'https://www-cdn.anthropic.com/fc1b44717c85dc068bc6ba5024219938094694bd/Claude%20Opus%205.5%20System%20Card.pdf'],
     opusNew: ["What's new in Claude Opus 5.5 (docs)", L.DOCS.opusNew],
@@ -1568,7 +1635,7 @@ window.wsTrack=(function(){
     orOpus: ['OpenRouter: Claude Opus 5.5 listing', 'https://openrouter.ai/anthropic/claude-opus-5.5'],
     orSonnet: ['OpenRouter: Claude Sonnet 5.5 listing', 'https://openrouter.ai/anthropic/claude-sonnet-5.5'],
     orHaiku: ['OpenRouter: Claude Haiku 5.5 listing', 'https://openrouter.ai/anthropic/claude-haiku-5.5'],
-    orModels: ['OpenRouter: models API (slugs checked October 9, 2026)', 'https://openrouter.ai/api/v1/models'],
+    orModels: ['OpenRouter: models API (slugs and prices checked November 10, 2026)', 'https://openrouter.ai/api/v1/models'],
     sej: ['Search Engine Journal: Anthropic publishes prompting guidance for Opus 5.5', 'https://www.searchenginejournal.com/anthropic-claude-opus-5-5-prompting-guidance/591278/'],
     njenga: ['Joe Njenga on Medium: Sonnet 5.5 in Claude Code (paywalled; intro only reviewed)', 'https://medium.com/@joe.njenga/claude-sonnet-5-5-is-here-i-tried-it-on-claude-code-opus-5-5-level-for-less-8f5b44a54b69'],
     berman: ['Matthew Berman on YouTube (channel; video not reviewed)', 'https://www.youtube.com/@matthew_berman'],
@@ -1579,16 +1646,16 @@ window.wsTrack=(function(){
   // ---------------- rail content ----------------
   var RAIL = [
     { name: 'Start here',
-      tips: ['Demo mode runs every lab with canned responses, labelled illustrative in the output.', 'Live mode calls OpenRouter with your key. The key stays in page memory and is gone on reload.', 'Set a credit limit on the key at openrouter.ai/keys before you connect.', 'The default lab model is Sonnet 5.5 at low effort. Haiku 5.5 costs less per token; switch any lab to Haiku 5.5 or Opus 5.5 to compare.', 'Haiku 5.5 launched October 7. The same day Sonnet 5.5 cache reads fell from $0.20 to $0.10, so launch coverage of Sonnet 5.5 prices from September can be stale.', 'Evidence labels: Quoted, Derived, Illustrative, Creator claim, Workshop judgment. A number without one is a defect; tell the author.'],
-      refs: ['haikuAnn', 'overview', 'opusAnn', 'sonAnn', 'opusNew', 'sonOverview', 'orModels'],
+      tips: ['Demo mode runs every lab with canned responses, labelled illustrative in the output.', 'Live mode calls OpenRouter with your key. The key stays in page memory and is gone on reload.', 'Set a credit limit on the key at openrouter.ai/keys before you connect.', 'The default lab model is Sonnet 5.5 at low effort. Live labs call Haiku 5.5, Sonnet 5.5 and Opus 5.5. They do not call Fable 5.2 or Mythos 5.2.', 'Fable 5.2 lists at $8 / $40. Mythos 5.2 lists the same price and requires Anthropic verification. Fable 5.1 is still listed at $10 / $50.', 'Haiku 5.5 launched October 7. The same day Sonnet 5.5 cache reads fell from $0.20 to $0.10, so launch coverage of Sonnet 5.5 prices from September can be stale.', 'Evidence labels: Quoted, Derived, Illustrative, Creator claim, Workshop judgment. A number without one is a defect; tell the author.'],
+      refs: ['haikuAnn', 'overview', 'pricing', 'fableOverview', 'mythosOverview', 'opusAnn', 'sonAnn', 'orModels'],
       gloss: [['Effort', 'The request setting, low to max, that controls how much the model thinks, and with it cost and latency.'], ['Adaptive thinking', 'The model decides how much to think each turn. On Opus 5.5 it cannot be switched off.']] },
     { name: 'Claim ledger',
-      tips: ['Ask "cheaper than what?" The 40% saving is measured against Opus 5, not Fable 5.1.', 'A customer quote is one company\'s result on its own workload, not a benchmark.', 'Benchmark rows compare only when effort, tools and harness match.', 'Opus 5.5 on Chartography: 89.0% with tools, 64.4% without. Sonnet 5.5: 61.6% without.', 'Haiku 5.5\'s launch scores are at max effort. At its default, medium, GDPval-AA is 1277, not 1620.', 'A claim with no number and no source goes to a test lab, not into your prompt.', 'Export the ledger and keep it next to your prompts so the next model launch starts from evidence.'],
+      tips: ['Ask "cheaper than what?" The 40% saving is measured against Opus 5, not Fable 5.2 or the older Fable 5.1.', 'A customer quote is one company\'s result on its own workload, not a benchmark.', 'Benchmark rows compare only when effort, tools and harness match.', 'Opus 5.5 on Chartography: 89.0% with tools, 64.4% without. Sonnet 5.5: 61.6% without.', 'Haiku 5.5\'s launch scores are at max effort. At its default, medium, GDPval-AA is 1277, not 1620.', 'A claim with no number and no source goes to a test lab, not into your prompt.', 'Export the ledger and keep it next to your prompts so the next model launch starts from evidence.'],
       refs: ['opusAnn', 'sonAnn', 'haikuAnn', 'haikuCard', 'opusCard', 'theo'],
       gloss: [['Creator claim', 'A statement from a video, post or newsletter that we could not check against a primary source.'], ['Baseline', 'The model and setting a percentage is measured against. Without it, "40% cheaper" means nothing.']] },
     { name: 'Cost per task',
-      tips: ['Opus 5.5 lists 20% below Opus 5 on input and output, and 60% below on cache reads.', 'Anthropic\'s 40% per-task figure also counts fewer tokens per task at default settings.', 'Since October 7 Sonnet 5.5 costs half of Opus 5.5 on every price line: input, output, cache reads and cache writes.', 'Haiku 5.5 bills $0.10 / $0.50 input and output for prompts up to 100K tokens and $0.50 / $2.50 above that. A long agent context can land in the higher tier.', 'Anthropic says Haiku 5.5 costs around 75% less to run than Haiku 4.5 on average, after counting the extra tokens its newer tokenizer uses (about 30% more for the same text).', 'Batch processing halves input and output on both models.', '5-minute cache writes: $5 on Opus 5.5, $2.50 on Sonnet 5.5.', 'The calculator assumes the candidate uses the same token mix scaled by one ratio. Real runs shift the mix too.'],
-      refs: ['opusAnn', 'opusNew', 'sonOverview', 'haikuAnn', 'haikuOverview', 'fableOverview'],
+      tips: ['Opus 5.5 lists 20% below Opus 5 on input and output, and 60% below on cache reads.', 'Anthropic\'s 40% per-task figure also counts fewer tokens per task at default settings.', 'Since October 7 Sonnet 5.5 costs half of Opus 5.5 on every price line: input, output, cache reads and cache writes.', 'Fable 5.2 lists at $8 / $40. Its cache read is $0.20 per million tokens, the same dollar price as Opus 5.5, so a cache-heavy run\'s gap is the uncached input and output.', 'Mythos 5.2 lists the same token prices as Fable 5.2. Access requires Anthropic verification.', 'Haiku 5.5 bills $0.10 / $0.50 input and output for prompts up to 100K tokens and $0.50 / $2.50 above that. A long agent context can land in the higher tier.', 'Anthropic says Haiku 5.5 costs around 75% less to run than Haiku 4.5 on average, after counting the extra tokens its newer tokenizer uses (about 30% more for the same text).', 'Batch processing halves input and output on both models.', '5-minute cache writes: $5 on Opus 5.5, $2.50 on Sonnet 5.5, $10 on Fable 5.2 and Mythos 5.2.', 'The calculator assumes the candidate uses the same token mix scaled by one ratio. Real runs shift the mix too.'],
+      refs: ['opusAnn', 'opusNew', 'sonOverview', 'haikuAnn', 'haikuOverview', 'fableOverview', 'mythosOverview', 'pricing', 'playbook'],
       gloss: [['Prompt tier', 'Haiku 5.5 is priced by prompt size: up to 100,000 tokens, or over. One request counts, not a whole task.'], ['Cache read', 'Input tokens served from the prompt cache, billed at a fraction of the input price. Most of an agent\'s input.'], ['Per-task cost', 'Tokens a task actually used, times price. What you pay; list price is only half of it.'], ['Elo', 'A rating from head-to-head comparisons. Gaps are comparable only within one leaderboard.']] },
     { name: 'Effort sweep',
       tips: ['Opus 5.5 and Haiku 5.5 default to medium on the API. Opus 5 defaulted to high. Haiku 5.5 is the first Haiku with effort levels.', 'Sonnet 5.5 defaults to high on the Claude Platform and Medium in Claude Code and the apps.', 'At the same level, Opus 5.5 thinks more per turn than Opus 5, most at xhigh and max.', 'Thinking counts toward max_tokens. A cut-off run shows stop_reason "max_tokens" and fails the checker.', 'Changing top-level effort between requests invalidates the prompt cache. Per-message effort (beta) keeps it.', 'Sonnet 5.5 at low effort can skip verifying a change, and at low and medium it checks in more on long tasks.', 'Anthropic: reserve xhigh and max for work where you have measured a quality gain.', 'Haiku 5.5: low is for chat and simple high-volume work, medium is the default, and in long agent prompts low is more likely to skip a search, stop early or skip a check.', 'Haiku 5.5: thinking "disabled" works at high effort or below and returns a 400 at xhigh and max. At xhigh in multi-turn chats it can put its whole answer in its thinking and leave the reply empty.', 'Haiku 5.5 launch scores are at max effort. Its HealthBench Professional score rose from 57.9% at low to 64.8% at max; the larger models moved less than 2 points.'],
@@ -1619,16 +1686,16 @@ window.wsTrack=(function(){
       refs: ['opusPrompt', 'opusAnn', 'sonAnn'],
       gloss: [['Negative constraint', 'An instruction naming what not to produce. Works when it names concrete patterns.']] },
     { name: 'Route by cost',
-      tips: ['Anthropic: Sonnet 5.5 complements Opus 5.5 best at lower effort. At higher settings it can perform comparably at a similar cost.', 'Anthropic: Opus 5.5 remains clearly stronger at complex, open-ended work requiring sustained judgment.', 'Sonnet 5.5 guide: for the hardest long-horizon work, an Opus model is the better choice.', 'Terminal-Bench 4.0: Sonnet 5.5 70.6%, Opus 5.5 66.4% (Opus at xhigh, its best).', 'GDPval-AA v2.1: Sonnet 5.5 1844, Opus 5.5 1846. The Haiku 5.5 page, same benchmark, lists Haiku 5.5 at 1620 and Sonnet 5.5 at 1840, so keep each comparison inside one table.', 'Anthropic: Haiku 5.5 is best suited to narrowly scoped work, and Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding.', 'Haiku 5.5\'s published scores are at max effort and this lab stops at high, so read its results as what you would get at the effort you ship.', 'Two runs per point is a smoke test. Scale up runs before you change production routing.', 'Customer Creator\'s pattern: Opus sets the architecture, Sonnet implements it.'],
-      refs: ['sonAnn', 'sonPrompt', 'haikuAnn', 'haikuCard', 'orSonnet', 'orHaiku', 'njenga'],
+      tips: ['Anthropic: Sonnet 5.5 complements Opus 5.5 best at lower effort. At higher settings it can perform comparably at a similar cost.', 'Anthropic: Opus 5.5 remains clearly stronger at complex, open-ended work requiring sustained judgment.', 'Sonnet 5.5 guide: for the hardest long-horizon work, an Opus model is the better choice.', 'Osmani (Nov 9, 2026): put subagents on Haiku 5.5 or Sonnet 5.5, and keep code edits and judgment calls on the main model.', 'Fable 5.2 is the step up when Opus 5.5 at higher effort still fails your evals. It is not a box in this pass-rate chart. Price it in module 2.', 'Terminal-Bench 4.0: Sonnet 5.5 70.6%, Opus 5.5 66.4% (Opus at xhigh, its best).', 'GDPval-AA v2.1: Sonnet 5.5 1844, Opus 5.5 1846. The Haiku 5.5 page, same benchmark, lists Haiku 5.5 at 1620 and Sonnet 5.5 at 1840, so keep each comparison inside one table.', 'Anthropic: Haiku 5.5 is best suited to narrowly scoped work, and Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding.', 'Haiku 5.5\'s published scores are at max effort and this lab stops at high, so read its results as what you would get at the effort you ship.', 'Two runs per point is a smoke test. Scale up runs before you change production routing.', 'Customer Creator\'s pattern: Opus sets the architecture, Sonnet implements it.'],
+      refs: ['sonAnn', 'sonPrompt', 'haikuAnn', 'haikuCard', 'choosing', 'playbook', 'pricing', 'orSonnet', 'orHaiku', 'njenga'],
       gloss: [['Routing rule', 'Which model and effort handles which task type, chosen by cost per passing run.'], ['Pass rate', 'Share of runs whose output clears the task\'s automatic checker.']] },
     { name: 'Pick the model',
-      tips: ['Anthropic offers two starting points: efficiency-first with Haiku 5.5, or capability-first with Opus 5.5. The models overview says to start with Opus 5.5 for most workloads.', 'Anthropic: tuning effort "is often a better lever than switching models." Fable 5.1 is the step up when Opus 5.5 at xhigh or max still falls short on your evals.', 'Haiku 5.5 system card, audit: it "over-refused more than any other model we tested." On single-turn benign prompts through the API it declined 0.17%, against 0.44% for Haiku 4.5 and 0.02% for Sonnet 5.5.', 'System card: it "hallucinated more than other recent models," and used a leaked answer without telling the user 17% of the time, against 2% for Haiku 4.5.', 'System card: the most prompt-injection-robust Haiku yet, largely matching the frontier models against adaptive attackers in coding and computer use.', 'System card: its cyber safeguards trigger on far less activity than other recent releases, have no fallback model, and its biology safeguards match Opus 5\'s and Sonnet 5\'s.', 'Anthropic: Haiku 5.5 scores are at max effort and its API default is medium. At medium, GDPval-AA is 1277 against 1620 at max.', 'Anthropic: Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding; Haiku 5.5 suits narrowly scoped work such as compaction, summarization and subagents.', 'Workshop judgment: the token mixes in the lab are invented to show how price scales. Replace them with your own before you decide anything.'],
-      refs: ['overview', 'choosing', 'haikuAnn', 'haikuCard', 'sonAnn', 'opusCard', 'fableOverview'],
+      tips: ['Anthropic offers two starting points: efficiency-first with Haiku 5.5, or capability-first with Opus 5.5. The models overview says to start with Opus 5.5 for most workloads.', 'Osmani (Nov 9, 2026): start most coding and knowledge work on Opus 5.5, step down to Sonnet or Haiku, use cheaper models on subagents, and raise effort before switching models.', 'The model guide steps up to Fable 5.2 when Opus 5.5 at xhigh or max still falls short. Osmani says to step up when Opus 5.5 at high still falls short. Test both thresholds on your tasks.', 'Mythos 5.2 matches Fable 5.2\'s published specs and price, and requires Anthropic verification. This page does not call it. Benchmark scores are not on the model page reviewed November 10, 2026.', 'Fable 5.1 is still listed as a legacy model at $10 / $50. Fable 5.2 lists at $8 / $40, with cache reads at $0.20, the same dollar price as Opus 5.5.', 'Haiku 5.5 system card, audit: it "over-refused more than any other model we tested." On single-turn benign prompts through the API it declined 0.17%, against 0.44% for Haiku 4.5 and 0.02% for Sonnet 5.5.', 'System card: it "hallucinated more than other recent models," and used a leaked answer without telling the user 17% of the time, against 2% for Haiku 4.5.', 'System card: the most prompt-injection-robust Haiku yet, largely matching the frontier models against adaptive attackers in coding and computer use.', 'System card: its cyber safeguards trigger on far less activity than other recent releases, have no fallback model, and its biology safeguards match Opus 5\'s and Sonnet 5\'s.', 'Anthropic: Haiku 5.5 scores are at max effort and its API default is medium. At medium, GDPval-AA is 1277 against 1620 at max.', 'Anthropic: Sonnet 5.5 and Opus 5.5 remain better choices for complex agentic coding; Haiku 5.5 suits narrowly scoped work such as compaction, summarization and subagents.', 'Workshop judgment: the token mixes in the lab are invented to show how price scales. Replace them with your own before you decide anything.'],
+      refs: ['overview', 'choosing', 'pricing', 'playbook', 'fableOverview', 'mythosOverview', 'haikuAnn', 'haikuCard', 'sonAnn', 'opusCard'],
       gloss: [['Efficiency-first', 'Start on the cheapest model likely to work and move up only for specific capability gaps.'], ['Capability-first', 'Start on the strongest model for the task, then lower effort or move down once your evals allow it.'], ['Subagent', 'A helper model a lead agent hands one narrow job, so most tokens are billed at the helper\'s lower rate.']] },
     { name: 'Ship gate',
-      tips: ['Repeat labs 3, 5, 10 and 11 on your own tasks before changing production settings.', 'Re-check prices before publishing numbers. Launch coverage goes stale within weeks.', 'Keep a verification step: the system card\'s top flagged behavior is stating unverified inferences as fact.', 'Anthropic reports Opus 5.5 often suspects it is being evaluated, so treat every test as a floor on what you still need to watch in production.', 'Haiku 5.5 system card: over-refusal in its audit and more hallucination than other recent models. Check a sample of its output before it runs unattended.'],
-      refs: ['opusCard', 'opusAnn', 'sonAnn', 'haikuCard'],
+      tips: ['Repeat labs 3, 5, 10 and 11 on your own tasks before changing production settings.', 'Re-check prices before publishing numbers. Launch coverage goes stale within weeks. Fable 5.2 is $8 / $40. Mythos 5.2 matches that price and requires verification. Fable 5.1 is still listed at $10 / $50.', 'Keep a verification step: the system card\'s top flagged behavior is stating unverified inferences as fact.', 'Anthropic reports Opus 5.5 often suspects it is being evaluated, so treat every test as a floor on what you still need to watch in production.', 'Haiku 5.5 system card: over-refusal in its audit and more hallucination than other recent models. Check a sample of its output before it runs unattended.'],
+      refs: ['opusCard', 'opusAnn', 'sonAnn', 'haikuCard', 'pricing', 'mythosOverview', 'playbook'],
       gloss: [['Evaluation awareness', 'A model noticing it is probably being tested, which can make test behavior differ from real use.']] }
   ];
   function renderRail(i) {
@@ -1825,7 +1892,7 @@ window.wsTrack=(function(){
   var STATUS = { confirmed: ['Confirmed', 'q'], corrected: ['Corrected', 'x'], creator: ['Creator claim', 'c'], test: ['Test it yourself', 't'] };
   var CLAIMS = [
     { claim: 'Opus 5.5 costs 40% less to run than Opus 5.', status: 'confirmed', evidence: 'Anthropic: "at default settings it will cost 40% less than Opus 5 on typical workloads."', ref: S.opusAnn[1], lab: 'm2' },
-    { claim: 'Opus 5.5 matches Fable 5.1 at 40% lower cost.', status: 'corrected', evidence: 'The 40% baseline is Opus 5. Fable 5.1 lists at $10/$50 per 1M tokens vs $4/$20 for Opus 5.5.', ref: S.sonOverview[1], lab: 'm2' },
+    { claim: 'Opus 5.5 matches Fable 5.1 at 40% lower cost.', status: 'corrected', evidence: 'The 40% baseline is Opus 5. Fable 5.1, still listed as a legacy model, is $10/$50 per 1M tokens vs $4/$20 for Opus 5.5. Fable 5.2, the current step-up as of November 10, 2026, lists at $8/$40, twice Opus 5.5 on input and output. Cache reads for Fable 5.2 and Opus 5.5 both list at $0.20.', ref: S.pricing[1], lab: 'm2' },
     { claim: 'Input $4/M, output $20/M, cache reads $0.20/M.', status: 'confirmed', evidence: 'Opus 5.5 pricing table. Opus 5 was $5, $25 and $0.50.', ref: S.opusAnn[1], lab: 'm2' },
     { claim: 'Output is 30%+ faster than Opus 5.', status: 'confirmed', evidence: 'Anthropic: "generates output more than 30% faster than Opus 5."', ref: S.opusAnn[1], lab: 'm3' },
     { claim: '300+ Elo jump over competing models on GDPval.', status: 'corrected', evidence: '1846 vs GPT-6 Astra 1542 is +304, but vs GPT-5.6 Sol 1588 it is +258 and vs Fable 5.1 1735 it is +111.', ref: S.opusAnn[1], lab: 'm2' },
@@ -1882,7 +1949,7 @@ window.wsTrack=(function(){
   });
 
   // ---------------- module 2: cost ----------------
-  var costModels = ['opus-5', 'opus-5.5', 'sonnet-5', 'sonnet-5.5', 'haiku-5.5', 'fable-5.1'];
+  var costModels = ['opus-5', 'opus-5.5', 'sonnet-5', 'sonnet-5.5', 'haiku-5.5', 'fable-5.2', 'mythos-5.2'];
   function fillCostSelect(sel, def) { sel.innerHTML = costModels.map(function (k) { return '<option value="' + k + '">' + L.MODELS[k].label + '</option>'; }).join(''); sel.value = def; }
   fillCostSelect($('#ccBase'), 'opus-5'); fillCostSelect($('#ccCand'), 'opus-5.5');
   function barSvg(items, maxV) {
@@ -1913,12 +1980,15 @@ window.wsTrack=(function(){
     html += '</p>';
     var cacheShare = p.cachedInput / Math.max(1, p.freshInput + p.cachedInput);
     if (p.baseline === 'opus-5.5' && p.candidate === 'sonnet-5.5' || p.candidate === 'opus-5.5' && p.baseline === 'sonnet-5.5') html += '<p class="muted" style="font-size:.9rem;margin:.4rem 0 0">Since October 7 every Sonnet 5.5 price line is half of Opus 5.5\'s, so the <b class="num">' + Math.round(cacheShare * 100) + '%</b> of input that is cached here no longer changes the list-price gap. Cost per task still moves with the tokens each model spends.</p>';
+    var fableKeys = { 'fable-5.2': 1, 'mythos-5.2': 1 };
+    if ((p.baseline === 'opus-5.5' && fableKeys[p.candidate]) || (p.candidate === 'opus-5.5' && fableKeys[p.baseline])) html += '<p class="muted" style="font-size:.9rem;margin:.4rem 0 0">Cache reads list at <b class="num">$0.20</b> per million tokens for both models <span class="tag q">Quoted</span>. On this mix, <b class="num">' + Math.round(cacheShare * 100) + '%</b> of input is cached, so that share does not widen the gap. The gap is the uncached input and the output, where Fable 5.2 and Mythos 5.2 list at twice Opus 5.5 <span class="tag d">Derived</span>.</p>';
+    if ((p.baseline === 'fable-5.2' && p.candidate === 'mythos-5.2') || (p.baseline === 'mythos-5.2' && p.candidate === 'fable-5.2')) html += '<p class="muted" style="font-size:.9rem;margin:.4rem 0 0">Mythos 5.2 lists the same token prices as Fable 5.2 <span class="tag q">Quoted</span>. The docs\' stated difference is access: Mythos requires Anthropic verification.</p>';
     var promptTok = p.freshInput + p.cachedInput;
     [['baseline', 'baseLong', 1], ['candidate', 'candLong', p.tokenRatio]].forEach(function (x) {
       if (!L.MODELS[p[x[0]]].long) return;
       html += '<p class="muted" style="font-size:.9rem;margin:.4rem 0 0">' + (r[x[1]] ? 'Haiku 5.5 is billed at its higher rates ($0.50 / $2.50 input and output, $0.05 cache reads) because each request\'s prompt is over 100,000 tokens (<b class="num">' + int(promptTok * x[2]) + '</b> here). Lower the per-turn input to see the cheaper tier.' : 'Each request\'s prompt is <b class="num">' + int(promptTok * x[2]) + '</b> tokens, so Haiku 5.5 is billed at its lower rates ($0.10 / $0.50 input and output, $0.01 cache reads).') + ' <span class="tag d">Derived</span></p>';
     });
-    if (p.baseline === 'haiku-5.5' || p.candidate === 'haiku-5.5' || p.baseline === 'fable-5.1' || p.candidate === 'fable-5.1') html += '<p class="faint" style="font-size:.84rem;margin:.4rem 0 0">This mix is applied to every model unchanged. Anthropic says Haiku 5.5\'s tokenizer is similar to Sonnet 5.5\'s and Opus 5.5\'s; the sources reviewed do not say how Fable 5.1\'s compares.</p>';
+    if (p.baseline === 'haiku-5.5' || p.candidate === 'haiku-5.5' || fableKeys[p.baseline] || fableKeys[p.candidate]) html += '<p class="faint" style="font-size:.84rem;margin:.4rem 0 0">This mix is applied to every model unchanged. Anthropic says Haiku 5.5\'s tokenizer is similar to Sonnet 5.5\'s and Opus 5.5\'s. The pricing page says Claude 4.7 and later use a newer tokenizer, about 30% more tokens than Sonnet 4.6 and earlier for the same text. It does not publish a separate Fable 5.2 or Mythos 5.2 count against Opus 5.5.</p>';
     $('#ccOutBox').innerHTML = html;
   }
   ['#ccBase', '#ccCand', '#ccFresh', '#ccCached', '#ccOut', '#ccTurns', '#ccRatio'].forEach(function (id) { $(id).addEventListener('input', renderCost); });
@@ -2342,7 +2412,7 @@ window.wsTrack=(function(){
       '<div class="tbl-wrap"><table><thead><tr><th scope="col">Model</th><th scope="col">Role here</th><th scope="col" class="n">Cost ' + esc(per) + '</th></tr></thead><tbody>' +
       c.costs.map(function (x) { return '<tr><td>' + esc(L.MODELS[x.model].label) + '</td><td>' + (x.model === c.pick ? '<b>Your pick</b>' : '') + (x.model === c.pick && t.start.indexOf(x.model) >= 0 ? ', ' : '') + (t.start.indexOf(x.model) >= 0 ? 'Sources\' starting point' : '') + '</td><td class="n num">' + money(x.cost) + (x.long ? ' (over-100K rates)' : '') + '</td></tr>'; }).join('') +
       '</tbody></table></div>' +
-      '<p class="faint" style="font-size:.84rem;margin:0">Mix per task: ' + mx.turns + ' turn' + (mx.turns > 1 ? 's' : '') + ' of ' + int(mx.fresh) + ' fresh input, ' + int(mx.cached) + ' cached input and ' + int(mx.out) + ' output tokens. The same tokens are applied to every model. Anthropic says Haiku 5.5\'s tokenizer is similar to Sonnet 5.5\'s and Opus 5.5\'s, the sources reviewed do not say how Fable 5.1\'s compares, and real runs differ in how many tokens each model spends at a given effort.</p>';
+      '<p class="faint" style="font-size:.84rem;margin:0">Mix per task: ' + mx.turns + ' turn' + (mx.turns > 1 ? 's' : '') + ' of ' + int(mx.fresh) + ' fresh input, ' + int(mx.cached) + ' cached input and ' + int(mx.out) + ' output tokens. The same tokens are applied to every model. Anthropic says Haiku 5.5\'s tokenizer is similar to Sonnet 5.5\'s and Opus 5.5\'s. The pricing page says Claude 4.7 and later use a newer tokenizer and does not publish a separate Fable 5.2 count against Opus 5.5. Real runs differ in how many tokens each model spends at a given effort. Mythos 5.2 lists the same token prices as Fable 5.2 and is omitted here because access requires verification.</p>';
     box.innerHTML = html;
   }
   $('#pkRun').addEventListener('click', renderPick);
@@ -2358,8 +2428,8 @@ window.wsTrack=(function(){
     'My refusal handler branches on stop_details.category.',
     'Pasted text is wrapped in tags with a fresh random ID, and the system note is in place.',
     'My frontend prompts name the specific styles to avoid.',
-    'I have a routing rule between Haiku 5.5, Sonnet 5.5 and Opus 5.5 based on my own runs.',
-    'I wrote down which of my tasks start on Haiku 5.5, Sonnet 5.5 or Opus 5.5 and why, and I test Haiku 5.5 at the effort I will ship because its published scores are at max.'
+    'I have a routing rule between Haiku 5.5, Sonnet 5.5 and Opus 5.5 based on my own runs, and I put subagents on the cheaper model when a mistake is cheap to spot.',
+    'I wrote down which tasks start on Opus 5.5, which step down to Sonnet 5.5 or Haiku 5.5, and which step up to Fable 5.2 only after Opus at higher effort misses my bar. Mythos 5.2 only if my organization is verified. I test at the effort I will ship.'
   ];
   var gateState = {}; try { gateState = JSON.parse(store('c55-gate') || '{}') || {}; } catch (e) { gateState = {}; }
   var CHECK_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3" fill="none" stroke="var(--bg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
