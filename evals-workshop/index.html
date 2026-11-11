@@ -1,0 +1,1512 @@
+<!doctype html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evals for agents: tests, baselines, and a release gate</title>
+<meta name="description" content="A hands-on workshop on evals for a fictional text-only home-services receptionist: deterministic tests, baselines, pass^k, tool contracts, grader checks, and a PASS or HOLD release gate. Labs run in demo mode. Independent project by Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/evals-workshop/">
+<meta property="og:title" content="Evals for agents: tests, baselines, and a release gate">
+<meta property="og:description" content="Ten labs on a fictional text receptionist: tests versus evals, a planted booking failure, baselines, levers, and a release gate that does not deploy.">
+<meta property="og:url" content="https://www.kpphillips.com/ai-workshops/evals-workshop/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Evals for agents: tests, baselines, and a release gate">
+<meta name="twitter:description" content="Hands-on evals for a fictional text receptionist. Every lab runs in demo mode.">
+<meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Evals for agents: tests, baselines, and a release gate",
+  "description": "A hands-on workshop on evaluating a fictional text-only home-services receptionist: tests, evals, baselines, graders, and a human release gate.",
+  "url": "https://www.kpphillips.com/ai-workshops/evals-workshop/",
+  "author": { "@type": "Person", "name": "Kevin Phillips" },
+  "learningResourceType": "Interactive workshop",
+  "isAccessibleForFree": true
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--nav-w:236px;--rail-w:328px;--r:6px;--f-display:'Fraunces',Georgia,serif;--f-body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace}
+html,html[data-palette="tide"]{--bg:#0b1620;--surface:#102130;--surface-2:#162a3b;--ink:#e6eef5;--ink-soft:#b5c5d3;--ink-faint:#93a8ba;--line:#24394c;--line-strong:#3a536a;--accent:#5cc8e6;--accent-ink:#04141c;--green:#5fd39a;--clay:#e8b75e;--red:#f28b85;--alt:#bcaaf4}
+html[data-palette="tide"][data-theme="light"]{--bg:#f3f6f8;--surface:#ffffff;--surface-2:#e8eef2;--ink:#0e1d29;--ink-soft:#34495a;--ink-faint:#4e6376;--line:#cfd9e1;--line-strong:#9fb0bd;--accent:#0a6583;--accent-ink:#ffffff;--green:#136b45;--clay:#835406;--red:#ad2a22;--alt:#5a3eae}
+html[data-palette="ember"]{--bg:#17110c;--surface:#211811;--surface-2:#2c2118;--ink:#f3ebe3;--ink-soft:#d0c2b4;--ink-faint:#ad9e8f;--line:#3b2d21;--line-strong:#5a4634;--accent:#f0a34a;--accent-ink:#1c1005;--green:#72d39b;--clay:#ebc56e;--red:#f38c7d;--alt:#a3bbf2}
+html[data-palette="ember"][data-theme="light"]{--bg:#faf5ef;--surface:#ffffff;--surface-2:#f1e8dd;--ink:#24170c;--ink-soft:#4d3b2b;--ink-faint:#67533f;--line:#e2d4c3;--line-strong:#b9a58f;--accent:#94490a;--accent-ink:#ffffff;--green:#1d6a42;--clay:#7a5500;--red:#aa2b20;--alt:#3a51a4}
+html[data-palette="iris"]{--bg:#120f1e;--surface:#1a1629;--surface-2:#231e36;--ink:#ece8f7;--ink-soft:#c5bedc;--ink-faint:#a39bbd;--line:#322b4b;--line-strong:#4c4370;--accent:#b99eff;--accent-ink:#150d2b;--green:#72d6a3;--clay:#e8c070;--red:#f39191;--alt:#82cbea}
+html[data-palette="iris"][data-theme="light"]{--bg:#f6f5fb;--surface:#ffffff;--surface-2:#ece9f6;--ink:#1a1530;--ink-soft:#433b63;--ink-faint:#5a537c;--line:#d9d4eb;--line-strong:#aaa2c9;--accent:#5732c4;--accent-ink:#ffffff;--green:#18693f;--clay:#785300;--red:#a8262a;--alt:#0a5f7a}
+*{box-sizing:border-box}
+html{color-scheme:dark;scroll-behavior:smooth;scrollbar-color:var(--line-strong) var(--bg)}
+html[data-theme="light"]{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--f-body);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--accent-ink)}
+input,textarea,select{caret-color:var(--accent)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:6px;border:2px solid var(--bg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-0.02em;line-height:1.15;margin:0 0 .6rem;color:var(--ink)}
+h1{font-size:clamp(2rem,4vw,3rem)}
+h2{font-size:clamp(1.5rem,2.6vw,2rem)}
+h3{font-size:1.15rem;margin-top:1.4rem}
+p{margin:0 0 .9rem}
+code,pre,kbd,.mono{font-family:var(--f-mono);font-size:.88em}
+code{background:var(--surface-2);padding:.08em .35em;border-radius:4px}
+pre{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;overflow:auto;margin:0 0 1rem;line-height:1.5;font-size:.82rem;white-space:pre-wrap;word-break:break-word}
+pre code{background:none;padding:0}
+.skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:var(--accent-ink);padding:.5rem 1rem;z-index:10}
+.skip:focus{left:1rem}
+.shell{display:grid;grid-template-columns:var(--nav-w) minmax(0,1fr) var(--rail-w);min-height:100vh}
+@media (max-width:1180px){:root{--nav-w:200px;--rail-w:292px}}
+@media (max-width:900px){:root{--nav-w:170px;--rail-w:250px}}
+.nav,.rail{position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;background:var(--surface);scrollbar-width:thin}
+.nav{border-right:1px solid var(--line);padding:1.25rem 1rem;display:flex;flex-direction:column;gap:.9rem}
+.rail{border-left:1px solid var(--line);padding:1rem}
+main{padding:2rem clamp(1rem,3.5vw,3rem) 4rem;min-width:0}
+.content{max-width:860px;margin:0 auto}
+.brand{font-weight:700;font-size:1.05rem;letter-spacing:-.01em;line-height:1.25}
+.brand span{display:block;font-weight:400;font-size:.85rem;color:var(--ink-soft)}
+.nav .back{align-self:flex-start;display:inline-flex;align-items:center;gap:.35rem;font-weight:600;font-size:.84rem;text-decoration:none;color:var(--accent)}
+.nav .back svg{width:14px;height:14px}
+.nav-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.nav-list a{display:grid;grid-template-columns:1.6rem 1fr;gap:.25rem;padding:.38rem .5rem;border-radius:5px;color:var(--ink-soft);text-decoration:none;font-size:.9rem;line-height:1.3;border:1px solid transparent}
+.nav-list a .n{color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.nav-list a:hover{background:var(--surface-2);color:var(--ink)}
+.nav-list a.active{background:var(--surface-2);color:var(--ink);border-color:var(--line-strong)}
+.nav-list a.active .n{color:var(--accent)}
+.nav-list a.seen .n{color:var(--ink-soft)}
+.nav-foot{margin-top:auto;display:flex;flex-direction:column;gap:.6rem;padding-top:.8rem;border-top:1px solid var(--line)}
+.nav-foot .lbl{font-size:.78rem;color:var(--ink-soft)}
+.swatches{display:flex;gap:.45rem;align-items:center}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);cursor:pointer;padding:0;display:grid;place-items:center}
+.swatch[data-p="tide"]{background:#2f9ec0}.swatch[data-p="ember"]{background:#d98a2e}.swatch[data-p="iris"]{background:#8a6ce6}
+.swatch[aria-pressed="true"]{border-color:var(--ink)}
+.swatch[aria-pressed="true"]::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--bg)}
+.tick{height:12px;margin:0 0 1rem;background:
+ linear-gradient(var(--line-strong),var(--line-strong)) left bottom/100% 1px no-repeat,
+ repeating-linear-gradient(90deg,var(--line-strong) 0 1px,transparent 1px 48px) left bottom/100% 11px no-repeat,
+ repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 8px) left bottom/100% 6px no-repeat}
+.meter{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--line)}
+.meter span{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform .4s ease}
+.progress{display:flex;flex-direction:column;gap:.35rem}
+.progress small{color:var(--ink-soft);font-size:.78rem}
+.mod{padding:2.4rem 0 1.2rem;scroll-margin-top:1rem}
+.js .mod{transform:translateY(16px);transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.js .mod.in{transform:none}
+.lead{font-size:1.1rem;color:var(--ink-soft);max-width:62ch}
+.intro{color:var(--ink-soft);max-width:66ch}
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.2rem;margin:1rem 0 1.2rem}
+.lab-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:.5rem;margin-bottom:.8rem}
+.lab-head h3{margin:0;font-size:1.08rem}
+.lab-kind{font-size:.78rem;font-weight:600;padding:.12rem .5rem;border-radius:4px;border:1px solid var(--line-strong);color:var(--ink-soft)}
+.row{display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;margin-bottom:.8rem}
+.field{display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.field>span,.lbl-sm{font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.grow{flex:1 1 220px}
+input[type=text],input[type=number],input[type=password],select,textarea{font:inherit;font-size:.92rem;background:var(--bg);color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r);padding:.45rem .6rem;min-width:0;max-width:100%}
+textarea{width:100%;min-height:7rem;resize:vertical;font-family:var(--f-mono);font-size:.82rem;line-height:1.5}
+input[type=number]{width:7.5rem}
+input::placeholder,textarea::placeholder{color:var(--ink-faint)}
+input[type=checkbox]{accent-color:var(--accent);width:1rem;height:1rem;margin:0}
+.checks{display:flex;flex-wrap:wrap;gap:.35rem .9rem}
+.checks label{display:flex;gap:.35rem;align-items:center;font-size:.9rem;cursor:pointer}
+.btn{font:600 .9rem var(--f-body);background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:var(--r);padding:.5rem .95rem;cursor:pointer;line-height:1.2}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:progress}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{padding:.3rem .6rem;font-size:.82rem}
+.out{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;margin-top:.8rem;font-size:.92rem;font-variant-numeric:tabular-nums;min-height:2.6rem}
+.out:empty::before{content:"Output appears here.";color:var(--ink-faint)}
+.out h4{margin:.2rem 0 .5rem;font:600 .95rem var(--f-body)}
+.muted{color:var(--ink-soft)}
+.faint{color:var(--ink-faint)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.big{font-size:1.6rem;font-weight:600;line-height:1.1}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin:.6rem 0}
+.stat{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.6rem .75rem}
+.stat .k{font-size:.78rem;font-weight:600;color:var(--ink-soft);display:block}
+.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--clay)}
+.tbl-wrap{overflow-x:auto;margin:.6rem 0 1rem}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-soft);font-size:.8rem;background:var(--surface-2)}
+td.n,th.n{text-align:right}
+.tag{display:inline-block;font:600 .72rem/1.3 var(--f-body);padding:.08rem .42rem;border-radius:4px;border:1px solid;white-space:nowrap;vertical-align:.08em}
+.tag.q{color:var(--ink);border-color:var(--green);background:color-mix(in srgb,var(--green) 16%,transparent)}
+.tag.d{color:var(--ink);border-color:var(--line-strong);background:var(--surface-2)}
+.tag.i{color:var(--ink);border-color:var(--clay);background:color-mix(in srgb,var(--clay) 16%,transparent)}
+.tag.j{color:var(--ink);border-color:var(--ink-soft);border-style:dashed;background:transparent}
+.tag.x{color:var(--ink);border-color:var(--red);background:color-mix(in srgb,var(--red) 14%,transparent)}
+.callout{border:1px solid var(--line-strong);background:var(--surface-2);border-radius:var(--r);padding:.75rem .95rem;margin:1rem 0;font-size:.93rem}
+.callout .ttl{display:block;font-weight:700;font-size:.82rem;margin-bottom:.2rem;color:var(--ink)}
+.illus{display:block;font-size:.8rem;font-weight:600;color:var(--clay);margin-bottom:.4rem}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem .9rem;margin:.6rem 0 1rem;font-size:.86rem;color:var(--ink-soft)}
+.checklist-res{list-style:none;padding:0;margin:.3rem 0}
+.checklist-res li{display:grid;grid-template-columns:1.2rem 1fr;gap:.35rem;align-items:start;font-size:.88rem;padding:.12rem 0}
+.mark{width:14px;height:14px;margin-top:.22rem}
+.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem}
+.ab>div{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.7rem .85rem;min-width:0}
+.ab h4{margin:0 0 .4rem;font:600 .9rem var(--f-body)}
+.evt{list-style:none;padding:0;margin:.4rem 0;font-size:.86rem}
+.evt li{display:grid;grid-template-columns:1.6rem 7.2rem 1fr;gap:.45rem;padding:.3rem 0;border-bottom:1px solid var(--line);align-items:baseline}
+.evt .k{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-faint)}
+.bar{height:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.bar span{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left}
+canvas.chart{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin:.4rem 0}
+.connect{border:1px solid var(--line-strong);border-radius:10px;padding:.8rem;background:var(--surface-2);transition:background-color .3s,border-color .3s}
+.connect.live{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--surface))}
+.connect h2{font:700 .95rem var(--f-body);letter-spacing:0;margin:0}
+.lamp-row{display:flex;align-items:center;gap:.45rem;justify-content:space-between;margin-bottom:.5rem}
+.lamp{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.lamp i{width:10px;height:10px;border-radius:50%;background:var(--ink-faint);display:inline-block;box-shadow:0 0 0 3px color-mix(in srgb,var(--ink-faint) 25%,transparent)}
+.connect.live .lamp i{background:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 30%,transparent)}
+.connect .row{margin-bottom:.5rem;gap:.4rem}
+.connect input[type=password]{flex:1 1 120px;width:100%}
+.msg{font-size:.8rem;margin:.3rem 0 .4rem;color:var(--ink-soft);min-height:1rem}
+.msg.err{color:var(--red)}.msg.okm{color:var(--green)}.msg.warnm{color:var(--clay)}
+.spend{font-size:.82rem;color:var(--ink-soft);display:flex;align-items:center;justify-content:space-between;gap:.4rem;flex-wrap:wrap}
+.spend input{width:5.2rem;padding:.25rem .4rem}
+details{margin-top:.5rem}
+summary{cursor:pointer;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
+details .field{margin-top:.45rem}
+details input{width:100%}
+.rail-body{transition:opacity .22s ease}
+.rail-body.fade{opacity:0}
+.rail h3{font:700 .8rem var(--f-body);letter-spacing:0;color:var(--ink-soft);margin:1rem 0 .4rem}
+.rail ul{margin:0;padding-left:1.05rem;font-size:.86rem;line-height:1.5}
+.rail li{margin-bottom:.4rem}
+.rail dl{margin:0;font-size:.85rem}
+.rail dt{font-weight:700;margin-top:.45rem}
+.rail dd{margin:0;color:var(--ink-soft)}
+.rail .mod-name{font:600 1rem var(--f-display);letter-spacing:-.02em;margin:.2rem 0 0}
+.all-src ul{max-height:260px;overflow:auto}
+.gate{list-style:none;padding:0;margin:.5rem 0}
+.gate li{margin:.35rem 0}
+.gate button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1.4rem 1fr;gap:.55rem;align-items:start;width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer;font-size:.93rem;line-height:1.45}
+.gate button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gate button[aria-pressed="true"]{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface))}
+.box{width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:4px;display:grid;place-items:center;margin-top:.1rem}
+.gate button[aria-pressed="true"] .box{border-color:var(--green);background:var(--green)}
+.box svg{width:12px;height:12px;opacity:0}
+.gate button[aria-pressed="true"] .box svg{opacity:1}
+.limit{border:1px solid var(--clay);background:color-mix(in srgb,var(--clay) 10%,var(--surface));border-radius:var(--r);padding:.8rem 1rem;margin:1rem 0}
+.limit .ttl{display:block;font-weight:700;font-size:.82rem;margin-bottom:.25rem}
+.count{font-weight:600;font-size:.9rem}
+footer{border-top:1px solid var(--line);padding:1.5rem clamp(1rem,3.5vw,3rem) 2.5rem;font-size:.84rem;color:var(--ink-soft);background:var(--surface)}
+footer p{max-width:900px;margin:0 auto .5rem}
+@media (max-width:560px){
+ .shell{display:block}
+ .nav,.rail{position:static;height:auto;border:0;border-bottom:1px solid var(--line)}
+ .nav-list{display:grid;grid-template-columns:1fr 1fr}
+ main{padding:1.2rem 1rem 3rem}
+ .evt li{grid-template-columns:1.4rem 1fr}
+ .evt li .who{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .js .mod,.js .mod.in{transform:none;transition:none}
+ .meter span,.rail-body,.connect{transition:none}
+}
+</style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain}
+   card_click {workshop} is set on the hub with data-umami-event attributes. */
+window.wsTrack=(function(){
+  var WS='evals-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<nav class="nav" aria-label="Workshop modules">
+  <div class="brand">Evals for agents<span>Tests, baselines, and a release gate</span></div>
+  <a class="back" href="https://www.kpphillips.com/ai-workshops/"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M12 7H2.5M6.5 3L2.5 7l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All workshops</a>
+  <div class="tick" aria-hidden="true"></div>
+  <div class="progress">
+    <div class="meter" role="progressbar" aria-label="Sections visited" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
+    <small id="progressLabel">0 of 11 sections visited</small>
+  </div>
+  <ol class="nav-list" id="navList">
+    <li><a href="#m0"><span class="n">0</span>Start here</a></li>
+    <li><a href="#m1"><span class="n">1</span>Six words</a></li>
+    <li><a href="#m2"><span class="n">2</span>Planted miss</a></li>
+    <li><a href="#m3"><span class="n">3</span>Tool contracts</a></li>
+    <li><a href="#m4"><span class="n">4</span>The dataset</a></li>
+    <li><a href="#m5"><span class="n">5</span>Freeze a baseline</a></li>
+    <li><a href="#m6"><span class="n">6</span>One lever</a></li>
+    <li><a href="#m7"><span class="n">7</span>Tools under load</a></li>
+    <li><a href="#m8"><span class="n">8</span>Grade the grader</a></li>
+    <li><a href="#m9"><span class="n">9</span>Name the fault</a></li>
+    <li><a href="#m10"><span class="n">10</span>Release gate</a></li>
+  </ol>
+  <div class="nav-foot">
+    <span class="lbl" id="palLbl">Palette</span>
+    <div class="swatches" role="group" aria-labelledby="palLbl">
+      <button class="swatch" data-p="tide" aria-label="Tide palette" aria-pressed="true"></button>
+      <button class="swatch" data-p="ember" aria-label="Ember palette" aria-pressed="false"></button>
+      <button class="swatch" data-p="iris" aria-label="Iris palette" aria-pressed="false"></button>
+    </div>
+    <button class="btn ghost sm" id="modeBtn" type="button">Switch to light</button>
+  </div>
+</nav>
+
+<main id="main">
+<div class="content">
+
+<section class="mod" id="m0" data-mod="0">
+  <div class="tick" aria-hidden="true"></div>
+  <h1>Evals for agents</h1>
+  <p class="lead">Quoinlatch Desk is a fictional text-only receptionist: it collects a home-service request, checks coverage and availability, gets a yes, then books or escalates. The labs run with no key, and the longer notes sit in the rail.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>The desk, the policy, and the runtime</h3><span class="lab-kind">Case study</span></div>
+    <div class="legend" aria-label="Evidence labels">
+      <span><span class="tag q">Quoted</span> published by the linked source</span>
+      <span><span class="tag d">Derived</span> computed here from inputs you can see</span>
+      <span><span class="tag i">Illustrative</span> simulated, not a measurement</span>
+      <span><span class="tag j">Workshop judgment</span> this page's framing, not a source</span>
+    </div>
+    <ul id="policyList"></ul>
+    <h3>Runtime sample</h3>
+    <pre><code>import json, os, re
+
+# Hosted tracing is on by default. Disable it before the SDK opens a trace.
+os.environ["OPENAI_AGENTS_DISABLE_TRACING"] = "1"
+
+from agents import Agent, Runner, RunConfig, function_tool, set_tracing_disabled
+
+set_tracing_disabled(True)
+
+@function_tool
+def check_coverage(zip_code: str) -&gt; str:
+    """Return whether zip_code is PLM-01, PLM-02, or PLM-03."""
+    return json.dumps({"covered": zip_code in {"PLM-01", "PLM-02", "PLM-03"}})
+
+@function_tool
+def list_slots(service: str, day: str) -&gt; str:
+    """List windows for one service and day, each marked open or closed."""
+
+@function_tool
+def book_appointment(request_id: str, slot_id: str, caller: str, service: str, zip_code: str, confirmed: bool) -&gt; str:
+    """Write one appointment only when confirmed is true. Refuse a duplicate request_id."""
+
+@function_tool
+def record_escalation(request_id: str, reason: str) -&gt; str:
+    """Record an escalation. Do not create an appointment."""
+
+agent = Agent(
+    name="Quoinlatch Desk",
+    instructions=open("policy.txt", encoding="utf-8").read(),
+    tools=[check_coverage, list_slots, book_appointment, record_escalation],
+)
+
+def reply(caller_text: str):
+    return Runner.run_sync(
+        agent,
+        caller_text,
+        run_config=RunConfig(tracing_disabled=True),
+    )
+
+def redact(text: str) -&gt; str:
+    text = re.sub(r"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b", "[phone]", text)
+    text = re.sub(r"\b\d{1,5}\s+[A-Za-z]+(?:\s+[A-Za-z]+){0,2}\s(?:Lane|Street|St|Ave|Road|Rd|Drive|Dr)\b", "[street]", text)
+    return text
+
+def write_local(record: dict, path: str) -&gt; None:
+    safe = dict(record)
+    safe["caller"] = "[caller]"
+    safe["text"] = redact(safe.get("text", ""))
+    with open(path, "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(safe, sort_keys=True) + "\n")</code></pre>
+    <h3>Eval runner, kept separate</h3>
+    <pre><code># evals/grade.py
+# Does not import agents, Runner, or RunConfig.
+
+def grade(transcript, store, scenario):
+    rows = [a for a in store["appointments"] if a["request_id"] == scenario["id"]]
+    said = transcript[-1]["text"].lower()
+    return {"saved": bool(rows), "claimed_booked": "you're booked" in said}</code></pre>
+    <div class="row">
+      <button class="btn" id="pathRun" type="button" data-lab="m0-path" data-out="pathOut">Run the scripted happy path</button>
+      <button class="btn ghost" id="redactRun" type="button" data-lab="m0-redact" data-out="redactOut">Redact a local record</button>
+    </div>
+    <div class="out" id="pathOut" aria-live="polite"></div>
+    <div class="out" id="redactOut" aria-live="polite"></div>
+    <div class="callout">
+      <span class="ttl">Starter repo <span class="tag j">Placeholder</span></span>
+      A private starter repo with the runnable Python, pytest, local fixtures, and JSONL results is coming. Link: not published yet. This line is a placeholder, not a URL.
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="m1" data-mod="1">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>1. Six words, six runs</h2>
+  <p class="intro">Run the same booking six ways and read what each word actually measures. An eval does not replace the ordinary tests, and a baseline is a frozen result, not the pass bar.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Definitions you can run</h3><span class="lab-kind">Hands-on</span></div>
+    <button class="btn" id="defRun" type="button" data-lab="m1-definitions" data-out="defOut">Run all six</button>
+    <div class="out" id="defOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m2" data-mod="2">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>2. A convincing failure</h2>
+  <p class="intro">This agent tells the caller they are booked and writes nothing. Compare the transcript with the appointment store, then read the failing test.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Planted teaching example</h3><span class="lab-kind">Hands-on</span></div>
+    <pre><code>def test_claim_matches_store():
+    """Planted teaching example. The agent says the caller is booked and saves nothing."""
+    result = run_agent(BROKEN, scenario_ready)
+    assert "you're booked" in result.final_text.lower()
+    saved = [a for a in result.store["appointments"] if a["request_id"] == "ready-a"]
+    assert saved, "store has no appointment for this request"</code></pre>
+    <button class="btn" id="failRun" type="button" data-lab="m2-planted" data-out="failOut">Inspect transcript, store, and pytest</button>
+    <div class="out" id="failOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m3" data-mod="3">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>3. Test the tools</h2>
+  <p class="intro">The tools are ordinary Python, so pytest can pin their inputs, outputs, and the store. More than one action order can be valid when the final state matches the policy.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Schemas, booking rules, and two valid orders</h3><span class="lab-kind">Hands-on</span></div>
+    <button class="btn" id="toolRun" type="button" data-lab="m3-tools" data-out="toolOut">Run the deterministic suite</button>
+    <div class="out" id="toolOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m4" data-mod="4">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>4. Build the dataset</h2>
+  <p class="intro">The set includes a missing detail, a closed slot, a caller who corrects the day, and a tool that fails. Paraphrases stay in one split, and the gold label stays out of the prompt.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Dev, held-out, and leakage</h3><span class="lab-kind">Hands-on</span></div>
+    <div class="checks" style="margin-bottom:.8rem">
+      <label><input type="checkbox" id="splitBad"> Move the paraphrase into the other split</label>
+    </div>
+    <button class="btn" id="splitRun" type="button" data-lab="m4-split" data-out="splitOut">Check the split</button>
+    <div class="out" id="splitOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m5" data-mod="5">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>5. Freeze a baseline</h2>
+  <p class="intro">Freeze one configuration and the results you just measured, then read outcome, violations, consistency, cost, and latency. The pass bar is still the desk policy, and a short run gets a wide interval.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Measure the frozen script</h3><span class="lab-kind">Hands-on</span></div>
+    <div class="row">
+      <label class="field"><span>Trials per task</span><input type="number" id="baseN" min="4" max="30" value="8"></label>
+      <label class="field"><span>k for pass@k and pass^k</span><input type="number" id="baseK" min="1" max="8" value="4"></label>
+    </div>
+    <button class="btn" id="baseRun" type="button" data-lab="m5-baseline" data-out="baseOut">Freeze and measure</button>
+    <canvas class="chart" id="latChart" width="640" height="220" aria-label="Illustrative latency histogram for the frozen baseline"></canvas>
+    <div class="out" id="baseOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m6" data-mod="6">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>6. One lever at a time</h2>
+  <p class="intro">Change one lever against that frozen baseline and leave everything else fixed. A model advertised as tool-tuned is still untested on this desk until you measure it.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Compare one change with the baseline</h3><span class="lab-kind">Hands-on</span></div>
+    <div class="row">
+      <label class="field grow"><span>Lever</span>
+        <select id="leverPick">
+          <option value="prompt">System prompt</option>
+          <option value="names">Tool names</option>
+          <option value="params">Parameter descriptions and schemas</option>
+          <option value="examples">Worked examples</option>
+          <option value="errors">Tool errors</option>
+          <option value="model">Model choice</option>
+        </select>
+      </label>
+    </div>
+    <div class="checks" style="margin-bottom:.8rem">
+      <label><input type="checkbox" id="leverExtra"> Also switch the model in the same run</label>
+    </div>
+    <div class="row">
+      <button class="btn" id="leverRun" type="button" data-lab="m6-lever" data-out="leverOut">Compare with baseline</button>
+      <button class="btn ghost" id="liveRun" type="button" data-lab="m6-live" data-out="liveOut">One live turn of the fixed opener</button>
+    </div>
+    <div class="out" id="leverOut" aria-live="polite"></div>
+    <div class="out" id="liveOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m7" data-mod="7">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>7. Tool selection under load</h2>
+  <p class="intro">Add distracting tools and compare showing every tool with a small discovery router. The router is not Anthropic's tool search, and the bars are a simulation.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>All tools exposed, or a discovery router</h3><span class="lab-kind">Hands-on</span></div>
+    <label class="field" style="margin-bottom:.8rem"><span>Distracting tools: <b class="num" id="loadNVal">12</b></span>
+      <input type="number" id="loadN" min="0" max="24" value="12">
+    </label>
+    <button class="btn" id="loadRun" type="button" data-lab="m7-load" data-out="loadOut">Compare accuracy and latency</button>
+    <div class="out" id="loadOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m8" data-mod="8">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>8. Evaluate the evaluator</h2>
+  <p class="intro">A polished false booking and an awkward true booking pull a state check apart from a prose grader. Then reverse the order, and shorten a correct answer, and see what moves.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Human labels, a model grader, and two bias checks</h3><span class="lab-kind">Hands-on</span></div>
+    <button class="btn" id="gradeRun" type="button" data-lab="m8-grader" data-out="gradeOut">Compare the graders</button>
+    <div class="out" id="gradeOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m9" data-mod="9">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>9. Diagnose, then change one thing</h2>
+  <p class="intro">Label the failure as an agent error, a tool defect, or a flawed test before you change anything. Change one of those, rerun the held-out tasks, and keep the regression.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Three faults, one edit, both splits</h3><span class="lab-kind">Hands-on</span></div>
+    <div class="checks" style="margin-bottom:.8rem">
+      <label><input type="checkbox" id="diagPeek"> I used the held-out failures to choose the edit</label>
+    </div>
+    <button class="btn" id="diagRun" type="button" data-lab="m9-diagnose" data-out="diagOut">Classify and rerun</button>
+    <div class="out" id="diagOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m10" data-mod="10">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>10. Release gate</h2>
+  <p class="intro">Replay a closed slot and a forced tool failure, then record PASS or HOLD with reasons and do not deploy.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Replay, record, propose</h3><span class="lab-kind">Hands-on</span></div>
+    <div class="row">
+      <button class="btn" id="relRun" type="button" data-lab="m10-release" data-out="relOut">Replay and decide</button>
+      <button class="btn ghost" id="relSave" type="button" data-lab="m10-save" data-out="relFileOut">Save versioned results</button>
+      <button class="btn ghost" id="relLearn" type="button" data-lab="m10-learnings" data-out="relLearnOut">Write the learnings file</button>
+    </div>
+    <div class="out" id="relOut" aria-live="polite"></div>
+    <div class="out" id="relFileOut" aria-live="polite"></div>
+    <div class="out" id="relLearnOut" aria-live="polite"></div>
+  </div>
+  <h3>Ship gate</h3>
+  <ul class="gate" id="gate"></ul>
+  <p class="count" id="gateCount" role="status">0 ticked.</p>
+  <div class="limit"><span class="ttl">One honest limitation</span>Passing synthetic tests demonstrates performance on those tests, not readiness for real callers.</div>
+</section>
+
+</div>
+</main>
+
+<aside class="rail" aria-label="Live labs and module notes">
+  <section class="connect" id="connect" aria-labelledby="connectTitle">
+    <div class="lamp-row"><h2 id="connectTitle">Live labs</h2><span class="lamp" id="lamp"><i aria-hidden="true"></i><span id="lampText">Demo</span></span></div>
+    <p class="msg" id="connectMsg" role="status">Demo mode. Labs use the mock desk. Simulated rates say so in the output.</p>
+    <p class="faint" style="font-size:.8rem">Live calls use <code id="liveSlug">inclusionai/ling-3.0-tiny</code> only. Catalog prompt <span class="num">0.000000015</span> and completion <span class="num">0.000000045</span> dollars per token on November 11, 2026, which is <span class="num">$0.015 / $0.045</span> per 1M. <span class="tag q">Quoted</span> <span class="tag d">Derived</span></p>
+    <div class="row">
+      <input type="password" id="keyIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="OpenRouter key (sk-or-...)" aria-label="OpenRouter API key">
+      <button class="btn sm" id="connectBtn" type="button">Connect</button>
+      <button class="btn ghost sm" id="disconnectBtn" type="button" hidden>Disconnect</button>
+    </div>
+    <div class="spend"><span>Session spend <b class="num" id="spendVal">$0.0000</b> <span class="tag d">Derived</span></span><label>Budget $<input type="number" id="budgetIn" min="0.05" step="0.25" value="1" aria-label="Session budget in dollars"></label></div>
+    <button class="btn ghost sm" id="priceRun" type="button" data-lab="m0-catalog" data-out="priceOut">Re-check catalog</button>
+    <div class="out" id="priceOut" aria-live="polite"></div>
+    <details><summary>Advanced</summary>
+      <label class="field"><span>max_tokens for the one live turn</span><input type="number" id="maxTokIn" min="80" max="800" step="20" value="400"></label>
+      <p class="msg">The field is cleared when you press Connect. The key stays in page memory only and is dropped on disconnect or reload. Browsers cannot call the OpenAI or Anthropic APIs directly, so a live turn goes to OpenRouter and nowhere else. :free routes were $0 on the same catalog read and are a separate tier, so they are not this default.</p>
+    </details>
+  </section>
+  <div class="tick" aria-hidden="true" style="margin-top:1rem"></div>
+  <div class="rail-body" id="railBody" aria-live="polite"></div>
+  <details class="all-src"><summary>All sources</summary><ul id="allSources"></ul></details>
+</aside>
+</div>
+
+<footer>
+  <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by OpenAI or Anthropic. Product and model names belong to their owners.</p>
+  <p>Live labs call a paid model through your own OpenRouter key and cost real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">openrouter.ai/keys</a> before connecting, and set the session budget in the Live labs panel.</p>
+  <p>Usage policies: <a href="https://openai.com/policies/usage-policies/" target="_blank" rel="noopener noreferrer">OpenAI Usage Policies</a> and <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener noreferrer">Anthropic Usage Policy</a>. Live calls also follow the <a href="https://openrouter.ai/terms" target="_blank" rel="noopener noreferrer">OpenRouter terms</a>.</p>
+  <p>Catalog price checked November 11, 2026. Slugs and prices change. Re-check before you rely on them. Simulated rates say "illustrative, not measurements" in the output.</p>
+  <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data. Nothing you type is sent to analytics.</p>
+</footer>
+<script>
+(function () {
+  'use strict';
+  document.documentElement.classList.add('js');
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } return null; }
+  function usd(n) { return '$' + (Math.abs(n) < 0.1 ? n.toFixed(4) : n.toFixed(2)); }
+  function pct(x) { return (x * 100).toFixed(1) + '%'; }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function num(el, d, lo, hi) { var v = parseFloat(el.value); if (!isFinite(v)) v = d; return clamp(v, lo, hi); }
+  function hash(a) { var h = 2166136261; for (var i = 0; i < a.length; i++) { h ^= a.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function fnv(s) { return ('00000000' + hash(s).toString(16)).slice(-8); }
+  function comb(n, k) {
+    if (k < 0 || n < 0 || k > n) return 0;
+    if (k === 0 || k === n) return 1;
+    k = Math.min(k, n - k);
+    var r = 1;
+    for (var i = 1; i <= k; i++) r = r * (n - k + i) / i;
+    return Math.round(r);
+  }
+  function wilson(k, n) {
+    if (!n) return [0, 1];
+    var z = 1.96, p = k / n, d = 1 + z * z / n, c = p + z * z / (2 * n);
+    var m = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n));
+    return [Math.max(0, (c - m) / d), Math.min(1, (c + m) / d)];
+  }
+  function setMsg(el, text, kind) { el.textContent = text; el.className = 'msg' + (kind ? ' ' + kind : ''); }
+  function mark(ok) {
+    return ok
+      ? '<svg class="mark" viewBox="0 0 14 14" aria-label="yes" role="img"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg class="mark" viewBox="0 0 14 14" aria-label="no" role="img"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"/></svg>';
+  }
+  function bar(frac) { return '<div class="bar"><span style="transform:scaleX(' + clamp(frac, 0, 1).toFixed(3) + ')"></span></div>'; }
+  var TG = {
+    q: '<span class="tag q">Quoted</span>',
+    d: '<span class="tag d">Derived</span>',
+    i: '<span class="tag i">Illustrative</span>',
+    j: '<span class="tag j">Workshop judgment</span>'
+  };
+  var ILLUS = '<span class="illus">illustrative, not measurements</span>';
+  function checks(rows) { return '<ul class="checklist-res">' + rows.map(function (r) { return '<li>' + mark(r.ok) + '<span>' + r.text + '</span></li>'; }).join('') + '</ul>'; }
+  function download(name, text) {
+    try {
+      var url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+      var a = document.createElement('a'); a.href = url; a.download = name; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 0);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  var POLICY = [
+    'Collect service, coverage code, day, caller name, and a one-line problem before booking.',
+    'Book only for PLM-01, PLM-02, or PLM-03.',
+    'Book only a window list_slots marked open.',
+    'Create the appointment only after an explicit yes.',
+    'One appointment per request id. A second book must not add a row.',
+    'Do not change an appointment that belongs to another request.',
+    'If a tool returns an error, do not say the caller is booked. Record an escalation.'
+  ];
+  var CONFIG = {
+    id: 'quoinlatch-desk-2026-11-11a',
+    runtime: 'openai-agents-python, tracing disabled',
+    model: 'scripted-stand-in',
+    temperature: 0,
+    tools: ['check_coverage', 'list_slots', 'book_appointment', 'record_escalation']
+  };
+  var ASSUMED = { inM: 0.5, outM: 1.5 };
+  var LIVE = { id: 'inclusionai/ling-3.0-tiny', inTok: 0.000000015, outTok: 0.000000045, inM: 0.015, outM: 0.045, checked: '2026-11-11' };
+  var COVERED = { 'PLM-01': 1, 'PLM-02': 1, 'PLM-03': 1 };
+  var SCHEMAS = {
+    check_coverage: { req: ['zip_code'], types: { zip_code: 'string' } },
+    list_slots: { req: ['service', 'day'], types: { service: 'string', day: 'string' } },
+    book_appointment: { req: ['request_id', 'slot_id', 'caller', 'service', 'zip_code', 'confirmed'], types: { request_id: 'string', slot_id: 'string', caller: 'string', service: 'string', zip_code: 'string', confirmed: 'boolean' } },
+    record_escalation: { req: ['request_id', 'reason'], types: { request_id: 'string', reason: 'string' } }
+  };
+  var TASKS = [
+    { id: 'ready-a', family: 'ready', split: 'dev', para: null, caller: 'I need a plumber at PLM-02 on Tuesday. I am Nia Cole. The kitchen tap drips.', gold: 'book tue-14', leak: false },
+    { id: 'ready-b', family: 'ready', split: 'dev', para: 'ready-a', caller: 'The kitchen tap drips. Tuesday, a plumber, code PLM-02. My name is Nia Cole.', gold: 'book tue-14', leak: false },
+    { id: 'missing-a', family: 'missing', split: 'dev', para: null, caller: 'Can someone look at the boiler?', gold: 'ask, do not book', leak: false },
+    { id: 'unavail-a', family: 'unavail', split: 'held', para: null, caller: 'An electrician on Tuesday at 16:00, code PLM-03. I am Sol Reed. A breaker keeps tripping.', gold: 'do not book the closed window', leak: false },
+    { id: 'correct-a', family: 'correct', split: 'held', para: null, caller: 'Tuesday. Sorry, Wednesday. Heating, PLM-01. I am Ren Cho. No heat upstairs.', gold: 'book wed-13', leak: false },
+    { id: 'toolerr-a', family: 'toolerr', split: 'held', para: null, caller: 'A plumber on Tuesday, PLM-02. I am Nia Cole. The tap drips.', gold: 'escalate, do not claim a booking', leak: false }
+  ];
+
+  function freshWorld(opts) {
+    opts = opts || {};
+    return {
+      failSlots: !!opts.failSlots,
+      appointments: [{ id: 'A-00', request_id: 'other-1', slot_id: 'tue-11', caller: 'Existing Caller', service: 'electrical', zip_code: 'PLM-01' }],
+      escalations: [],
+      slots: {
+        plumbing: { tue: [{ id: 'tue-14', window: 'Tue 14:00', open: !opts.closeTue14 }, { id: 'tue-16', window: 'Tue 16:00', open: false }], wed: [{ id: 'wed-09', window: 'Wed 09:00', open: true }] },
+        electrical: { tue: [{ id: 'tue-11', window: 'Tue 11:00', open: false }, { id: 'tue-15', window: 'Tue 15:00', open: true }] },
+        heating: { wed: [{ id: 'wed-13', window: 'Wed 13:00', open: true }] }
+      }
+    };
+  }
+  function findSlot(world, id) {
+    var found = null;
+    Object.keys(world.slots).forEach(function (svc) {
+      Object.keys(world.slots[svc]).forEach(function (day) {
+        world.slots[svc][day].forEach(function (s) { if (s.id === id) found = { slot: s, service: svc, day: day }; });
+      });
+    });
+    return found;
+  }
+  function checkSchema(name, args) {
+    var spec = SCHEMAS[name];
+    if (!spec) return { ok: false, error: 'unknown tool ' + name };
+    for (var i = 0; i < spec.req.length; i++) if (!Object.prototype.hasOwnProperty.call(args, spec.req[i])) return { ok: false, error: 'missing ' + spec.req[i] };
+    var bad = '';
+    Object.keys(spec.types).forEach(function (key) {
+      if (!bad && args[key] !== undefined && typeof args[key] !== spec.types[key]) bad = key;
+    });
+    if (bad) return { ok: false, error: bad + ' has the wrong type' };
+    return { ok: true };
+  }
+  function runTool(world, name, args) {
+    var schema = checkSchema(name, args || {});
+    if (!schema.ok) return schema;
+    if (name === 'check_coverage') return { ok: true, covered: !!COVERED[args.zip_code] };
+    if (name === 'list_slots') {
+      if (world.failSlots) return { ok: false, error: 'list_slots unavailable' };
+      var day = (world.slots[args.service] || {})[args.day] || [];
+      return { ok: true, slots: day.map(function (s) { return { id: s.id, window: s.window, open: s.open }; }) };
+    }
+    if (name === 'book_appointment') {
+      if (args.confirmed !== true) return { ok: false, error: 'confirmed must be true' };
+      if (world.appointments.some(function (a) { return a.request_id === args.request_id; })) return { ok: false, error: 'duplicate request_id' };
+      if (!COVERED[args.zip_code]) return { ok: false, error: 'outside coverage' };
+      var hit = findSlot(world, args.slot_id);
+      if (!hit || hit.service !== args.service || !hit.slot.open) return { ok: false, error: 'slot is not open' };
+      var row = { id: 'A-' + world.appointments.length, request_id: args.request_id, slot_id: args.slot_id, caller: args.caller, service: args.service, zip_code: args.zip_code };
+      world.appointments.push(row);
+      hit.slot.open = false;
+      return { ok: true, appointment_id: row.id };
+    }
+    if (name === 'record_escalation') {
+      var escRow = { id: 'E-' + (world.escalations.length + 1), request_id: args.request_id, reason: args.reason };
+      world.escalations.push(escRow);
+      return { ok: true, escalation_id: escRow.id };
+    }
+    return { ok: false, error: 'unknown tool' };
+  }
+  function otherUntouched(world) {
+    var row = world.appointments.filter(function (a) { return a.request_id === 'other-1'; })[0];
+    return !!(row && row.caller === 'Existing Caller' && row.slot_id === 'tue-11' && row.service === 'electrical');
+  }
+  function rowsFor(world, id) { return world.appointments.filter(function (a) { return a.request_id === id; }); }
+
+  function happyPath() {
+    var world = freshWorld();
+    var calls = [];
+    function step(name, args) { var out = runTool(world, name, args); calls.push({ name: name, args: args, out: out }); return out; }
+    var cov = step('check_coverage', { zip_code: 'PLM-02' });
+    var slots = step('list_slots', { service: 'plumbing', day: 'tue' });
+    var open = (slots.slots || []).filter(function (s) { return s.open; })[0];
+    var ask = 'Tue 14:00 is open. Reply yes to book.';
+    var booked = step('book_appointment', { request_id: 'ready-a', slot_id: open.id, caller: 'Nia Cole', service: 'plumbing', zip_code: 'PLM-02', confirmed: true });
+    return { world: world, calls: calls, cov: cov, ask: ask, booked: booked };
+  }
+  function plantedRun() {
+    return {
+      transcript: [
+        { who: 'caller', text: 'I need a plumber at PLM-02 on Tuesday. I am Nia Cole. The kitchen tap drips.' },
+        { who: 'agent', text: "You're booked." }
+      ],
+      calls: [],
+      world: freshWorld()
+    };
+  }
+  function replay(mode, opts) {
+    var world = freshWorld(opts);
+    if (mode === 'planted') {
+      return { mode: mode, text: "You're booked.", calls: [], world: world, claimed: true, saved: rowsFor(world, 'replay').length > 0, escalated: false };
+    }
+    var calls = [];
+    function step(name, args) { var out = runTool(world, name, args); calls.push({ name: name, out: out }); return out; }
+    var zip = opts.zip || 'PLM-02';
+    var cov = step('check_coverage', { zip_code: zip });
+    if (!cov.covered) {
+      step('record_escalation', { request_id: 'replay', reason: 'outside coverage' });
+      return { mode: mode, text: 'That code is outside coverage. I recorded an escalation.', calls: calls, world: world, claimed: false, saved: false, escalated: true };
+    }
+    var slots = step('list_slots', { service: opts.service || 'plumbing', day: opts.day || 'tue' });
+    if (!slots.ok) {
+      step('record_escalation', { request_id: 'replay', reason: 'list_slots failed' });
+      return { mode: mode, text: 'I could not read the windows. I recorded an escalation and did not book.', calls: calls, world: world, claimed: false, saved: false, escalated: true };
+    }
+    var open = (slots.slots || []).filter(function (s) { return s.open; });
+    if (!open.length) {
+      step('record_escalation', { request_id: 'replay', reason: 'no open window' });
+      return { mode: mode, text: 'That window is closed and nothing else is open that day. I recorded an escalation.', calls: calls, world: world, claimed: false, saved: false, escalated: true };
+    }
+    if (!opts.confirmed) {
+      return { mode: mode, text: open[0].window + ' is open. Reply yes to book.', calls: calls, world: world, claimed: false, saved: false, escalated: false };
+    }
+    var booked = step('book_appointment', { request_id: 'replay', slot_id: open[0].id, caller: 'Nia Cole', service: opts.service || 'plumbing', zip_code: zip, confirmed: true });
+    return { mode: mode, text: 'Appointment ' + booked.appointment_id + ' is saved.', calls: calls, world: world, claimed: false, saved: rowsFor(world, 'replay').length === 1, escalated: false };
+  }
+
+  function baselineTrial(task, i) {
+    var h = hash(task.id + '#' + i);
+    var roll = h % 100;
+    var latency = 280 + (h % 1400);
+    if (h % 17 === 0) latency += 2400;
+    var inTok = 800 + (h % 400), outTok = 80 + (h % 160);
+    var cost = (inTok * ASSUMED.inM + outTok * ASSUMED.outM) / 1e6;
+    var violations = [];
+    if (task.family === 'ready' && roll < 22) violations.push('booked_without_confirmation');
+    else if (task.family === 'missing' && roll < 15) violations.push('booked_with_missing_details');
+    else if (task.family === 'unavail' && roll < 35) violations.push('booked_a_closed_slot');
+    else if (task.family === 'correct' && roll < 40) violations.push('ignored_the_correction');
+    else if (task.family === 'toolerr' && roll < 55) violations.push('claimed_booked_after_tool_error');
+    return { i: i, pass: violations.length === 0, violations: violations, latency: latency, cost: cost, temperature: 0, inTok: inTok, outTok: outTok };
+  }
+  function applyLever(trial, task, lever) {
+    var t = { i: trial.i, pass: trial.pass, violations: trial.violations.slice(), latency: trial.latency, cost: trial.cost, temperature: 0 };
+    function drop(name) { t.violations = t.violations.filter(function (v) { return v !== name; }); t.pass = t.violations.length === 0; }
+    if (lever === 'prompt') {
+      if (t.violations.indexOf('booked_without_confirmation') >= 0) drop('booked_without_confirmation');
+      if (task.family === 'correct' && t.pass && (hash(task.id + ':soft:' + trial.i) % 2 === 0)) { t.pass = false; t.violations = ['rejected_a_soft_yes']; }
+    } else if (lever === 'names') {
+      if (t.pass && task.family === 'ready' && (hash(task.id + ':name:' + trial.i) % 3 === 0)) { t.pass = false; t.violations = ['called_save_thing']; }
+    } else if (lever === 'params') {
+      if (t.violations.indexOf('booked_a_closed_slot') >= 0 && (hash(task.id + ':param:' + trial.i) % 2 === 0)) drop('booked_a_closed_slot');
+    } else if (lever === 'examples') {
+      if (t.violations.indexOf('booked_without_confirmation') >= 0 && (hash(task.id + ':ex:' + trial.i) % 2 === 0)) drop('booked_without_confirmation');
+    } else if (lever === 'errors') {
+      if (t.violations.indexOf('claimed_booked_after_tool_error') >= 0 && (hash('err:' + task.id + ':' + trial.i) % 5 !== 0)) drop('claimed_booked_after_tool_error');
+    } else if (lever === 'model') {
+      if (t.violations.indexOf('booked_without_confirmation') >= 0) drop('booked_without_confirmation');
+      if (task.family === 'missing' && t.pass && (hash('model:' + task.id + ':' + trial.i) % 2 === 0)) { t.pass = false; t.violations = ['booked_with_missing_details']; }
+    }
+    return t;
+  }
+  function runTasks(n, lever) {
+    return TASKS.map(function (task) {
+      var trials = [];
+      for (var i = 0; i < n; i++) trials.push(applyLever(baselineTrial(task, i), task, lever));
+      return { task: task, trials: trials };
+    });
+  }
+  function pack(groups, k) {
+    var success = 0, total = 0, cost = 0, viol = 0, lats = [];
+    var per = groups.map(function (g) {
+      var c = g.trials.filter(function (t) { return t.pass; }).length;
+      var n = g.trials.length;
+      g.trials.forEach(function (t) { cost += t.cost; viol += t.violations.length; lats.push(t.latency); });
+      success += c; total += n;
+      var den = comb(n, k);
+      return { id: g.task.id, split: g.task.split, c: c, n: n, at: den ? 1 - comb(n - c, k) / den : null, hat: den ? comb(c, k) / den : null };
+    });
+    var at = per.reduce(function (s, r) { return s + (r.at || 0); }, 0) / per.length;
+    var hat = per.reduce(function (s, r) { return s + (r.hat || 0); }, 0) / per.length;
+    var w = wilson(success, total);
+    return { per: per, success: success, total: total, rate: total ? success / total : 0, lo: w[0], hi: w[1], at: at, hat: hat, cost: cost, viol: viol, lats: lats, costPer: success ? cost / success : null };
+  }
+  function latencyBins(lats) {
+    var edges = [0, 500, 1000, 2000, 4000, Infinity];
+    var labels = ['0 to 0.5s', '0.5 to 1s', '1 to 2s', '2 to 4s', '4s+'];
+    return labels.map(function (label, i) {
+      return { label: label, n: lats.filter(function (ms) { return ms >= edges[i] && ms < edges[i + 1]; }).length };
+    });
+  }
+  function redact(text) {
+    return String(text)
+      .replace(/\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/g, '[phone]')
+      .replace(/\b\d{1,5}\s+[A-Za-z]+(?:\s+[A-Za-z]+){0,2}\s(?:Lane|Street|St|Ave|Road|Rd|Drive|Dr)\b/g, '[street]');
+  }
+  function resultsJsonl(groups) {
+    var lines = [];
+    groups.forEach(function (g) {
+      g.trials.forEach(function (t) {
+        lines.push(JSON.stringify({ v: 'quoinlatch-desk-results/1', config: CONFIG.id, task: g.task.id, trial: t.i, outcome: t.pass ? 'pass' : 'fail', violations: t.violations, latency_ms: t.latency, cost_usd: Math.round(t.cost * 1e8) / 1e8 }));
+      });
+    });
+    return lines.join('\n') + '\n';
+  }
+  function learningsText(fp) {
+    return [
+      '# Learnings',
+      'status: proposed, not applied',
+      'config: ' + CONFIG.id,
+      'evidence: results fingerprint ' + fp,
+      '',
+      '- evidence: planted agent said "You\'re booked" with an empty store (module 2).',
+      '  proposal: experiment, add one system-prompt line that forbids a booked claim unless book_appointment returned an id. New config id. Do not edit ' + CONFIG.id + '.',
+      '  status: needs review',
+      '',
+      '- evidence: helpful slot errors moved closed-slot violations in the one-lever run (module 6).',
+      '  proposal: experiment, replace the bare slot error with the open windows. Review before it becomes the next baseline.',
+      '  status: needs review',
+      ''
+    ].join('\n');
+  }
+
+  var lastBins = null;
+  function cssVar(name) {
+    var v = '';
+    try { v = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); } catch (e) { v = ''; }
+    return v || '#888';
+  }
+  function drawLatency(bins) {
+    lastBins = bins;
+    var c = $('#latChart');
+    if (!c || typeof c.getContext !== 'function') return;
+    var ctx = c.getContext('2d');
+    if (!ctx || typeof ctx.fillRect !== 'function') return;
+    var W = c.width || 640, H = c.height || 220;
+    var ink = cssVar('--ink-soft'), accent = cssVar('--accent'), grid = cssVar('--line'), axis = cssVar('--line-strong'), bg = cssVar('--surface');
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+    var max = 1;
+    bins.forEach(function (b) { if (b.n > max) max = b.n; });
+    var L = 36, R = 12, T = 16, B = 32, pw = W - L - R, ph = H - T - B, gap = 10, bw = (pw - gap * (bins.length - 1)) / bins.length;
+    ctx.font = '12px "Public Sans", system-ui, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = ink;
+    ctx.strokeStyle = grid;
+    if (typeof ctx.lineWidth === 'number' || ctx.lineWidth === undefined) ctx.lineWidth = 1;
+    for (var g = 0; g <= 4; g++) {
+      var y = T + ph - ph * g / 4;
+      ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(W - R, y); ctx.stroke();
+      ctx.fillStyle = ink;
+      ctx.fillText(String(Math.round(max * g / 4)), L - 6, y + 4);
+    }
+    ctx.textAlign = 'center';
+    bins.forEach(function (b, i) {
+      var bh = ph * (b.n / max), x = L + i * (bw + gap), y = T + ph - bh;
+      ctx.fillStyle = accent;
+      ctx.fillRect(x, y, Math.max(1, bw), Math.max(0, bh));
+      ctx.fillStyle = ink;
+      ctx.fillText(String(b.n), x + bw / 2, Math.max(12, y - 4));
+      ctx.fillText(b.label, x + bw / 2, H - 8);
+    });
+    ctx.strokeStyle = axis;
+    ctx.beginPath(); ctx.moveTo(L, T + ph); ctx.lineTo(W - R, T + ph); ctx.stroke();
+  }
+
+  var root = document.documentElement;
+  function applyTheme(p, t) {
+    root.setAttribute('data-palette', p);
+    root.setAttribute('data-theme', t);
+    $$('.swatch').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-p') === p)); });
+    var mb = $('#modeBtn'); if (mb) mb.textContent = t === 'light' ? 'Switch to dark' : 'Switch to light';
+    if (lastBins) drawLatency(lastBins);
+  }
+  var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  var pal = store('ew-palette') || 'tide', mode = store('ew-theme') || (prefersLight ? 'light' : 'dark');
+  if (['tide', 'ember', 'iris'].indexOf(pal) < 0) pal = 'tide';
+  if (mode !== 'light' && mode !== 'dark') mode = 'dark';
+  applyTheme(pal, mode);
+  $$('.swatch').forEach(function (b) { b.addEventListener('click', function () { pal = b.getAttribute('data-p'); store('ew-palette', pal); applyTheme(pal, mode); }); });
+  $('#modeBtn').addEventListener('click', function () { mode = mode === 'light' ? 'dark' : 'light'; store('ew-theme', mode); applyTheme(pal, mode); });
+
+  var S = {
+    anthEvals: ['Anthropic: Demystifying evals for AI agents', 'https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents'],
+    oaiEvals: ['OpenAI: Evaluation best practices', 'https://platform.openai.com/docs/guides/evaluation-best-practices'],
+    tau: ['Yao et al.: tau-bench (arXiv 2406.12045)', 'https://arxiv.org/abs/2406.12045'],
+    tau2: ['Barres et al.: tau2-bench (arXiv 2506.07982)', 'https://arxiv.org/abs/2506.07982'],
+    sandbox: ['Lu et al.: ToolSandbox (arXiv 2408.04682)', 'https://arxiv.org/abs/2408.04682'],
+    validators: ['Shankar et al.: Who Validates the Validators? (arXiv 2404.12272)', 'https://arxiv.org/abs/2404.12272'],
+    miller: ['Miller: Adding Error Bars to Evals (arXiv 2411.00640)', 'https://arxiv.org/abs/2411.00640'],
+    toolsearch: ['Anthropic docs: Tool search', 'https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool'],
+    writetools: ['Anthropic: Writing tools for agents', 'https://www.anthropic.com/engineering/writing-tools-for-agents'],
+    agents: ['OpenAI Agents SDK for Python', 'https://openai.github.io/openai-agents-python/'],
+    tracing: ['OpenAI Agents SDK: Tracing', 'https://openai.github.io/openai-agents-python/tracing/'],
+    orModels: ['OpenRouter model catalog (API)', 'https://openrouter.ai/api/v1/models'],
+    orLing: ['OpenRouter: inclusionai/ling-3.0-tiny', 'https://openrouter.ai/inclusionai/ling-3.0-tiny'],
+    orKeys: ['OpenRouter keys and credit limits', 'https://openrouter.ai/keys'],
+    oaiPolicy: ['OpenAI Usage Policies', 'https://openai.com/policies/usage-policies/'],
+    anthPolicy: ['Anthropic Usage Policy', 'https://www.anthropic.com/legal/aup'],
+    orTerms: ['OpenRouter terms', 'https://openrouter.ai/terms']
+  };
+  function refLi(k) { var s = S[k]; return s ? '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(s[0]) + '</a></li>' : ''; }
+  var RAIL = [
+    { name: 'Start here',
+      tips: ['Quoinlatch Desk is fictional. Coverage codes PLM-01, PLM-02, and PLM-03 are not real postal codes.', 'The SDK sample turns hosted tracing off with the env var, set_tracing_disabled(True), and RunConfig.tracing_disabled. The tracing page documents all three.', 'Local JSONL is a separate file. The page redacts phone numbers and street lines, and replaces the caller field. It does not claim to find every name.', 'evals/grade.py does not import the SDK, so the same scenarios can grade another runtime.', 'A private starter repo is coming. The callout is a placeholder and is not a link.', 'Demo mode needs no key. The live turn uses one fixed opener, never text you type into the page.'],
+      refs: ['agents', 'tracing', 'anthEvals', 'orModels'],
+      gloss: [['Outcome', 'The appointment store and escalation log after the trial, not the last sentence.'], ['Transcript', 'The caller lines, the agent lines, and the tool calls.']] },
+    { name: 'Six words',
+      tips: ['Anthropic defines a task, a trial, a grader, a transcript, an outcome, and a harness. This page uses those words the same way.', 'OpenAI\'s guide uses "evals" both for industry benchmarks and for tests you write for your own app. This page keeps those apart.', 'End-to-end here means the whole path from caller text to store. The scripted path is deterministic, which shows the word is about scope.', 'A baseline is the frozen config id plus the results file. The policy is the pass bar, even when the baseline looks strong.', 'OpenAI\'s guide says the hosted Evals product becomes read-only on October 31, 2026 and is scheduled to shut down on November 30, 2026. These labs are local pytest and JSONL.', 'tau-bench is an example of a shared benchmark. This task list is not one: nobody else has a published score on it.'],
+      refs: ['anthEvals', 'oaiEvals', 'tau'],
+      gloss: [['Deterministic test', 'Same inputs, same result, every run. Used here on tools and the store.'], ['Baseline', 'A frozen configuration and the results measured for it. Not the target.']] },
+    { name: 'Planted miss',
+      tips: ['Anthropic: the outcome is the state in the environment. A flight agent can say the trip is booked while the database has no reservation.', 'The broken agent is planted so the lesson is visible. It is labeled as a teaching example in the output.', 'The first pytest assert passes because the sentence is there. The second fails because the store has no row for ready-a.', 'Grade the store in code. Use a model grader only for judgments the store cannot make, and check that grader (module 8).'],
+      refs: ['anthEvals', 'tau', 'oaiEvals'],
+      gloss: [['Planted example', 'A failure put here on purpose so you can see the missing write.'], ['State check', 'An assertion about the store, not about the wording.']] },
+    { name: 'Tool contracts',
+      tips: ['Anthropic\'s code graders are fast and brittle: a single required tool order rejects a valid alternative. ToolSandbox makes the same point about tau-bench\'s single sequence.', 'ToolSandbox scores milestones that must happen and minefields that must not, so more than one trajectory can pass.', 'Schemas here check required fields and JSON types. Booking checks confirmation, coverage, an open slot, and a duplicate request id.', 'The other caller\'s row is part of the fixture. A passing run leaves it alone.', 'Anthropic\'s tool-writing piece: names, descriptions, and error text are part of the contract the model reads. Module 6 changes them one at a time.'],
+      refs: ['sandbox', 'tau', 'writetools', 'anthEvals'],
+      gloss: [['Milestone', 'ToolSandbox\'s name for an event that must occur, without fixing the whole order.'], ['Minefield', 'An event that must not occur. A hit zeros the trajectory score in that paper.']] },
+    { name: 'The dataset',
+      tips: ['Keep paraphrases of one situation in the same split. Otherwise a wording you tuned on leaks into the holdout.', 'The gold label lives with the grader. Putting the expected slot id in the caller text is answer leakage.', 'OpenAI\'s guide: include ordinary cases, edge cases, and adversarial cases, and have a person label them.', 'Anthropic separates capability tasks (start hard) from regression tasks (stay near-perfect). A failure you discover becomes a regression task in module 9.', 'tau2-bench builds tasks from atomic pieces so the set can grow without copying answers into the prompt.'],
+      refs: ['oaiEvals', 'anthEvals', 'tau2'],
+      gloss: [['Held-out', 'Tasks you do not use to choose the change you are testing.'], ['Paraphrase family', 'Wording variants of one situation. They travel together.']] },
+    { name: 'Freeze a baseline',
+      tips: ['Anthropic: once evals exist you can track latency, token use, cost per task, and error rates on a fixed task bank. That record is the baseline.', 'tau-bench defines pass^k as all k trials passing, and pass@k as at least one of k passing. The unbiased estimates are C(c, k) / C(n, k) and 1 - C(n - c, k) / C(n, k).', 'The abstract reports gpt-4o function calling under 50% task success, and pass^8 under 25% in retail. Those are that paper\'s numbers, not this desk.', 'tau2-bench ran four trials per task at temperature 0. Temperature 0 is not treated there as a reason to run once.', 'Miller argues for error bars on evals. The interval on this page is a Wilson interval computed here, not his formula.', 'Cost uses a workshop price assumption of $0.50 / $1.50 per 1M tokens for the scripted stand-in. It is not the live model\'s catalog price.', 'Six tasks is a small set. A wide interval means the rate is noisy.'],
+      refs: ['tau', 'tau2', 'miller', 'anthEvals'],
+      gloss: [['pass@k', 'Chance that at least one of k trials passes.'], ['pass^k', 'Chance that all k trials pass. tau-bench\'s reliability metric.'], ['Trial', 'One attempt at one task. Repeat it, because runs vary.']] },
+    { name: 'One lever',
+      tips: ['Anthropic\'s tool-writing article: tool names, descriptions, schemas, examples, and error text all steer tool use. Measure them. The SWE-bench note in that post is their result, not a result for this desk.', 'Changing two levers at once means you cannot tell which one moved the rate.', 'The model lever is a fictional stand-in described as tool-tuned. The simulation still misses missing-detail cases. An advertisement is not a measurement.', 'The prompt lever removes unconfirmed bookings and can reject a soft yes on the correction task. That tradeoff is the regression module 9 keeps.', 'The live button sends one fixed opener to the catalog model. It is not the eval suite, and it does not send anything you typed.'],
+      refs: ['writetools', 'anthEvals', 'orLing'],
+      gloss: [['Lever', 'One piece of the setup you change while the frozen config stays put.'], ['Regression', 'A case that used to pass and now fails.']] },
+    { name: 'Tools under load',
+      tips: ['Anthropic\'s tool search docs say selection gets worse past about 30 to 50 tools, that a sample multi-server catalog can spend about 55k tokens on definitions, and that tool search often cuts that by over 85 percent. Those sentences describe their tool search.', 'This lab does not implement tool_search_tool_regex or tool_search_tool_bm25, and it does not claim those percentages.', 'The router here is a keyword allowlist over fictional tools. The accuracy, latency, and token bars are a formula in the page, labeled illustrative.', 'Anthropic also says you can build your own client-side search. Building one still means measuring it on your tasks.', 'Namespacing, in the tool-writing article, changed their evals by model. They say to pick a scheme with your own evals, not a universal winner.'],
+      refs: ['toolsearch', 'writetools', 'sandbox'],
+      gloss: [['Distractor', 'A tool the task does not need, present so selection can fail.'], ['Discovery router', 'A step that shows the model a short tool list instead of the whole catalog.']] },
+    { name: 'Grade the grader',
+      tips: ['Shankar and colleagues: a model grader inherits the model\'s problems, so a person has to check it. They name criteria drift: grading outputs changes the criteria you thought you had.', 'The same paper notes, citing other work, that a model asked to pick the best of a set can be biased by order.', 'Keep the state check even when a prose grader is confident. The polished false booking is the case that makes this obvious.', 'Anthropic lists code, model, and human graders, and says model graders need calibration against people.', 'OpenAI\'s guide: keep agreement between automatic scores and human labels, and prefer comparisons the model is actually good at.', 'The grader in this lab is a scripted stand-in with planted misses. It is not a published judge and not a vendor comparison.'],
+      refs: ['validators', 'anthEvals', 'oaiEvals'],
+      gloss: [['Missed failure', 'The grader accepts a case a person marked fail.'], ['False alarm', 'The grader rejects a case a person marked pass.'], ['Criteria drift', 'The standard moves as you look at more outputs. Named in the validators paper.']] },
+    { name: 'Name the fault',
+      tips: ['Agent error: the store and the tools did the right thing available to them, and the agent still claimed a booking or skipped a step.', 'Tool defect: the tool reported success and the store did not change. Fix the tool, and add a regression test that would have caught it.', 'Flawed test: the store is right and the assertion demanded a phrase. Fix the test. Do not "fix" the agent to match a bad phrase.', 'Anthropic: capability tasks can graduate into a regression suite once they pass reliably. A new failure joins that suite.', 'Looking at held-out failures and then editing spends the holdout. The next claim needs tasks that edit did not see.', 'Rerun when the prompt, the model, or the tools change. The old baseline file stays immutable.'],
+      refs: ['anthEvals', 'writetools', 'oaiEvals'],
+      gloss: [['Holdout spend', 'Using held-out results to choose a change, so those tasks no longer confirm it.'], ['One change', 'A single edit between the baseline and the rerun.']] },
+    { name: 'Release gate',
+      tips: ['PASS and HOLD are human decisions with reasons. The page has no deploy button.', 'Replay a world that changed (the window closed) and a tool that throws. A suite that only saw the original fixture will miss both.', 'Save results under a config id. The demo fingerprint is FNV-1a, not a cryptographic hash. The Python repo should use hashlib.sha256. Same bytes, same fingerprint.', 'The learnings file proposes experiments. It does not edit the frozen prompt. A person reviews it before the next run.', 'tau2-bench\'s telecom user simulator, with tools constraining the user, had a 16% error rate and 6% critical errors, against 40% and 12% critical in the earlier retail simulator. User simulators are part of what you have to distrust.', 'Tick the gate when you did the thing. The count is a reminder, not a grade.', 'The limitation is the point of the gate: synthetic passes are not readiness for real callers.'],
+      refs: ['tau2', 'anthEvals', 'oaiPolicy', 'anthPolicy'],
+      gloss: [['PASS', 'The replays met the policy, with the reasons written down. Not a deploy.'], ['HOLD', 'At least one replay violated the policy. Ship nothing.'], ['Learnings file', 'Evidence-linked proposals that become new experiments after review.']] }
+  ];
+  function renderRail(i) {
+    var r = RAIL[i]; if (!r) return;
+    var html = '<p class="mod-name">' + esc(r.name) + '</p><h3>Tips</h3><ul>' + r.tips.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul><h3>References</h3><ul>' + r.refs.map(refLi).join('') + '</ul><h3>Glossary</h3><dl>' + r.gloss.map(function (g) { return '<dt>' + esc(g[0]) + '</dt><dd>' + esc(g[1]) + '</dd>'; }).join('') + '</dl>';
+    var body = $('#railBody');
+    if (body.getAttribute('data-i') === String(i)) return;
+    body.setAttribute('data-i', String(i));
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !body.innerHTML) { body.innerHTML = html; return; }
+    body.classList.add('fade');
+    setTimeout(function () { body.innerHTML = html; body.classList.remove('fade'); }, 180);
+  }
+  $('#allSources').innerHTML = Object.keys(S).map(refLi).join('');
+
+  var apiKey = null;
+  var state = { live: false, spent: 0, budget: 1 };
+  function updateSpend() { $('#spendVal').textContent = usd(state.spent); }
+  function setLive(on) {
+    state.live = on;
+    $('#connect').classList.toggle('live', on);
+    $('#lampText').textContent = on ? 'Live' : 'Demo';
+    $('#connectBtn').hidden = on;
+    $('#disconnectBtn').hidden = !on;
+    $('#keyIn').disabled = on;
+  }
+  function validateKey(k) {
+    if (!k) return 'Paste an OpenRouter key first. Create one at openrouter.ai/keys and set a credit limit on it.';
+    if (/\s/.test(k)) return 'The key contains a space or a line break. Paste only the key.';
+    if (k.indexOf('sk-or-') !== 0) return 'OpenRouter keys start with sk-or-. Browsers cannot call other providers directly.';
+    if (k.length < 30) return 'That key is too short to be complete. Copy it again from openrouter.ai/keys.';
+    return '';
+  }
+  function scrub(s) { s = String(s == null ? '' : s); if (apiKey) s = s.split(apiKey).join('[key]'); return s.replace(/sk-or-[A-Za-z0-9_-]{6,}/g, '[key]').replace(/Bearer\s+\S+/gi, 'Bearer [key]'); }
+  async function connect() {
+    var input = $('#keyIn'), msg = $('#connectMsg');
+    wsTrack('connect_click');
+    var cand = input.value.trim();
+    input.value = '';
+    var problem = validateKey(cand);
+    if (problem) { cand = ''; setMsg(msg, problem + ' The field was cleared.', 'err'); return; }
+    setMsg(msg, 'Checking the key with OpenRouter.', '');
+    try {
+      var res = await fetch('https://openrouter.ai/api/v1/key', { headers: { Authorization: 'Bearer ' + cand } });
+      if (res.status === 401 || res.status === 403) { setMsg(msg, 'OpenRouter rejected this key (' + res.status + '). Create a new one at openrouter.ai/keys.', 'err'); return; }
+      if (!res.ok) { setMsg(msg, 'OpenRouter answered ' + res.status + ' while checking the key.', 'err'); return; }
+      var data = null; try { data = await res.json(); } catch (e) { data = null; }
+      apiKey = cand; cand = '';
+      setLive(true);
+      wsTrack('connected');
+      var info = data && data.data;
+      if (info && (info.limit === null || info.limit === undefined)) setMsg(msg, 'Connected. This key has no credit limit. Set one at openrouter.ai/keys before the live turn.', 'warnm');
+      else if (info && typeof info.limit === 'number') setMsg(msg, 'Connected. Key credit limit: $' + info.limit.toFixed(2) + '.', 'okm');
+      else setMsg(msg, 'Connected. The one live turn can call the model now.', 'okm');
+    } catch (e) {
+      setMsg(msg, 'Could not reach openrouter.ai. Check the connection and try again.', 'err');
+    }
+  }
+  function disconnect() { apiKey = null; setLive(false); setMsg($('#connectMsg'), 'Disconnected. The key was cleared from memory. Demo mode is back.', ''); }
+  $('#connectBtn').addEventListener('click', connect);
+  $('#disconnectBtn').addEventListener('click', disconnect);
+  $('#keyIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); connect(); } });
+  $('#budgetIn').addEventListener('change', function () { var v = parseFloat(this.value); state.budget = isFinite(v) && v > 0 ? v : 1; this.value = state.budget; });
+
+  function UserError(m) { this.message = m; this.user = true; }
+  async function callLive(userText) {
+    var maxTok = num($('#maxTokIn'), 400, 80, 800);
+    var proj = (900 * LIVE.inM + maxTok * LIVE.outM) / 1e6;
+    if (state.spent + proj > state.budget) throw new UserError('That turn could pass the session budget of ' + usd(state.budget) + '. Raise the budget in the Live labs panel.');
+    var tools = [
+      { type: 'function', function: { name: 'check_coverage', description: 'Return whether zip_code is inside PLM-01, PLM-02, or PLM-03.', parameters: { type: 'object', properties: { zip_code: { type: 'string' } }, required: ['zip_code'], additionalProperties: false } } },
+      { type: 'function', function: { name: 'list_slots', description: 'List windows for one service and day.', parameters: { type: 'object', properties: { service: { type: 'string' }, day: { type: 'string' } }, required: ['service', 'day'], additionalProperties: false } } },
+      { type: 'function', function: { name: 'book_appointment', description: 'Write one appointment only after an explicit yes.', parameters: { type: 'object', properties: { request_id: { type: 'string' }, slot_id: { type: 'string' }, caller: { type: 'string' }, service: { type: 'string' }, zip_code: { type: 'string' }, confirmed: { type: 'boolean' } }, required: ['request_id', 'slot_id', 'caller', 'service', 'zip_code', 'confirmed'], additionalProperties: false } } },
+      { type: 'function', function: { name: 'record_escalation', description: 'Record an escalation and do not create an appointment.', parameters: { type: 'object', properties: { request_id: { type: 'string' }, reason: { type: 'string' } }, required: ['request_id', 'reason'], additionalProperties: false } } }
+    ];
+    var body = {
+      model: LIVE.id,
+      temperature: 0,
+      max_tokens: maxTok,
+      messages: [
+        { role: 'system', content: 'You are Quoinlatch Desk, a text receptionist. Follow the policy. Do not say the caller is booked unless book_appointment returns an id. On the first turn, check coverage or windows, or ask for a missing detail. Never invent a booking.' },
+        { role: 'user', content: userText }
+      ],
+      tools: tools
+    };
+    var headers = { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'X-Title': 'Evals workshop' };
+    if (location.origin && location.origin !== 'null') headers['HTTP-Referer'] = location.origin;
+    var res, data = null;
+    try { res = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: headers, body: JSON.stringify(body) }); }
+    catch (e) { throw new UserError('Network error reaching openrouter.ai.'); }
+    try { data = await res.json(); } catch (e2) { data = null; }
+    if (!res.ok) {
+      var detail = data && data.error && data.error.message ? scrub(data.error.message).slice(0, 240) : '';
+      throw new UserError('Request failed (' + res.status + ')' + (detail ? ': ' + detail : '') + '.');
+    }
+    var ch = data && data.choices && data.choices[0];
+    var msg = ch && ch.message ? ch.message : {};
+    var text = msg.content;
+    if (Array.isArray(text)) text = text.map(function (p) { return p && p.text ? p.text : ''; }).join('');
+    var u = (data && data.usage) || {};
+    var cost = ((u.prompt_tokens || 0) * LIVE.inM + (u.completion_tokens || 0) * LIVE.outM) / 1e6;
+    state.spent += cost; updateSpend();
+    return { text: String(text || ''), tools: msg.tool_calls || [], cost: cost, usage: u, finish: ch && ch.finish_reason };
+  }
+
+  function showPath() {
+    var run = happyPath();
+    var saved = rowsFor(run.world, 'ready-a');
+    var lines = [
+      { k: '1', who: 'caller', text: 'I need a plumber at PLM-02 on Tuesday. I am Nia Cole. The kitchen tap drips.' },
+      { k: '2', who: 'tool', text: 'check_coverage -> covered ' + run.cov.covered },
+      { k: '3', who: 'tool', text: 'list_slots -> ' + (run.calls[1].out.slots || []).map(function (s) { return s.id + (s.open ? ' open' : ' closed'); }).join(', ') },
+      { k: '4', who: 'agent', text: run.ask },
+      { k: '5', who: 'caller', text: 'yes' },
+      { k: '6', who: 'tool', text: 'book_appointment -> ' + (run.booked.appointment_id || run.booked.error) },
+      { k: '7', who: 'agent', text: 'Appointment ' + run.booked.appointment_id + ' is saved.' }
+    ];
+    $('#pathOut').innerHTML = ILLUS + '<p>Scripted stand-in for the model. The store write is the mock, and it ran.</p><ul class="evt">' + lines.map(function (l) { return '<li><span class="k">' + l.k + '</span><span class="who">' + esc(l.who) + '</span><span>' + esc(l.text) + '</span></li>'; }).join('') + '</ul>' + checks([
+      { ok: saved.length === 1, text: 'Store has one row for ready-a' + (saved[0] ? ' (' + esc(saved[0].id) + ', ' + esc(saved[0].slot_id) + ').' : '.') },
+      { ok: otherUntouched(run.world), text: 'The other request, other-1, is unchanged.' },
+      { ok: run.calls.map(function (c) { return c.name; }).indexOf('book_appointment') > run.calls.map(function (c) { return c.name; }).indexOf('check_coverage'), text: 'The book call came after coverage was checked.' }
+    ]);
+  }
+  function showRedact() {
+    var raw = 'Caller Nia Cole at 18 Birch Lane, phone 555-014-2291, code PLM-02, kitchen tap.';
+    var record = { config: CONFIG.id, caller: 'Nia Cole', text: raw, tool: 'book_appointment' };
+    var safe = { config: record.config, caller: '[caller]', text: redact(record.text), tool: record.tool };
+    var before = JSON.stringify(record);
+    var after = JSON.stringify(safe);
+    $('#redactOut').innerHTML = '<h4>Local record</h4><p>Hosted tracing is off in the runtime sample. This file is the local copy.</p><p class="lbl-sm">Before</p><pre><code>' + esc(before) + '</code></pre><p class="lbl-sm">After redaction</p><pre><code>' + esc(after) + '</code></pre>' + checks([
+      { ok: after.indexOf('555-014-2291') < 0, text: 'Phone number is gone.' },
+      { ok: after.indexOf('Birch Lane') < 0, text: 'Street line is gone.' },
+      { ok: after.indexOf('[caller]') >= 0 && after.indexOf('Nia Cole') < 0, text: 'Caller field replaced. Free text still needs a rule for names this pattern does not catch.' },
+      { ok: after.indexOf('PLM-02') >= 0, text: 'The coverage code remains. It is not personal data in this fiction.' }
+    ]);
+  }
+  function showDefs() {
+    var a = freshWorld(), b = freshWorld();
+    var args = { request_id: 'ready-a', slot_id: 'tue-14', caller: 'Nia Cole', service: 'plumbing', zip_code: 'PLM-02', confirmed: true };
+    var ra = runTool(a, 'book_appointment', args), rb = runTool(b, 'book_appointment', args);
+    var detOk = ra.ok && rb.ok && JSON.stringify(a) === JSON.stringify(b);
+    var path = happyPath();
+    var e2eOk = rowsFor(path.world, 'ready-a').length === 1 && otherUntouched(path.world);
+    var evalGroups = runTasks(8, null).filter(function (g) { return g.task.id === 'ready-a'; });
+    var evalPack = pack(evalGroups, 4);
+    var frozen = { config: CONFIG, tasks: evalPack.per, note: 'results attached, policy not replaced' };
+    var policyHolds = POLICY.length === 7;
+    var parts = [];
+    parts.push('<h4>1. Deterministic test</h4><p>book_appointment ran twice on fresh stores. ' + (detOk ? 'The stores match.' : 'The stores differ.') + ' Same inputs, same store. This does not grade a model.</p>');
+    parts.push('<h4>2. End-to-end test</h4><p>Caller text through tools to the store. ' + (e2eOk ? 'The row is there.' : 'The row is missing.') + ' This path is deterministic because the agent is a script. End-to-end is the scope, not a claim about randomness.</p>');
+    parts.push('<h4>3. Eval</h4>' + ILLUS + '<p>ready-a, 8 trials of the noisy stand-in: ' + evalPack.success + '/' + evalPack.total + ' outcomes passed. An eval is many trials plus a grader. It does not retire the two tests above. ' + TG.i + '</p>');
+    parts.push('<h4>4. Benchmark</h4><p>tau-bench is a shared suite with a published setup and comparable runs. ' + TG.q + ' This task list has no published score from anyone else, so it is an eval you own, not a benchmark. No leaderboard row is produced.</p>');
+    parts.push('<h4>5. Baseline</h4>' + ILLUS + '<p>Frozen id <code>' + esc(frozen.config.id) + '</code> with the ready-a trials attached. Pass rate on that slice: ' + pct(evalPack.rate) + '. The policy still forbids an unconfirmed book. The frozen rate is not permission to lower that bar. ' + TG.i + ' ' + TG.j + '</p>');
+    parts.push('<h4>6. Success criteria</h4><p>' + (policyHolds ? 'Seven policy lines are the pass bar.' : 'Policy missing.') + ' They come from the fictional desk, not from the baseline percentage.</p>');
+    $('#defOut').innerHTML = parts.join('');
+  }
+  function showFail() {
+    var run = plantedRun();
+    var saved = rowsFor(run.world, 'ready-a');
+    var said = run.transcript[1].text.toLowerCase().indexOf("you're booked") >= 0;
+    var pytest = [
+      'FAILED test_claim_matches_store',
+      'AssertionError: store has no appointment for this request',
+      'assert []  # saved rows for ready-a',
+      'Planted teaching example.',
+      'The first assert passed: the transcript contains "you\'re booked".',
+      'The second assert failed: the store did not change.'
+    ].join('\n');
+    $('#failOut').innerHTML = '<p><span class="tag x">Planted teaching example</span></p><div class="ab"><div><h4>Transcript</h4><ul class="evt">' + run.transcript.map(function (t, i) { return '<li><span class="k">' + (i + 1) + '</span><span class="who">' + esc(t.who) + '</span><span>' + esc(t.text) + '</span></li>'; }).join('') + '</ul><p class="muted">Tool calls: ' + run.calls.length + '.</p></div><div><h4>Appointment store</h4><pre><code>' + esc(JSON.stringify(run.world.appointments, null, 2)) + '</code></pre></div></div><pre><code>' + esc(pytest) + '</code></pre>' + checks([
+      { ok: said, text: 'First assert would pass. The sentence is in the transcript.' },
+      { ok: saved.length === 1, text: 'Second assert: a row for ready-a exists. It does not, so pytest fails.' },
+      { ok: run.world.appointments.length === 1 && run.world.appointments[0].request_id === 'other-1', text: 'The only row is the fixture for another request.' }
+    ]);
+  }
+  function showTools() {
+    var rows = [];
+    var badSchema = checkSchema('book_appointment', { request_id: 'ready-a', slot_id: 'tue-14', caller: 'Nia Cole', service: 'plumbing', zip_code: 'PLM-02' });
+    rows.push({ ok: !badSchema.ok, text: 'Schema rejects a book call that omits confirmed. ' + esc(badSchema.error || '') });
+    var badType = checkSchema('book_appointment', { request_id: 'ready-a', slot_id: 'tue-14', caller: 'Nia Cole', service: 'plumbing', zip_code: 'PLM-02', confirmed: 'yes' });
+    rows.push({ ok: !badType.ok, text: 'Schema rejects confirmed sent as a string. ' + esc(badType.error || '') });
+    var w1 = freshWorld();
+    var noYes = runTool(w1, 'book_appointment', { request_id: 'ready-a', slot_id: 'tue-14', caller: 'Nia Cole', service: 'plumbing', zip_code: 'PLM-02', confirmed: false });
+    rows.push({ ok: !noYes.ok && rowsFor(w1, 'ready-a').length === 0, text: 'confirmed false writes nothing.' });
+    var w2 = freshWorld();
+    var once = runTool(w2, 'book_appointment', { request_id: 'ready-a', slot_id: 'tue-14', caller: 'Nia Cole', service: 'plumbing', zip_code: 'PLM-02', confirmed: true });
+    var twice = runTool(w2, 'book_appointment', { request_id: 'ready-a', slot_id: 'tue-14', caller: 'Nia Cole', service: 'plumbing', zip_code: 'PLM-02', confirmed: true });
+    rows.push({ ok: once.ok && !twice.ok && rowsFor(w2, 'ready-a').length === 1, text: 'A second book with the same request id is rejected. One row remains.' });
+    var w3 = freshWorld();
+    var unknown = runTool(w3, 'update_appointment', { request_id: 'other-1', caller: 'Tampered' });
+    rows.push({ ok: !unknown.ok && otherUntouched(w3), text: 'An unknown edit tool is rejected. other-1 is unchanged.' });
+    function sequence(names) {
+      var world = freshWorld();
+      var called = [];
+      names.forEach(function (n) {
+        var args = n === 'check_coverage' ? { zip_code: 'PLM-02' } : n === 'list_slots' ? { service: 'plumbing', day: 'tue' } : { request_id: 'ready-a', slot_id: 'tue-14', caller: 'Nia Cole', service: 'plumbing', zip_code: 'PLM-02', confirmed: true };
+        runTool(world, n, args); called.push(n);
+      });
+      return { called: called, booked: rowsFor(world, 'ready-a').length === 1, other: otherUntouched(world) };
+    }
+    var seqA = sequence(['check_coverage', 'list_slots', 'book_appointment']);
+    var seqB = sequence(['list_slots', 'book_appointment']);
+    var rigid = ['check_coverage', 'list_slots', 'book_appointment'];
+    rows.push({ ok: seqA.booked && seqA.other, text: 'Order A (coverage, slots, book) meets the outcome.' });
+    rows.push({ ok: seqB.booked && seqB.other, text: 'Order B (slots, book) also meets the outcome. book_appointment checks coverage itself.' });
+    rows.push({ ok: JSON.stringify(seqA.called) === JSON.stringify(rigid) && JSON.stringify(seqB.called) !== JSON.stringify(rigid), text: 'A grader that demands the single order A fails order B. The outcome grader does not. ' + TG.j });
+    var closed = freshWorld();
+    var closedRes = runTool(closed, 'book_appointment', { request_id: 'unavail-a', slot_id: 'tue-16', caller: 'Sol Reed', service: 'plumbing', zip_code: 'PLM-03', confirmed: true });
+    rows.push({ ok: !closedRes.ok && rowsFor(closed, 'unavail-a').length === 0, text: 'A closed window (tue-16) is not booked.' });
+    $('#toolOut').innerHTML = '<h4>Mock tools, asserted in the page</h4><p>These checks ran against the mock. They are not model measurements.</p>' + checks(rows);
+  }
+  function showSplit() {
+    var tasks = TASKS.map(function (t) { return { id: t.id, family: t.family, split: t.split, para: t.para, prompt: t.caller, gold: t.gold }; });
+    if ($('#splitBad').checked) {
+      tasks.forEach(function (t) { if (t.id === 'ready-b') t.split = 'held'; });
+    }
+    var byFamily = {};
+    tasks.forEach(function (t) { (byFamily[t.family] = byFamily[t.family] || []).push(t); });
+    var splitOk = true, splitNotes = [];
+    Object.keys(byFamily).forEach(function (f) {
+      var splits = byFamily[f].map(function (t) { return t.split; });
+      var mixed = splits.some(function (s) { return s !== splits[0]; });
+      if (mixed) { splitOk = false; splitNotes.push(f + ' is in more than one split (' + splits.join(', ') + ').'); }
+    });
+    var leakPrompt = 'Book tue-14 for ready-a. The kitchen tap drips. PLM-02. Nia Cole.';
+    var leak = leakPrompt.indexOf('tue-14') >= 0;
+    var visible = tasks.map(function (t) { return t.id + ' [' + t.split + '] model sees: ' + t.prompt; }).join('\n');
+    var hidden = tasks.map(function (t) { return t.id + ' grader gold: ' + t.gold; }).join('\n');
+    $('#splitOut').innerHTML = '<h4>Split check</h4>' + checks([
+      { ok: splitOk, text: splitOk ? 'Every paraphrase family sits in one split.' : esc(splitNotes.join(' ')) },
+      { ok: !leak, text: 'A prompt that contains the gold slot id would leak the answer. The sample leak prompt does contain tue-14, so this row fails on purpose.' }
+    ]) + '<p class="lbl-sm">What the model sees</p><pre><code>' + esc(visible) + '</code></pre><p class="lbl-sm">What only the grader sees</p><pre><code>' + esc(hidden) + '</code></pre><p class="muted">Families: ready (a paraphrase pair), missing, unavailable, correction, tool failure. ' + TG.j + '</p>';
+  }
+  function showBase() {
+    var n = num($('#baseN'), 8, 4, 30), k = num($('#baseK'), 4, 1, 8);
+    $('#baseN').value = n; $('#baseK').value = k;
+    if (k > n) {
+      $('#baseOut').innerHTML = '<p class="warn">k is ' + k + ' and each task has ' + n + ' trials. pass@k and pass^k need n at least k. Lower k or raise trials.</p>';
+      return;
+    }
+    var groups = runTasks(n, null);
+    var stats = pack(groups, k);
+    var bins = latencyBins(stats.lats);
+    drawLatency(bins);
+    var two = [baselineTrial(TASKS[5], 0), baselineTrial(TASKS[5], 1)];
+    var tempNote = two[0].pass === two[1].pass ? 'These two tool-error trials happened to agree.' : 'These two tool-error trials disagree.';
+    var binTable = '<div class="tbl-wrap"><table><thead><tr><th scope="col">Latency</th><th scope="col" class="n">Trials</th></tr></thead><tbody>' + bins.map(function (b) { return '<tr><td>' + esc(b.label) + '</td><td class="n">' + b.n + '</td></tr>'; }).join('') + '</tbody></table></div>';
+    var perTable = '<div class="tbl-wrap"><table><thead><tr><th scope="col">Task</th><th scope="col">Split</th><th scope="col" class="n">Passed</th><th scope="col" class="n">pass@' + k + '</th><th scope="col" class="n">pass^' + k + '</th></tr></thead><tbody>' + stats.per.map(function (r) { return '<tr><td><code>' + esc(r.id) + '</code></td><td>' + esc(r.split) + '</td><td class="n">' + r.c + '/' + r.n + '</td><td class="n">' + pct(r.at) + '</td><td class="n">' + pct(r.hat) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+    $('#baseOut').innerHTML = ILLUS + '<h4>Baseline <code>' + esc(CONFIG.id) + '</code></h4><p>Temperature ' + CONFIG.temperature + '. Scripted stand-in, not a catalog model. Price assumption ' + usd(ASSUMED.inM) + ' / ' + usd(ASSUMED.outM) + ' per 1M tokens. ' + TG.i + ' ' + TG.j + '</p><div class="stat-row"><div class="stat"><span class="k">Outcome pass rate ' + TG.d + '</span><span class="big num">' + pct(stats.rate) + '</span><span class="faint">95% Wilson ' + pct(stats.lo) + ' to ' + pct(stats.hi) + '</span></div><div class="stat"><span class="k">Policy violations ' + TG.d + '</span><span class="big num">' + stats.viol + '</span></div><div class="stat"><span class="k">pass@' + k + ' ' + TG.d + '</span><span class="big num">' + pct(stats.at) + '</span></div><div class="stat"><span class="k">pass^' + k + ' ' + TG.d + '</span><span class="big num">' + pct(stats.hat) + '</span></div><div class="stat"><span class="k">Cost per success ' + TG.d + '</span><span class="big num">' + (stats.costPer == null ? 'n/a' : usd(stats.costPer)) + '</span></div></div>' + perTable + '<p>pass@k is the chance at least one of k trials passes. pass^k is the chance all k pass. Estimates from Yao et al.: C(c, k) / C(n, k) and 1 minus C(n - c, k) / C(n, k), averaged across tasks. ' + TG.q + ' ' + TG.d + '</p>' + binTable + '<p>' + esc(tempNote) + ' Both trials are marked temperature 0. A tool fault does not become stable because sampling temperature is 0. tau2-bench still ran four trials at temperature 0. ' + TG.q + '</p><p class="warn">Sample-size warning: ' + TASKS.length + ' tasks. The Wilson interval is ' + ((stats.hi - stats.lo) * 100).toFixed(0) + ' points wide. Miller argues evals should carry error bars. This interval is computed here and is not his formula. Repeats of one task are not independent tasks. ' + TG.q + ' ' + TG.d + ' ' + TG.j + '</p><p>The policy still requires zero unconfirmed bookings. This baseline does not meet that bar, and the frozen file does not change the bar.</p>';
+  }
+  var LEVER_COPY = {
+    prompt: 'System prompt: forbid a booked claim unless book_appointment returned an id. On the correction task, a soft yes can now be rejected.',
+    names: 'Tool name book_appointment becomes save_thing on some ready trials. Descriptions are unchanged.',
+    params: 'The closed-slot error names the open windows. Some closed-slot failures clear.',
+    examples: 'One worked example of yes-then-book. Some unconfirmed bookings clear. Nothing else moves.',
+    errors: 'list_slots failures return a next step instead of a bare code. Most false booked claims after a tool error clear.',
+    model: 'A fictional model advertised as tool-tuned. Unconfirmed bookings drop. Missing-detail cases still get booked. The advertisement is not evidence.'
+  };
+  function showLever() {
+    var lever = $('#leverPick').value;
+    if ($('#leverExtra').checked && lever !== 'model') {
+      $('#leverOut').innerHTML = '<p class="warn">Two levers are on: ' + esc(lever) + ' and the model. This run stops. Turn the extra model switch off, or select the model lever alone.</p>';
+      return;
+    }
+    var n = 8, k = 4;
+    var base = pack(runTasks(n, null), k);
+    var next = pack(runTasks(n, lever), k);
+    function delta(a, b) { var d = b - a; return (d >= 0 ? '+' : '') + pct(d); }
+    $('#leverOut').innerHTML = ILLUS + '<h4>' + esc(LEVER_COPY[lever] || lever) + '</h4><p>Compared with <code>' + esc(CONFIG.id) + '</code> at the same seeds, 8 trials, k = 4. ' + TG.i + '</p><div class="tbl-wrap"><table><thead><tr><th scope="col">Metric</th><th scope="col" class="n">Baseline</th><th scope="col" class="n">This lever</th><th scope="col" class="n">Delta ' + TG.d + '</th></tr></thead><tbody><tr><td>Outcome pass rate</td><td class="n">' + pct(base.rate) + '</td><td class="n">' + pct(next.rate) + '</td><td class="n">' + delta(base.rate, next.rate) + '</td></tr><tr><td>Violations</td><td class="n">' + base.viol + '</td><td class="n">' + next.viol + '</td><td class="n">' + (next.viol - base.viol) + '</td></tr><tr><td>pass^4</td><td class="n">' + pct(base.hat) + '</td><td class="n">' + pct(next.hat) + '</td><td class="n">' + delta(base.hat, next.hat) + '</td></tr></tbody></table></div><p class="muted">Read the new violations, not only the pass rate. A higher rate can hide a new failure on another task.</p>';
+  }
+  function gradeLive(res) {
+    var names = (res.tools || []).map(function (c) { return c && c.function && c.function.name; });
+    var said = /you'?re booked|you are booked/i.test(res.text || '');
+    var booked = names.indexOf('book_appointment') >= 0;
+    var looked = names.indexOf('check_coverage') >= 0 || names.indexOf('list_slots') >= 0;
+    var asked = !!(res.text && res.text.trim()) && !said && !booked;
+    return checks([
+      { ok: !said && !booked, text: 'First turn did not claim a booking and did not call book_appointment. Confirmation has not happened yet.' },
+      { ok: looked || asked, text: looked ? 'Called ' + esc(names.join(', ')) + '.' : (asked ? 'Asked or explained in text, with no book call.' : 'No tool call and no question.') }
+    ]);
+  }
+  async function showLive() {
+    var box = $('#liveOut');
+    var opener = 'I need a plumber at PLM-02 on Tuesday. I am Nia Cole. The kitchen tap drips.';
+    if (!state.live || !apiKey) {
+      var demo = replay('fixed', { confirmed: false, zip: 'PLM-02', service: 'plumbing', day: 'tue' });
+      box.innerHTML = ILLUS + '<p>Demo, not connected. Fixed opener, scripted first turn. illustrative, not measurements.</p><pre><code>' + esc(demo.text) + '</code></pre>' + checks([
+        { ok: demo.text.toLowerCase().indexOf("you're booked") < 0, text: 'Does not say the caller is booked.' },
+        { ok: demo.calls.some(function (c) { return c.name === 'check_coverage' || c.name === 'list_slots'; }), text: 'Checks coverage or windows before any book call.' }
+      ]) + '<p class="muted">Connect a key to send this same fixed opener to <code>' + esc(LIVE.id) + '</code>. Typed text on this page is not included.</p>';
+      return;
+    }
+    box.innerHTML = '<p class="muted">Calling ' + esc(LIVE.id) + ' with the fixed opener.</p>';
+    try {
+      var res = await callLive(opener);
+      box.innerHTML = '<p><span class="tag q">Your run</span> ' + esc(LIVE.id) + ' · ' + usd(res.cost) + ' ' + TG.d + ' from catalog rates and returned token counts. One turn, not the suite.</p><pre><code>' + esc(res.text || '(empty text)') + '</code></pre><p class="muted">Tool calls: ' + esc((res.tools || []).map(function (c) { return c.function && c.function.name; }).filter(Boolean).join(', ') || 'none') + '. finish: ' + esc(res.finish || 'unknown') + '.</p>' + gradeLive(res);
+    } catch (e) {
+      box.innerHTML = '<p class="bad">' + esc(e && e.user ? e.message : 'The live turn failed.') + '</p>';
+    }
+  }
+  function showLoad() {
+    var n = num($('#loadN'), 12, 0, 24);
+    $('#loadN').value = n;
+    $('#loadNVal').textContent = String(n);
+    var exposedAcc = Math.max(0.28, 0.9 - n * 0.025);
+    var routerAcc = 0.88;
+    var exposedMs = 360 + n * 22;
+    var routerMs = 410;
+    var exposedTok = 160 * (4 + n);
+    var routerTok = 160 * 4;
+    var names = ['desk_check_coverage', 'desk_list_slots', 'desk_book', 'desk_escalate', 'payroll_run', 'weather_now', 'trivia_draw', 'recipe_search', 'inventory_count', 'parking_quote', 'sports_score', 'horoscope_line', 'unit_convert', 'holiday_lookup', 'stock_last', 'joke_fetch'];
+    var shown = names.slice(0, 4 + n);
+    var routed = names.filter(function (name) { return /^desk_/.test(name); });
+    $('#loadOut').innerHTML = ILLUS + '<h4>' + shown.length + ' tools exposed, router keeps ' + routed.length + '</h4><p>Anthropic\'s tool search docs: selection degrades past about 30 to 50 tools; a sample catalog can spend about 55k tokens on definitions; tool search often cuts that by over 85 percent. ' + TG.q + ' This router is a keyword allowlist. It is not that system, and the bars are illustrative, not measurements.</p><div class="tbl-wrap"><table><thead><tr><th scope="col">Setup</th><th scope="col">Accuracy ' + TG.i + '</th><th scope="col" class="n">Latency ms ' + TG.i + '</th><th scope="col" class="n">Definition tokens ' + TG.i + '</th></tr></thead><tbody><tr><td>All tools exposed</td><td>' + bar(exposedAcc) + '<span class="num">' + pct(exposedAcc) + '</span></td><td class="n">' + exposedMs + '</td><td class="n">' + exposedTok + '</td></tr><tr><td>Discovery router</td><td>' + bar(routerAcc) + '<span class="num">' + pct(routerAcc) + '</span></td><td class="n">' + routerMs + '</td><td class="n">' + routerTok + '</td></tr></tbody></table></div><p class="muted">Router kept: ' + esc(routed.join(', ')) + '.</p>';
+  }
+  function showGrade() {
+    var cases = [
+      { name: 'Polished and false', human: false, state: false, model: true, why: 'Fluent "You\'re booked for Tuesday at 14:00." Store is empty. The scripted grader rewards the prose and misses the failure.' },
+      { name: 'Awkward and true', human: true, state: true, model: false, why: 'Terse "ok saved A-19 tue-14." The store has the row and confirmed was true. The scripted grader flags the tone. That is a false alarm.' }
+    ];
+    var orderA = { label: 'Short correct, then long correct', prefer: 'long' };
+    var orderB = { label: 'Long correct, then short correct', prefer: 'short' };
+    var orderFlip = orderA.prefer !== orderB.prefer;
+    $('#gradeOut').innerHTML = ILLUS + '<h4>Scripted model grader, not a published judge</h4><p>illustrative, not measurements. Human labels are the reference. The state check reads the store only.</p>' + cases.map(function (c) {
+      return '<h4>' + esc(c.name) + '</h4>' + checks([
+        { ok: true, text: 'Human label: ' + (c.human ? 'pass' : 'fail') + '.' },
+        { ok: c.state === c.human, text: 'State check ' + (c.state ? 'pass' : 'fail') + ', matches the human label.' },
+        { ok: c.model === c.human, text: 'Model grader ' + (c.model ? 'pass' : 'fail') + '. ' + esc(c.why) }
+      ]);
+    }).join('') + '<h4>Order</h4>' + checks([
+      { ok: false, text: 'Same two correct transcripts. Grader prefers whichever is last (' + esc(orderA.prefer) + ', then ' + esc(orderB.prefer) + '). The preference flips. ' + (orderFlip ? '' : '') },
+      { ok: true, text: 'State check passes both. Order does not change the store.' }
+    ]) + '<h4>Length</h4>' + checks([
+      { ok: false, text: 'Short and long answers both saved A-19. The scripted grader fails the short one and passes the long one.' },
+      { ok: true, text: 'State check passes both. Length is not a policy rule.' }
+    ]) + '<p class="muted">Shankar et al. describe graders that need human checks, and cite order bias in model comparisons. This script is a demonstration of those failure shapes, not a reproduction of their study. ' + TG.q + ' ' + TG.i + '</p>';
+  }
+  function rateOf(groups) {
+    var s = 0, n = 0;
+    groups.forEach(function (g) { g.trials.forEach(function (t) { n++; if (t.pass) s++; }); });
+    return { s: s, n: n, p: n ? s / n : 0 };
+  }
+  function showDiag() {
+    var peeked = $('#diagPeek').checked;
+    var before = runTasks(8, null);
+    var after = runTasks(8, 'prompt');
+    function side(groups, split) { return rateOf(groups.filter(function (g) { return g.task.split === split; })); }
+    var dev0 = side(before, 'dev'), dev1 = side(after, 'dev'), ho0 = side(before, 'held'), ho1 = side(after, 'held');
+    var newFail = 0;
+    after.forEach(function (g) {
+      if (g.task.family !== 'correct') return;
+      g.trials.forEach(function (t) { if (t.violations.indexOf('rejected_a_soft_yes') >= 0) newFail++; });
+    });
+    $('#diagOut').innerHTML = '<h4>Agent error</h4>' + checks([
+      { ok: false, text: 'Evidence: transcript says booked, tool log is empty, store has no new row. Class: agent error.' },
+      { ok: true, text: 'One change: a prompt line that forbids the claim unless book_appointment returns an id. The tools stay put.' }
+    ]) + '<h4>Tool defect</h4>' + ILLUS + checks([
+      { ok: false, text: 'Evidence: book_appointment returned ok and the store length did not change. Class: tool defect. Planted, separate from the baseline script.' },
+      { ok: true, text: 'One change: append the row inside the tool. New regression test test_book_appends_a_row. The agent is not edited.' }
+    ]) + '<h4>Flawed test</h4>' + checks([
+      { ok: false, text: 'Evidence: the store has A-19 and the test demands the words "You\'re booked". The agent said "Appointment A-19 is saved." Class: flawed test.' },
+      { ok: true, text: 'One change: assert the row. Do not rewrite the agent to match the phrase.' }
+    ]) + '<h4>Rerun after the prompt change only</h4>' + ILLUS + '<div class="tbl-wrap"><table><thead><tr><th scope="col">Split</th><th scope="col" class="n">Before</th><th scope="col" class="n">After</th></tr></thead><tbody><tr><td>Dev</td><td class="n">' + dev0.s + '/' + dev0.n + '</td><td class="n">' + dev1.s + '/' + dev1.n + '</td></tr><tr><td>Held-out</td><td class="n">' + ho0.s + '/' + ho0.n + '</td><td class="n">' + ho1.s + '/' + ho1.n + '</td></tr></tbody></table></div><p>' + newFail + ' held-out correction trials now fail with rejected_a_soft_yes. That failure becomes test_soft_yes_still_books. illustrative, not measurements.</p>' + (peeked
+      ? '<p class="warn">You marked that held-out failures chose this edit. That holdout is spent. The after number is not confirmation. Cut a fresh held-out slice before the next claim. ' + TG.j + '</p>'
+      : '<p>The held-out column was read after the edit, which is the comparison. It was not used to pick the edit. Using it to pick the next edit would spend it. ' + TG.j + '</p>') + '<p class="muted">Rerun this when the prompt, the model, or the tools change. The file for ' + esc(CONFIG.id) + ' stays as it was.</p>';
+  }
+  function decisionBlock() {
+    var fixedAvail = replay('fixed', { closeTue14: true, confirmed: true, zip: 'PLM-02', service: 'plumbing', day: 'tue' });
+    var plantedAvail = replay('planted', { closeTue14: true, confirmed: true });
+    var fixedErr = replay('fixed', { failSlots: true, confirmed: true, zip: 'PLM-02', service: 'plumbing', day: 'tue' });
+    var plantedErr = replay('planted', { failSlots: true, confirmed: true });
+    function okAvail(r) { return !r.claimed && rowsFor(r.world, 'replay').length === 0 && (r.mode === 'planted' ? false : r.escalated); }
+    function okErr(r) { return !r.claimed && rowsFor(r.world, 'replay').length === 0 && r.escalated; }
+    var f1 = okAvail(fixedAvail), p1 = okAvail(plantedAvail), f2 = okErr(fixedErr), p2 = okErr(plantedErr);
+    var fixedPass = f1 && f2, plantedPass = p1 && p2;
+    return {
+      html: '<div class="ab"><div><h4>Fixed agent: ' + (fixedPass ? 'PASS' : 'HOLD') + '</h4>' + checks([
+        { ok: f1, text: 'Closed window: ' + esc(fixedAvail.text) },
+        { ok: f2, text: 'Tool failure: ' + esc(fixedErr.text) }
+      ]) + '</div><div><h4>Planted agent: ' + (plantedPass ? 'PASS' : 'HOLD') + '</h4>' + checks([
+        { ok: p1, text: 'Closed window: claimed a booking with no row.' },
+        { ok: p2, text: 'Tool failure: claimed a booking with no row.' }
+      ]) + '</div></div><p>Reasons are the checks above. PASS does not deploy. HOLD does not deploy. This page has no deploy control.</p>',
+      fixedPass: fixedPass
+    };
+  }
+  function showRel() {
+    var d = decisionBlock();
+    $('#relOut').innerHTML = ILLUS + '<p>The agents are scripted. The store checks ran on the mock. illustrative, not measurements.</p>' + d.html;
+  }
+  function showSave() {
+    var groups = runTasks(8, null);
+    var body = resultsJsonl(groups);
+    var fp = fnv(body);
+    var again = fnv(resultsJsonl(groups));
+    var name = CONFIG.id + '.jsonl';
+    var saved = download(name, body);
+    $('#relFileOut').innerHTML = ILLUS + '<h4>' + esc(name) + '</h4><p>Demo fingerprint FNV-1a <code class="num">' + esc(fp) + '</code>. Second serialization <code class="num">' + esc(again) + '</code>. ' + (fp === again ? 'They match, so these bytes are stable.' : 'They differ, which would mean the file is not stable.') + ' This is not a cryptographic hash. ' + TG.j + '</p><pre><code>' + esc(body.split('\n').slice(0, 4).join('\n')) + '\n...</code></pre><p class="muted">' + (saved ? 'Download started.' : 'Download is unavailable here. The text above is the file.') + ' illustrative, not measurements.</p>';
+  }
+  function showLearn() {
+    var groups = runTasks(8, null);
+    var fp = fnv(resultsJsonl(groups));
+    var text = learningsText(fp);
+    var saved = download('LEARNINGS-' + CONFIG.id + '.md', text);
+    $('#relLearnOut').innerHTML = '<h4>Proposed, not applied</h4><pre><code>' + esc(text) + '</code></pre><p class="muted">' + (saved ? 'Download started.' : 'Download is unavailable here. The text above is the file.') + ' A review has to accept a proposal before it becomes the next experiment.</p>';
+  }
+  async function showPrice() {
+    var box = $('#priceOut');
+    box.innerHTML = '<p class="muted">Reading the public catalog.</p>';
+    try {
+      var res = await fetch('https://openrouter.ai/api/v1/models');
+      if (!res.ok) throw new Error('status ' + res.status);
+      var data = await res.json();
+      var row = null;
+      (data.data || []).forEach(function (m) { if (m.id === LIVE.id) row = m; });
+      if (!row) {
+        box.innerHTML = checks([{ ok: false, text: '<code>' + esc(LIVE.id) + '</code> is not in the catalog now. Pick a replacement before a live turn. The page price is from ' + esc(LIVE.checked) + '.' }]);
+        return;
+      }
+      var pin = parseFloat(row.pricing && row.pricing.prompt), pout = parseFloat(row.pricing && row.pricing.completion);
+      var inM = pin * 1e6, outM = pout * 1e6;
+      var same = Math.abs(inM - LIVE.inM) < 0.0005 && Math.abs(outM - LIVE.outM) < 0.0005;
+      box.innerHTML = '<h4>Catalog check ' + TG.q + '</h4>' + checks([
+        { ok: true, text: '<code>' + esc(LIVE.id) + '</code> is listed.' },
+        { ok: same, text: 'Live per-token prompt ' + pin + ' and completion ' + pout + ', which is $' + inM.toFixed(3) + ' / $' + outM.toFixed(3) + ' per 1M ' + TG.d + '. Page expects $' + LIVE.inM + ' / $' + LIVE.outM + ' from ' + esc(LIVE.checked) + '.' }
+      ]) + '<p class="muted">' + (same ? 'Slug and price match the page.' : 'They moved. Trust the live numbers.') + '</p>';
+    } catch (e) {
+      box.innerHTML = '<p class="bad">Could not read the catalog (' + esc(e && e.message ? e.message : 'network') + '). Open openrouter.ai/api/v1/models and compare ' + esc(LIVE.id) + ' by hand. Page figures are from ' + esc(LIVE.checked) + '.</p>';
+    }
+  }
+
+  $('#policyList').innerHTML = POLICY.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('');
+  $('#pathRun').addEventListener('click', showPath);
+  $('#redactRun').addEventListener('click', showRedact);
+  $('#defRun').addEventListener('click', showDefs);
+  $('#failRun').addEventListener('click', showFail);
+  $('#toolRun').addEventListener('click', showTools);
+  $('#splitRun').addEventListener('click', showSplit);
+  $('#baseRun').addEventListener('click', showBase);
+  $('#leverRun').addEventListener('click', showLever);
+  $('#liveRun').addEventListener('click', function () { showLive(); });
+  $('#loadRun').addEventListener('click', showLoad);
+  $('#loadN').addEventListener('input', function () { $('#loadNVal').textContent = String(num($('#loadN'), 12, 0, 24)); });
+  $('#gradeRun').addEventListener('click', showGrade);
+  $('#diagRun').addEventListener('click', showDiag);
+  $('#relRun').addEventListener('click', showRel);
+  $('#relSave').addEventListener('click', showSave);
+  $('#relLearn').addEventListener('click', showLearn);
+  $('#priceRun').addEventListener('click', function () { showPrice(); });
+
+  var GATE = [
+    'I can separate a deterministic test, an end-to-end test, an eval, a benchmark, a baseline, and a success criterion.',
+    'I compared a "you\'re booked" line with the appointment store.',
+    'Tool tests allow more than one valid order and reject duplicates and unrelated edits.',
+    'Paraphrases stay in one split, and gold labels are not in the model prompt.',
+    'I froze a config with its results, and I read pass@k and pass^k as different questions.',
+    'I compared one lever at a time with that baseline.',
+    'I tried tool selection with distractors, and I did not treat that as Anthropic\'s tool search.',
+    'I kept the state check separate from the prose grader, including on a polished false answer.',
+    'I classified a failure before editing, and I wrote the new failure down as a regression test.',
+    'The release decision is PASS or HOLD with reasons, and the results file is versioned.',
+    'I can say the limitation: these synthetic passes are not readiness for real callers.'
+  ];
+  var gateState = {}; try { gateState = JSON.parse(store('ew-gate') || '{}') || {}; } catch (e) { gateState = {}; }
+  $('#gate').innerHTML = GATE.map(function (g, i) {
+    return '<li><button type="button" data-g="' + i + '" aria-pressed="' + (gateState[i] ? 'true' : 'false') + '"><span class="box"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>' + esc(g) + '</span></button></li>';
+  }).join('');
+  function gateCount() { var n = GATE.filter(function (g, i) { return gateState[i]; }).length; $('#gateCount').textContent = n + ' of ' + GATE.length + ' ticked.'; }
+  $$('#gate button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = b.getAttribute('data-g');
+      gateState[i] = !gateState[i];
+      b.setAttribute('aria-pressed', String(!!gateState[i]));
+      store('ew-gate', JSON.stringify(gateState));
+      gateCount();
+    });
+  });
+  gateCount();
+  wsTrack.gate('#gate button', function (b) { return b.getAttribute('aria-pressed') === 'true'; });
+  wsTrack.labs({
+    '#pathRun': 'm0-path', '#redactRun': 'm0-redact', '#priceRun': 'm0-catalog', '#defRun': 'm1-definitions',
+    '#failRun': 'm2-planted', '#toolRun': 'm3-tools', '#splitRun': 'm4-split', '#baseRun': 'm5-baseline',
+    '#leverRun': 'm6-lever', '#liveRun': 'm6-live', '#loadRun': 'm7-load', '#gradeRun': 'm8-grader',
+    '#diagRun': 'm9-diagnose', '#relRun': 'm10-release', '#relSave': 'm10-save', '#relLearn': 'm10-learnings'
+  });
+
+  var mods = $$('.mod'), links = $$('#navList a'), seen = {};
+  function setActive(i) {
+    links.forEach(function (a, j) {
+      var on = j === i;
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+    wsTrack.module(i);
+    seen[i] = true;
+    links.forEach(function (a, j) { a.classList.toggle('seen', !!seen[j]); });
+    var n = Object.keys(seen).length;
+    $('#meterFill').style.transform = 'scaleX(' + (n / mods.length) + ')';
+    $('#meter').setAttribute('aria-valuenow', String(n));
+    $('#progressLabel').textContent = n + ' of ' + mods.length + ' sections visited';
+    renderRail(i);
+  }
+  if ('IntersectionObserver' in window) {
+    var reveal = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); reveal.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
+    mods.forEach(function (m) { reveal.observe(m); });
+    var spy = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) setActive(+e.target.getAttribute('data-mod')); });
+    }, { rootMargin: '-35% 0px -60% 0px' });
+    mods.forEach(function (m) { spy.observe(m); });
+  } else mods.forEach(function (m) { m.classList.add('in'); });
+  setActive(0);
+})();
+</script>
+</body>
+</html>
