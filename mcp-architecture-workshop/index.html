@@ -1,0 +1,1217 @@
+<!doctype html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP architecture: host, client, and server</title>
+<meta name="description" content="A hands-on Field Guide to MCP revision 2026-07-28: host, client, and server; tools, resources, and prompts; stdio and Streamable HTTP; JSON-RPC messages; authorization and trust. Labs run in demo mode. Independent project by Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/mcp-architecture-workshop/">
+<meta property="og:title" content="MCP architecture: host, client, and server">
+<meta property="og:description" content="Eight modules on MCP revision 2026-07-28, with demo-mode labs built around a fictional scheduling assistant and a mock jobs server.">
+<meta property="og:url" content="https://www.kpphillips.com/ai-workshops/mcp-architecture-workshop/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MCP architecture">
+<meta name="twitter:description" content="Host, client, server, primitives, transports, JSON-RPC, and trust boundaries. Spec 2026-07-28.">
+<meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "MCP architecture",
+  "description": "A hands-on guide to Model Context Protocol revision 2026-07-28: participants, server primitives, transports, JSON-RPC messages, authorization, and trust boundaries.",
+  "url": "https://www.kpphillips.com/ai-workshops/mcp-architecture-workshop/",
+  "author": { "@type": "Person", "name": "Kevin Phillips" },
+  "educationalLevel": "Beginner",
+  "learningResourceType": "Interactive workshop",
+  "isAccessibleForFree": true
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--nav-w:236px;--rail-w:328px;--r:6px;--f-display:'Fraunces',Georgia,serif;--f-body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace}
+html,html[data-palette="tide"]{--bg:#0b1620;--surface:#102130;--surface-2:#162a3b;--ink:#e6eef5;--ink-soft:#b5c5d3;--ink-faint:#93a8ba;--line:#24394c;--line-strong:#3a536a;--accent:#5cc8e6;--accent-ink:#04141c;--green:#5fd39a;--clay:#e8b75e;--red:#f28b85;--alt:#bcaaf4}
+html[data-palette="tide"][data-theme="light"]{--bg:#f3f6f8;--surface:#ffffff;--surface-2:#e8eef2;--ink:#0e1d29;--ink-soft:#34495a;--ink-faint:#4e6376;--line:#cfd9e1;--line-strong:#9fb0bd;--accent:#0a6583;--accent-ink:#ffffff;--green:#136b45;--clay:#835406;--red:#ad2a22;--alt:#5a3eae}
+html[data-palette="ember"]{--bg:#17110c;--surface:#211811;--surface-2:#2c2118;--ink:#f3ebe3;--ink-soft:#d0c2b4;--ink-faint:#ad9e8f;--line:#3b2d21;--line-strong:#5a4634;--accent:#f0a34a;--accent-ink:#1c1005;--green:#72d39b;--clay:#ebc56e;--red:#f38c7d;--alt:#a3bbf2}
+html[data-palette="ember"][data-theme="light"]{--bg:#faf5ef;--surface:#ffffff;--surface-2:#f1e8dd;--ink:#24170c;--ink-soft:#4d3b2b;--ink-faint:#67533f;--line:#e2d4c3;--line-strong:#b9a58f;--accent:#94490a;--accent-ink:#ffffff;--green:#1d6a42;--clay:#7a5500;--red:#aa2b20;--alt:#3a51a4}
+html[data-palette="iris"]{--bg:#120f1e;--surface:#1a1629;--surface-2:#231e36;--ink:#ece8f7;--ink-soft:#c5bedc;--ink-faint:#a39bbd;--line:#322b4b;--line-strong:#4c4370;--accent:#b99eff;--accent-ink:#150d2b;--green:#72d6a3;--clay:#e8c070;--red:#f39191;--alt:#82cbea}
+html[data-palette="iris"][data-theme="light"]{--bg:#f6f5fb;--surface:#ffffff;--surface-2:#ece9f6;--ink:#1a1530;--ink-soft:#433b63;--ink-faint:#5a537c;--line:#d9d4eb;--line-strong:#aaa2c9;--accent:#5732c4;--accent-ink:#ffffff;--green:#18693f;--clay:#785300;--red:#a8262a;--alt:#0a5f7a}
+*{box-sizing:border-box}
+html{color-scheme:dark;scroll-behavior:auto;scrollbar-color:var(--line-strong) var(--bg)}
+html[data-theme="light"]{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--f-body);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--accent-ink)}
+input,textarea,select{caret-color:var(--accent)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:6px;border:2px solid var(--bg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-0.02em;line-height:1.15;margin:0 0 .6rem;color:var(--ink)}
+h1{font-size:clamp(2rem,4vw,3rem)}
+h2{font-size:clamp(1.5rem,2.6vw,2rem)}
+h3{font-size:1.15rem;margin-top:1.4rem}
+p{margin:0 0 .9rem}
+code,pre,.mono{font-family:var(--f-mono);font-size:.88em}
+code{background:var(--surface-2);padding:.08em .35em;border-radius:4px}
+pre{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;overflow:auto;margin:.4rem 0 .8rem;line-height:1.5;font-size:.82rem;white-space:pre-wrap;word-break:break-word}
+pre code{background:none;padding:0;font-size:1em}
+.skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:var(--accent-ink);padding:.5rem 1rem;z-index:10}
+.skip:focus{left:1rem}
+.shell{display:grid;grid-template-columns:var(--nav-w) minmax(0,1fr) var(--rail-w);min-height:100vh}
+@media (max-width:1180px){:root{--nav-w:200px;--rail-w:292px}}
+@media (max-width:900px){:root{--nav-w:170px;--rail-w:250px}}
+.nav,.rail{position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;background:var(--surface);scrollbar-width:thin}
+.nav{border-inline-end:1px solid var(--line);padding:1.25rem 1rem;display:flex;flex-direction:column;gap:.9rem}
+.rail{border-inline-start:1px solid var(--line);padding:1rem}
+main{padding:2rem clamp(1rem,3.5vw,3rem) 4rem;min-width:0}
+.content{max-width:860px;margin:0 auto}
+.brand{font-weight:700;font-size:1.05rem;letter-spacing:-.01em;line-height:1.3}
+.brand span{display:block;font-weight:400;font-size:.85rem;color:var(--ink-soft)}
+.nav .back{align-self:flex-start;display:inline-flex;align-items:center;gap:.35rem;font-weight:600;font-size:.84rem;text-decoration:none;color:var(--accent)}
+.nav .back svg{width:14px;height:14px}
+.nav-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.nav-list a{display:grid;grid-template-columns:1.6rem 1fr;gap:.25rem;padding:.38rem .5rem;border-radius:5px;color:var(--ink-soft);text-decoration:none;font-size:.9rem;line-height:1.3;border:1px solid transparent}
+.nav-list a .n{color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.nav-list a:hover{background:var(--surface-2);color:var(--ink)}
+.nav-list a.active{background:var(--surface-2);color:var(--ink);border-color:var(--line-strong)}
+.nav-list a.active .n{color:var(--accent)}
+.nav-list a.seen .n{color:var(--ink-soft)}
+.nav-foot{margin-top:auto;display:flex;flex-direction:column;gap:.6rem;padding-top:.8rem;border-top:1px solid var(--line)}
+.nav-foot .lbl{font-size:.78rem;color:var(--ink-soft)}
+.swatches{display:flex;gap:.45rem;align-items:center}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);cursor:pointer;padding:0;display:grid;place-items:center;background:var(--surface)}
+.swatch[data-p="tide"]{background:#2f9ec0}
+.swatch[data-p="ember"]{background:#d98a2e}
+.swatch[data-p="iris"]{background:#8a6ce6}
+.swatch[aria-pressed="true"]{border-color:var(--ink)}
+.swatch[aria-pressed="true"]::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--bg)}
+.tick{height:12px;margin:0 0 1rem;background:
+ linear-gradient(var(--line-strong),var(--line-strong)) left bottom/100% 1px no-repeat,
+ repeating-linear-gradient(90deg,var(--line-strong) 0 1px,transparent 1px 48px) left bottom/100% 11px no-repeat,
+ repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 8px) left bottom/100% 6px no-repeat}
+.meter{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--line)}
+.meter span{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left center;transform:scaleX(0)}
+.progress{display:flex;flex-direction:column;gap:.35rem}
+.progress small{color:var(--ink-soft);font-size:.78rem}
+.mod{padding:2.4rem 0 1.2rem;scroll-margin-top:1rem}
+.js .mod{transform:translateY(12px);transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.js .mod.in{transform:none}
+.lead{font-size:1.08rem;color:var(--ink-soft);max-width:66ch}
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.2rem;margin:1rem 0 1.2rem}
+.lab-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:.5rem;margin-bottom:.8rem}
+.lab-head h3{margin:0;font-size:1.08rem}
+.lab-kind{font-size:.78rem;font-weight:600;padding:.12rem .5rem;border-radius:4px;border:1px solid var(--line-strong);color:var(--ink-soft)}
+.row{display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;margin:.6rem 0}
+.field{display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.field>span,.field>label{font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.grow{flex:1 1 220px}
+input[type=text],input[type=number],input[type=password],select,textarea{font:inherit;font-size:.92rem;background:var(--bg);color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r);padding:.45rem .6rem;min-width:0;max-width:100%}
+textarea{width:100%;min-height:16rem;resize:vertical;font-family:var(--f-mono);font-size:.8rem;line-height:1.5}
+input[type=number]{width:7.5rem}
+input::placeholder,textarea::placeholder{color:var(--ink-faint)}
+input[type=checkbox]{accent-color:var(--accent);width:1rem;height:1rem;margin:0}
+.checks{display:flex;flex-wrap:wrap;gap:.35rem .9rem}
+.checks label{display:flex;gap:.35rem;align-items:center;font-size:.9rem;cursor:pointer}
+.btn{font:600 .9rem var(--f-body);background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:var(--r);padding:.5rem .95rem;cursor:pointer;line-height:1.2}
+.btn:disabled{opacity:.55;cursor:progress}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{padding:.3rem .6rem;font-size:.82rem}
+.out{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;margin-top:.8rem;font-size:.92rem;font-variant-numeric:tabular-nums;min-height:2.6rem}
+.out:empty::before{content:"Output appears here.";color:var(--ink-faint)}
+.out h4{margin:.2rem 0 .5rem;font:600 .95rem var(--f-body)}
+.muted{color:var(--ink-soft)}
+.faint{color:var(--ink-faint)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--clay)}
+.tbl-wrap{overflow-x:auto;margin:.6rem 0 1rem}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-soft);font-size:.8rem;background:var(--surface-2)}
+.tag{display:inline-block;font:600 .72rem/1.3 var(--f-body);padding:.08rem .42rem;border-radius:4px;border:1px solid;white-space:nowrap;vertical-align:.08em}
+.tag.q{color:var(--ink);border-color:var(--green);background:color-mix(in srgb,var(--green) 16%,var(--surface))}
+.tag.d{color:var(--ink);border-color:var(--line-strong);background:var(--surface-2)}
+.tag.i{color:var(--ink);border-color:var(--clay);background:color-mix(in srgb,var(--clay) 16%,var(--surface))}
+.tag.t{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.tag.c{color:var(--ink);border-color:var(--alt);background:color-mix(in srgb,var(--alt) 14%,var(--surface))}
+.callout{border:1px solid var(--line-strong);background:var(--surface-2);border-radius:var(--r);padding:.75rem .95rem;margin:1rem 0;font-size:.93rem}
+.cap{font-size:.84rem;color:var(--ink-soft);margin:.2rem 0 .8rem}
+canvas.fig{width:100%;display:block;background:var(--bg);border:1px solid var(--line);border-radius:var(--r)}
+canvas[data-h="180"]{height:180px}
+canvas[data-h="168"]{height:168px}
+.rowsel{display:grid;grid-template-columns:1fr minmax(9rem,13rem);gap:.5rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.rowsel:last-child{border-bottom:0}
+.rowsel select{width:100%}
+.steps{display:flex;flex-wrap:wrap;gap:.35rem;margin:.2rem 0 .7rem;padding:0;list-style:none}
+.steps li{font-size:.82rem;font-weight:600;padding:.2rem .55rem;border:1px solid var(--line-strong);border-radius:5px;color:var(--ink-soft)}
+.steps li.now{border-color:var(--accent);color:var(--ink);background:var(--surface-2)}
+.steps li.past{border-color:var(--green);color:var(--ink)}
+.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem}
+.ab>div{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.7rem .85rem;min-width:0}
+.ab h4{margin:0 0 .4rem;font:600 .9rem var(--f-body)}
+.place{list-style:none;padding:0;margin:.2rem 0}
+.place li{padding:.45rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.place li:last-child{border-bottom:0}
+.illus{display:block;font-size:.8rem;font-weight:600;color:var(--clay);margin-bottom:.4rem}
+.legend{display:flex;flex-wrap:wrap;gap:.45rem .8rem;margin:.4rem 0 1rem;font-size:.86rem;color:var(--ink-soft)}
+.connect{border:1px solid var(--line-strong);border-radius:10px;padding:.8rem;background:var(--surface-2)}
+.connect.live{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--surface))}
+.connect h2{font:700 .95rem var(--f-body);letter-spacing:0;margin:0}
+.lamp-row{display:flex;align-items:center;gap:.45rem;justify-content:space-between;margin-bottom:.5rem}
+.lamp{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.lamp i{width:10px;height:10px;border-radius:50%;background:var(--ink-faint);display:inline-block;border:2px solid var(--line-strong)}
+.connect.live .lamp i{background:var(--green);border-color:var(--green)}
+.connect .row{margin-bottom:.5rem;gap:.4rem}
+.connect input[type=password]{flex:1 1 120px;width:100%}
+.connect select{width:100%}
+.msg{font-size:.8rem;margin:.3rem 0 .4rem;color:var(--ink-soft);min-height:1rem}
+.msg.err{color:var(--red)}.msg.okm{color:var(--green)}.msg.warnm{color:var(--clay)}
+.spend{font-size:.82rem;color:var(--ink-soft);display:flex;align-items:center;justify-content:space-between;gap:.4rem;flex-wrap:wrap}
+.spend input{width:5.2rem;padding:.25rem .4rem}
+details{margin-top:.5rem}
+summary{cursor:pointer;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
+details .field{margin-top:.45rem}
+details input{width:100%}
+.rail h3{font:700 .8rem var(--f-body);letter-spacing:0;color:var(--ink-soft);margin:1rem 0 .4rem}
+.rail ul{margin:0;padding-left:1.05rem;font-size:.86rem;line-height:1.5}
+.rail li{margin-bottom:.4rem}
+.rail dl{margin:0;font-size:.85rem}
+.rail dt{font-weight:700;margin-top:.45rem}
+.rail dd{margin:0;color:var(--ink-soft)}
+.rail .mod-name{font:600 1rem var(--f-display);letter-spacing:-.02em;margin:.2rem 0 0;color:var(--ink)}
+.all-src ul{max-height:260px;overflow:auto}
+.gate{list-style:none;padding:0;margin:.5rem 0}
+.gate li{margin:.35rem 0}
+.gate button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1.4rem 1fr;gap:.55rem;align-items:start;width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer;font-size:.93rem;line-height:1.45}
+.gate button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gate button[aria-pressed="true"]{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface))}
+.box{width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:4px;display:grid;place-items:center;margin-top:.1rem}
+.gate button[aria-pressed="true"] .box{border-color:var(--green);background:var(--green)}
+.box svg{width:12px;height:12px;opacity:0}
+.gate button[aria-pressed="true"] .box svg{opacity:1}
+.count{font-weight:600;font-size:.9rem}
+.limit{border:1px solid var(--clay);background:color-mix(in srgb,var(--clay) 10%,var(--surface));border-radius:var(--r);padding:.8rem 1rem;margin:1rem 0}
+.limit .ttl{display:block;font-weight:700;font-size:.82rem;margin-bottom:.25rem}
+footer{border-top:1px solid var(--line);padding:1.5rem clamp(1rem,3.5vw,3rem) 2.5rem;font-size:.84rem;color:var(--ink-soft);background:var(--surface)}
+footer p{max-width:900px;margin:0 auto .5rem}
+@media (max-width:560px){
+ .shell{display:block}
+ .nav,.rail{position:static;height:auto;border:0;border-bottom:1px solid var(--line)}
+ .nav-list{display:grid;grid-template-columns:1fr 1fr}
+ main{padding:1.2rem 1rem 3rem}
+ .rowsel{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+ .js .mod,.js .mod.in{transform:none;transition:none}
+}
+</style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain} */
+window.wsTrack=(function(){
+  var WS='mcp-architecture-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<nav class="nav" aria-label="Workshop modules">
+  <div class="brand">MCP architecture<span>Revision 2026-07-28</span></div>
+  <a class="back" href="https://www.kpphillips.com/ai-workshops/"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M12 7H2.5M6.5 3L2.5 7l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All workshops</a>
+  <div class="tick" aria-hidden="true"></div>
+  <div class="progress">
+    <div class="meter" role="progressbar" aria-label="Sections visited" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
+    <small id="progressLabel">0 of 8 sections visited</small>
+  </div>
+  <ol class="nav-list" id="navList">
+    <li><a href="#m0"><span class="n">1</span>Host, client, server</a></li>
+    <li><a href="#m1"><span class="n">2</span>Tools, resources, prompts</a></li>
+    <li><a href="#m2"><span class="n">3</span>What the model receives</a></li>
+    <li><a href="#m3"><span class="n">4</span>JSON-RPC messages</a></li>
+    <li><a href="#m4"><span class="n">5</span>stdio and HTTP</a></li>
+    <li><a href="#m5"><span class="n">6</span>Authorization</a></li>
+    <li><a href="#m6"><span class="n">7</span>Trust boundaries</a></li>
+    <li><a href="#m7"><span class="n">8</span>Ship gate</a></li>
+  </ol>
+  <div class="nav-foot">
+    <span class="lbl" id="palLbl">Palette</span>
+    <div class="swatches" role="group" aria-labelledby="palLbl">
+      <button class="swatch" type="button" data-p="tide" aria-label="Tide palette" aria-pressed="true"></button>
+      <button class="swatch" type="button" data-p="ember" aria-label="Ember palette" aria-pressed="false"></button>
+      <button class="swatch" type="button" data-p="iris" aria-label="Iris palette" aria-pressed="false"></button>
+    </div>
+    <button class="btn ghost sm" id="modeBtn" type="button">Switch to light</button>
+  </div>
+</nav>
+
+<main id="main">
+<div class="content">
+
+<section class="mod" id="m0" data-mod="0">
+  <div class="tick" aria-hidden="true"></div>
+  <h1>MCP architecture</h1>
+  <p class="lead">Model Context Protocol revision <span class="num">2026-07-28</span> is a stateless JSON-RPC 2.0 protocol: a host application creates one client per server, and that server exposes context and tools. This page follows the specification and docs on modelcontextprotocol.io as checked on 16 Nov 2026, using a fictional scheduling assistant called Hearth and a mock server named <code>jobs</code>.</p>
+  <div class="legend" aria-label="Evidence labels">
+    <span><span class="tag q">Quoted</span> wording or a required field from the linked spec or docs</span>
+    <span><span class="tag d">Derived</span> assembled on this page from those rules</span>
+    <span><span class="tag i">Illustrative</span> a simulated payload, not a measurement</span>
+    <span><span class="tag t">Your run</span> a live catalog read or a live model call</span>
+    <span><span class="tag c">Convention</span> this page's choice, not a requirement of MCP</span>
+  </div>
+  <p class="cap"><span class="tag d">Derived</span> Host, client, and server for Hearth, from the participant definitions in the specification.</p>
+  <canvas class="fig" id="archCanvas" data-h="180" role="img" aria-label="Hearth is the host. Inside it, one client connects to the jobs server."></canvas>
+  <div class="tbl-wrap"><table>
+    <caption class="cap"><span class="tag d">Derived</span> Participant duties compressed from the <a href="https://modelcontextprotocol.io/specification/2026-07-28/architecture" target="_blank" rel="noopener noreferrer">architecture specification</a>. The Hearth column is this page's case.</caption>
+    <thead><tr><th scope="col">Participant</th><th scope="col">In Hearth</th><th scope="col">What the spec assigns</th></tr></thead>
+    <tbody>
+      <tr><td>Host</td><td>Hearth, the scheduling application</td><td>Creates and manages client instances, enforces consent, and coordinates the model.</td></tr>
+      <tr><td>Client</td><td>The connector Hearth opens for <code>jobs</code></td><td>Communicates with exactly one server and keeps a security boundary between servers.</td></tr>
+      <tr><td>Server</td><td>The <code>jobs</code> program</td><td>Exposes resources, tools, and prompts. It may be a local process or a remote service.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="lab">
+    <div class="lab-head"><h3>Place each piece</h3><span class="lab-kind">Sorter</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Choose a bin for each piece of Hearth, then show the spec placement beside yours.</p>
+    <div id="roleRows"></div>
+    <div class="row"><button class="btn" id="roleRun" type="button">Show placements</button></div>
+    <div class="out" id="roleOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m1" data-mod="1">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Tools, resources, and prompts</h2>
+  <p class="lead">A server can offer three primitives, and the specification gives each a different control model: tools are model-controlled, resources are application-driven, and prompts are user-controlled. Hearth's <code>jobs</code> server uses all three for scheduling, without the protocol telling the host which screen to build.</p>
+  <div class="tbl-wrap"><table>
+    <caption class="cap"><span class="tag d">Derived</span> Control-model terms and method names from the tools, resources, and prompts pages; the Hearth column is this page's case.</caption>
+    <thead><tr><th scope="col">Primitive</th><th scope="col">Who the spec says decides</th><th scope="col">List</th><th scope="col">Use</th><th scope="col">Hearth example</th></tr></thead>
+    <tbody>
+      <tr><td>Tool</td><td>The model can discover and invoke it. A person should still be able to deny the call.</td><td><code>tools/list</code></td><td><code>tools/call</code></td><td><code>book_visit</code>, <code>list_open_windows</code></td></tr>
+      <tr><td>Resource</td><td>The host application decides how to bring the data into context.</td><td><code>resources/list</code></td><td><code>resources/read</code></td><td><code>jobs://board/today</code></td></tr>
+      <tr><td>Prompt</td><td>The user explicitly selects the template. The server authors its content.</td><td><code>prompts/list</code></td><td><code>prompts/get</code></td><td><code>confirm_visit</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="lab">
+    <div class="lab-head"><h3>Sort scheduling needs</h3><span class="lab-kind">Sorter</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">These needs are fictional. The bins are the three primitives.</p>
+    <div id="primRows"></div>
+    <div class="row"><button class="btn" id="primRun" type="button">Show placements</button></div>
+    <div class="out" id="primOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m2" data-mod="2">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>What the model receives</h2>
+  <p class="lead">A tool definition includes a name, a human-readable description, and an <code>inputSchema</code> that must be a JSON Schema object, defaulting to dialect 2020-12 when <code>$schema</code> is absent. MCP delivers that object to the client; the chat-API envelope below is this page's mapping, not a field in the specification.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Edit the tool, then read the payload</h3><span class="lab-kind">Schema</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Change the schema and the payload changes with it. The live button sends this payload to one model.</p>
+    <div class="tbl-wrap"><table>
+      <caption class="cap"><span class="tag q">Quoted</span> OpenRouter model page for <a href="https://openrouter.ai/inclusionai/ling-3.0-tiny" target="_blank" rel="noopener noreferrer"><code>inclusionai/ling-3.0-tiny</code></a>, read 16 Nov 2026. Catalog price, not a measured bill.</caption>
+      <thead><tr><th scope="col">Slug</th><th scope="col">Input / 1M</th><th scope="col">Output / 1M</th><th scope="col">Context</th></tr></thead>
+      <tbody><tr><td><code>inclusionai/ling-3.0-tiny</code></td><td class="num">$0.015</td><td class="num">$0.045</td><td class="num">262144</td></tr></tbody>
+    </table></div>
+    <label class="field"><span>Live model</span>
+      <select id="liveModel" aria-label="Live model">
+        <option value="inclusionai/ling-3.0-tiny">inclusionai/ling-3.0-tiny</option>
+      </select>
+    </label>
+    <label class="field" style="margin-top:.7rem"><span>Tool object</span>
+      <textarea id="toolJson" spellcheck="false" aria-label="Tool JSON"></textarea>
+    </label>
+    <div class="row">
+      <button class="btn" id="schemaRun" type="button">Show what the model receives</button>
+      <button class="btn ghost" id="schemaLive" type="button">Send it live</button>
+      <button class="btn ghost sm" id="priceCheck" type="button">Check the catalog price</button>
+    </div>
+    <div class="out" id="schemaOut" aria-live="polite"></div>
+    <div class="out" id="priceOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m3" data-mod="3">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>JSON-RPC messages</h2>
+  <p class="lead">Revision 2026-07-28 removed the <code>initialize</code> request and the <code>notifications/initialized</code> notification; every request carries its protocol version and client capabilities in <code>_meta</code>, and <code>server/discover</code> is the optional way to read the server first. <code>tools/list</code> and <code>tools/call</code> are separate requests, and servers do not open their own JSON-RPC requests.</p>
+  <p class="cap"><span class="tag d">Derived</span> Message order: the retired 2025-11-25 handshake, then the three requests this revision uses.</p>
+  <canvas class="fig" id="flowCanvas" data-h="168" role="img" aria-label="initialize is retired. Current order is server/discover, tools/list, then tools/call."></canvas>
+  <div class="lab">
+    <div class="lab-head"><h3>Step the handshake</h3><span class="lab-kind">JSON-RPC</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Step 1 is the previous revision. Steps 2 to 4 are revision 2026-07-28. Responses for <code>jobs</code> are simulated.</p>
+    <ol class="steps" id="msgSteps"></ol>
+    <div class="row">
+      <button class="btn" id="msgNext" type="button">Next message</button>
+      <button class="btn ghost" id="msgAll" type="button">Show all four</button>
+    </div>
+    <div class="out" id="msgOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m4" data-mod="4">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>stdio and Streamable HTTP</h2>
+  <p class="lead">Both standard transports carry the same JSON-RPC messages; stdio frames them as newline-delimited JSON on a subprocess, and Streamable HTTP sends each message as its own POST to one endpoint. Authorization, cancellation, and logging are what change, not the method names.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Compare one message on both transports</h3><span class="lab-kind">Compare</span></div>
+    <div class="row">
+      <label class="field"><span>Message</span>
+        <select id="txMsg" aria-label="Message to compare">
+          <option value="discover">server/discover</option>
+          <option value="list">tools/list</option>
+          <option value="call" selected>tools/call</option>
+        </select>
+      </label>
+      <label class="checks" style="padding-bottom:.4rem"><input type="checkbox" id="txAuth"> <span>Show an HTTP bearer token</span></label>
+    </div>
+    <div class="row"><button class="btn" id="txRun" type="button">Compare transports</button></div>
+    <div class="out" id="txOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m5" data-mod="5">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Authorization</h2>
+  <p class="lead">Authorization is optional, and the specification defines it for HTTP transports: the MCP server is an OAuth 2.1 resource server, the client requests access tokens, and an authorization server issues them. A stdio server should take credentials from the environment instead of that OAuth flow.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Where each piece sits</h3><span class="lab-kind">Sorter</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Place each piece on the authorization boundary the spec describes.</p>
+    <div id="authRows"></div>
+    <div class="row"><button class="btn" id="authRun" type="button">Show placements</button></div>
+    <div class="out" id="authOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m6" data-mod="6">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Trust boundaries</h2>
+  <p class="lead">The specification requires hosts to get explicit user consent before data leaves or a tool runs, and it says the protocol cannot enforce that consent by itself. Tool descriptions and annotations are untrusted unless they come from a server you trust, because a tool is arbitrary code execution.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Sort the boundary</h3><span class="lab-kind">Sorter</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Place each situation on the boundary the spec and the security guide name.</p>
+    <div id="trustRows"></div>
+    <div class="row"><button class="btn" id="trustRun" type="button">Show placements</button></div>
+    <div class="out" id="trustOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m7" data-mod="7">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Ship gate</h2>
+  <p class="lead">Tick a line when you can do it from the specification, not from memory of a product. There is no score.</p>
+  <ul class="gate" id="gate"></ul>
+  <p class="count" id="gateCount" role="status">0 ticked.</p>
+  <div class="limit"><span class="ttl">One honest limitation</span>MCP does not enforce consent or tool safety. The specification says implementors should build consent and access control because the protocol itself cannot enforce those principles, so a valid <code>tools/call</code> only means the server accepted a JSON-RPC request.</div>
+</section>
+
+</div>
+</main>
+
+<aside class="rail" aria-label="Live labs and module notes">
+  <section class="connect" id="connect" aria-labelledby="connectTitle">
+    <div class="lamp-row"><h2 id="connectTitle">Live labs</h2><span class="lamp" id="lamp"><i aria-hidden="true"></i><span id="lampText">Demo</span></span></div>
+    <p class="msg" id="connectMsg" role="status">Demo mode: labs use local payloads. Simulated server replies are marked illustrative, not measurements.</p>
+    <div class="row">
+      <input type="password" id="keyIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="OpenRouter key (sk-or-...)" aria-label="OpenRouter API key">
+      <button class="btn sm" id="connectBtn" type="button">Connect</button>
+      <button class="btn ghost sm" id="disconnectBtn" type="button" hidden>Disconnect</button>
+    </div>
+    <div class="spend"><span>Session spend <b class="num" id="spendVal">$0.0000</b> <span class="tag d">Derived</span></span><label>Budget $<input type="number" id="budgetIn" min="0.1" step="0.5" value="1" aria-label="Session budget in dollars"></label></div>
+    <details><summary>Advanced</summary>
+      <label class="field"><span>max_tokens per reply</span><input type="number" id="maxTokIn" min="200" max="2000" step="50" value="400"></label>
+      <p class="msg">The key stays in page memory only and is cleared on Disconnect or reload. Live calls go to openrouter.ai and nowhere else. Set a credit limit on the key before you connect.</p>
+    </details>
+  </section>
+  <div class="tick" aria-hidden="true" style="margin-top:1rem"></div>
+  <div class="rail-body" id="railBody" aria-live="polite"></div>
+  <details class="all-src"><summary>All sources</summary><ul id="allSources"></ul></details>
+</aside>
+</div>
+
+<footer>
+  <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by Anthropic, OpenRouter, InclusionAI, or Ant Digital. Product and model names belong to their owners. Hearth and the <code>jobs</code> server are fictional.</p>
+  <p>Live labs call <code>inclusionai/ling-3.0-tiny</code> through your own OpenRouter key and cost real money. On 16 Nov 2026 the OpenRouter page listed <span class="num">$0.015</span> per million input tokens and <span class="num">$0.045</span> per million output tokens. Set a credit limit on the key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">openrouter.ai/keys</a> before connecting, and set the session budget in the Live labs panel.</p>
+  <p>Usage policies and terms: <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener noreferrer">Anthropic Usage Policy</a>, <a href="https://openrouter.ai/terms" target="_blank" rel="noopener noreferrer">OpenRouter Terms</a>, and <a href="https://maas-global.oss-ap-southeast-1.aliyuncs.com/Terms%20of%20Service.pdf" target="_blank" rel="noopener noreferrer">Ant Digital Terms of Service</a> (the URL OpenRouter lists for the provider that hosts this model).</p>
+  <p>Facts checked against the 2026-07-28 specification and docs on 16 Nov 2026. Spec text, model slugs, and prices change; re-check them before you rely on a number. Simulated server replies are labelled "illustrative, not measurements".</p>
+  <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data. The API key and anything you type stay in this tab.</p>
+</footer>
+<script>
+(function () {
+  'use strict';
+  document.documentElement.classList.add('js');
+
+  var SPEC = '2026-07-28';
+  var PREV = '2025-11-25';
+  var MODEL = { id: 'inclusionai/ling-3.0-tiny', inM: 0.015, outM: 0.045, ctx: 262144, date: '2026-11-16' };
+  var USER_LINE = 'A faucet repair is needed on Thursday afternoon. Call the tool if its schema lets you book it.';
+  var TOOL_DEFAULT = {
+    name: 'book_visit',
+    title: 'Book a visit',
+    description: 'Book a home-services visit in an open window on the jobs server.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        trade: { type: 'string', enum: ['plumbing', 'electrical'], description: 'Which trade the visit needs' },
+        window_id: { type: 'string', description: 'Open window identifier returned by list_open_windows' },
+        task: { type: 'string', description: 'What the visit is for' }
+      },
+      required: ['trade', 'window_id', 'task'],
+      additionalProperties: false
+    }
+  };
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } return null; }
+  function usd(n) { return '$' + (n < 0.1 ? n.toFixed(4) : n.toFixed(2)); }
+  function pretty(o) { return JSON.stringify(o, null, 2); }
+  function cssVar(name, fb) { var v = getComputedStyle(document.documentElement).getPropertyValue(name); v = v ? v.trim() : ''; return v || fb; }
+  var TG = {
+    q: '<span class="tag q">Quoted</span>',
+    d: '<span class="tag d">Derived</span>',
+    i: '<span class="tag i">Illustrative</span>',
+    t: '<span class="tag t">Your run</span>',
+    c: '<span class="tag c">Convention</span>'
+  };
+  var ILLUS = '<span class="illus">Illustrative, not measurements.</span>';
+
+  function meta() {
+    return {
+      'io.modelcontextprotocol/protocolVersion': SPEC,
+      'io.modelcontextprotocol/clientInfo': { name: 'hearth', version: '0.1.0' },
+      'io.modelcontextprotocol/clientCapabilities': {}
+    };
+  }
+  function rpc(id, method, params) {
+    return { jsonrpc: '2.0', id: id, method: method, params: params };
+  }
+
+  // ---------------- theme (palette and per-palette theme, stored apart) ----------------
+  var root = document.documentElement;
+  function themeKey(p) { return 'mcp-arch-theme-' + p; }
+  function applyTheme(p, t) {
+    root.setAttribute('data-palette', p);
+    root.setAttribute('data-theme', t);
+    $$('.swatch').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-p') === p)); });
+    var modeBtn = $('#modeBtn');
+    if (modeBtn) modeBtn.textContent = t === 'light' ? 'Switch to dark' : 'Switch to light';
+    paintAll();
+  }
+  var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  function themeFor(p) {
+    var saved = store(themeKey(p));
+    if (saved === 'light' || saved === 'dark') return saved;
+    var fallback = prefersLight ? 'light' : 'dark';
+    store(themeKey(p), fallback);
+    return fallback;
+  }
+  var pal = store('mcp-arch-palette') || 'tide';
+  if (['tide', 'ember', 'iris'].indexOf(pal) < 0) pal = 'tide';
+  var mode = themeFor(pal);
+  applyTheme(pal, mode);
+  $$('.swatch').forEach(function (b) {
+    b.addEventListener('click', function () {
+      pal = b.getAttribute('data-p');
+      store('mcp-arch-palette', pal);
+      mode = themeFor(pal);
+      applyTheme(pal, mode);
+    });
+  });
+  $('#modeBtn').addEventListener('click', function () {
+    mode = mode === 'light' ? 'dark' : 'light';
+    store(themeKey(pal), mode);
+    applyTheme(pal, mode);
+  });
+
+  // ---------------- canvases ----------------
+  function ctxOf(canvas) {
+    var g = canvas.getContext('2d');
+    if (!g) return null;
+    var cssW = canvas.clientWidth || 640;
+    var cssH = canvas.clientHeight || (+canvas.getAttribute('data-h') || 180);
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.round(cssW * dpr));
+    canvas.height = Math.max(1, Math.round(cssH * dpr));
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, cssW, cssH);
+    return { g: g, w: cssW, h: cssH };
+  }
+  function colors() {
+    return {
+      bg: cssVar('--bg', '#0b1620'),
+      s2: cssVar('--surface-2', '#162a3b'),
+      ink: cssVar('--ink', '#e6eef5'),
+      soft: cssVar('--ink-soft', '#b5c5d3'),
+      line: cssVar('--line-strong', '#3a536a'),
+      accent: cssVar('--accent', '#5cc8e6'),
+      clay: cssVar('--clay', '#e8b75e')
+    };
+  }
+  function box(g, x, y, w, h, fill, stroke) {
+    g.fillStyle = fill; g.strokeStyle = stroke; g.lineWidth = 1.5;
+    g.fillRect(x, y, w, h); g.strokeRect(x, y, w, h);
+  }
+  function label(g, text, x, y, font, fill, align) {
+    g.font = font; g.fillStyle = fill; g.textAlign = align || 'left'; g.textBaseline = 'middle';
+    g.fillText(text, x, y);
+  }
+  function paintArch() {
+    var canvas = $('#archCanvas'); if (!canvas) return;
+    var c = ctxOf(canvas); if (!c) return;
+    var col = colors(), g = c.g, w = c.w, h = c.h;
+    var hw = Math.max(150, w * 0.46), hh = h - 28;
+    box(g, 12, 14, hw, hh, col.s2, col.line);
+    label(g, 'Host', 24, 32, "600 13px 'Public Sans', sans-serif", col.soft);
+    label(g, 'Hearth', 24, 52, "600 18px 'Public Sans', sans-serif", col.ink);
+    box(g, 28, 70, hw - 32, hh - 68, col.bg, col.accent);
+    label(g, 'Client', 40, 70 + (hh - 68) / 2 - 10, "600 13px 'Public Sans', sans-serif", col.soft);
+    label(g, 'one per server', 40, 70 + (hh - 68) / 2 + 10, "400 12px 'Public Sans', sans-serif", col.ink);
+    var sx = hw + 48, sw = Math.max(120, w - sx - 16);
+    box(g, sx, 36, sw, h - 72, col.s2, col.line);
+    label(g, 'Server', sx + 12, 58, "600 13px 'Public Sans', sans-serif", col.soft);
+    label(g, 'jobs', sx + 12, 80, "500 16px 'JetBrains Mono', monospace", col.ink);
+    g.strokeStyle = col.accent; g.lineWidth = 1.5;
+    g.beginPath();
+    g.moveTo(hw + 12, h / 2);
+    g.lineTo(sx, h / 2);
+    g.stroke();
+  }
+  function paintFlow() {
+    var canvas = $('#flowCanvas'); if (!canvas) return;
+    var c = ctxOf(canvas); if (!c) return;
+    var col = colors(), g = c.g, w = c.w, h = c.h;
+    var names = ['initialize', 'discover', 'list', 'call'];
+    var notes = ['2025-11-25', 'server/discover', 'tools/list', 'tools/call'];
+    var gap = 10, bw = (w - 24 - gap * 3) / 4, bh = h - 36;
+    names.forEach(function (name, i) {
+      var x = 12 + i * (bw + gap);
+      var retired = i === 0;
+      box(g, x, 18, bw, bh, col.s2, retired ? col.clay : col.line);
+      label(g, String(i + 1), x + 10, 34, "600 12px 'Public Sans', sans-serif", col.soft);
+      label(g, name, x + bw / 2, h / 2 - 6, "500 13px 'JetBrains Mono', monospace", col.ink, 'center');
+      label(g, notes[i], x + bw / 2, h / 2 + 16, "400 11px 'Public Sans', sans-serif", retired ? col.clay : col.soft, 'center');
+      if (retired) {
+        g.strokeStyle = col.clay; g.lineWidth = 1.5;
+        g.beginPath(); g.moveTo(x + 8, 18 + bh - 8); g.lineTo(x + bw - 8, 26); g.stroke();
+      }
+    });
+  }
+  function paintAll() { paintArch(); paintFlow(); }
+  window.addEventListener('resize', paintAll);
+
+  // ---------------- sources and rail ----------------
+  var S = {
+    spec: ['Specification 2026-07-28', 'https://modelcontextprotocol.io/specification/2026-07-28'],
+    arch: ['Architecture (specification)', 'https://modelcontextprotocol.io/specification/2026-07-28/architecture'],
+    archDoc: ['Architecture overview (docs)', 'https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture'],
+    change: ['Key changes, 2026-07-28', 'https://modelcontextprotocol.io/specification/2026-07-28/changelog'],
+    life: ['Lifecycle, revision 2025-11-25', 'https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle'],
+    tools: ['Tools', 'https://modelcontextprotocol.io/specification/2026-07-28/server/tools'],
+    res: ['Resources', 'https://modelcontextprotocol.io/specification/2026-07-28/server/resources'],
+    prompts: ['Prompts', 'https://modelcontextprotocol.io/specification/2026-07-28/server/prompts'],
+    trans: ['Transports', 'https://modelcontextprotocol.io/specification/2026-07-28/basic/transports'],
+    stdio: ['stdio', 'https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio'],
+    http: ['Streamable HTTP', 'https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http'],
+    auth: ['Authorization', 'https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization'],
+    sec: ['Security best practices', 'https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices'],
+    orModel: ['OpenRouter: Ling 3.0 Tiny', 'https://openrouter.ai/inclusionai/ling-3.0-tiny'],
+    orCat: ['OpenRouter model catalog', 'https://openrouter.ai/api/v1/models'],
+    orKeys: ['OpenRouter keys and credit limits', 'https://openrouter.ai/keys'],
+    orTerms: ['OpenRouter Terms', 'https://openrouter.ai/terms'],
+    ant: ['Ant Digital Terms of Service', 'https://maas-global.oss-ap-southeast-1.aliyuncs.com/Terms%20of%20Service.pdf'],
+    aup: ['Anthropic Usage Policy', 'https://www.anthropic.com/legal/aup']
+  };
+  function refLi(k) { var s = S[k]; return s ? '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(s[0]) + '</a></li>' : ''; }
+  var RAIL = [
+    { name: 'Host, client, server',
+      tips: ['One host, one client per server, a 1:1 connection.', 'The same server program can be local or remote. Local usually means stdio; remote usually means Streamable HTTP.', 'MCP standardizes context exchange. It does not define how the host prompts the model.', 'Hearth and jobs are fictional. They are not a product.'],
+      refs: ['arch', 'archDoc', 'spec'],
+      gloss: [['Host', 'The application that creates clients and applies consent.'], ['Client', 'The connector that speaks MCP to exactly one server.'], ['Server', 'The program that offers tools, resources, and prompts.']] },
+    { name: 'Tools, resources, prompts',
+      tips: ['Tools: the model may call them. The spec still says a person should be able to deny the call.', 'Resources: data addressed by a URI. The host decides how they enter context.', 'Prompts: user-selected templates. The server writes the text.', 'Roots, sampling, and protocol logging are deprecated in this revision. Pass paths as tool arguments or URIs, call a model API directly, and log to stderr or OpenTelemetry.', 'Elicitation is the client feature for asking the user for more input, via an InputRequiredResult.'],
+      refs: ['tools', 'res', 'prompts', 'change'],
+      gloss: [['Tool', 'A named function with a JSON Schema for its arguments.'], ['Resource', 'Context data identified by a URI.'], ['Prompt', 'A templated message the user chooses.']] },
+    { name: 'What the model receives',
+      tips: ['inputSchema MUST be a JSON Schema object, not null. No $schema means dialect 2020-12.', 'A tool with no parameters can use { "type": "object", "additionalProperties": false }.', 'Name, description, and inputSchema are what a host has to hand to a model. The tools array in the live call is this page\'s envelope.', 'Tool names SHOULD be 1 to 128 characters from letters, digits, underscore, hyphen, and dot.', 'On 16 Nov 2026 this was the cheapest catalog model with text output, a positive prompt price and a positive completion price, excluding ids that end in :free or :batch.'],
+      refs: ['tools', 'orModel', 'orCat', 'orKeys'],
+      gloss: [['inputSchema', 'The JSON Schema for a tool\'s arguments.'], ['2020-12', 'The JSON Schema dialect MCP uses when $schema is omitted.']] },
+    { name: 'JSON-RPC messages',
+      tips: ['2026-07-28 removed initialize and notifications/initialized.', 'Every request carries protocolVersion and clientCapabilities in _meta. clientInfo is a SHOULD.', 'Servers MUST implement server/discover. Clients MAY call it before anything else.', 'tools/list results MUST include ttlMs and cacheScope. The numbers in the sample are not measurements.', 'A result MUST include resultType. "complete" is the ordinary value.', 'Servers do not send JSON-RPC requests. Extra input comes back as resultType "input_required".'],
+      refs: ['change', 'life', 'archDoc', 'spec'],
+      gloss: [['_meta', 'Per-request protocol version, capabilities, and identity.'], ['server/discover', 'The RPC that returns versions, capabilities, and server identity.'], ['resultType', 'Required on results: complete, or input_required.']] },
+    { name: 'stdio and HTTP',
+      tips: ['stdio: the client launches the server. Messages are one JSON object per line on stdin and stdout. stderr is for logs only.', 'The server MUST NOT write anything else to stdout. The client MUST NOT write anything else to stdin.', 'Streamable HTTP: one POST per message to a single endpoint. Accept must list application/json and text/event-stream.', 'Required headers include MCP-Protocol-Version, Mcp-Method, and Mcp-Name when the method uses a name or URI. The version header MUST match _meta.', 'Cancel on stdio with notifications/cancelled. Cancel on HTTP by closing that request\'s response stream.', 'Streamable HTTP servers MUST validate the Origin header.'],
+      refs: ['stdio', 'http', 'trans'],
+      gloss: [['stdio', 'Newline-delimited JSON-RPC on a client-launched subprocess.'], ['Streamable HTTP', 'One HTTP POST per JSON-RPC message, to one MCP endpoint.']] },
+    { name: 'Authorization',
+      tips: ['Authorization is OPTIONAL. HTTP implementations SHOULD follow the spec. stdio implementations SHOULD NOT, and should read credentials from the environment.', 'The MCP server is the resource server. The MCP client is the OAuth client. A separate authorization server may issue the token.', 'MCP servers MUST implement protected-resource metadata. Clients MUST use it to find the authorization server.', 'Dynamic client registration is deprecated in favor of client ID metadata documents, and is kept for older authorization servers.', 'Token passthrough is forbidden: a server MUST NOT accept a token that was not issued for it.', 'Clients MUST validate a present iss value against the issuer they recorded before redeeming the code.'],
+      refs: ['auth', 'sec', 'change'],
+      gloss: [['Resource server', 'The MCP server that accepts access tokens.'], ['PKCE', 'The proof the client sends when it redeems an authorization code.'], ['Token passthrough', 'Forwarding a token that was issued for someone else. Forbidden.']] },
+    { name: 'Trust boundaries',
+      tips: ['Users must consent to data access and to tool calls. The host has to build that UI.', 'There SHOULD be a human who can deny a tool call.', 'Clients MUST treat tool annotations as untrusted unless the server is trusted. The spec says the same about descriptions of tool behavior.', 'A one-click local server MUST show the exact command and wait for approval. Prefer stdio so only that client can reach it.', 'Servers MUST validate resource URIs.', 'Confused deputy and token passthrough are the two authorization attacks the security guide leads with.'],
+      refs: ['spec', 'tools', 'sec', 'res'],
+      gloss: [['Consent', 'A person\'s explicit approval before data moves or a tool runs.'], ['Annotation', 'Optional metadata on a tool or content block. Untrusted unless the server is trusted.']] },
+    { name: 'Ship gate',
+      tips: ['Tick a line only when you can point at the spec for it.', 'The limitation is the point of the last box: a valid request is not the same as permission.', 'Re-check the catalog price before you quote it.', 'This page is not linked from the workshop index yet.'],
+      refs: ['spec', 'sec', 'orModel'],
+      gloss: [['Ship gate', 'A short list to tick before you treat the reading as done.']] }
+  ];
+  function renderRail(i) {
+    var r = RAIL[i]; if (!r) return;
+    var body = $('#railBody');
+    if (body.getAttribute('data-i') === String(i)) return;
+    body.setAttribute('data-i', String(i));
+    body.innerHTML = '<h3 class="mod-name">' + esc(r.name) + '</h3>' +
+      '<h3>Tips</h3><ul>' + r.tips.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
+      '<h3>References</h3><ul>' + r.refs.map(refLi).join('') + '</ul>' +
+      '<h3>Glossary</h3><dl>' + r.gloss.map(function (g) { return '<dt>' + esc(g[0]) + '</dt><dd>' + esc(g[1]) + '</dd>'; }).join('') + '</dl>';
+  }
+  $('#allSources').innerHTML = Object.keys(S).map(refLi).join('');
+
+  // ---------------- sorters ----------------
+  function mountSorter(cfg) {
+    $(cfg.host).innerHTML = cfg.items.map(function (it, i) {
+      return '<div class="rowsel"><span>' + esc(it.text) + '</span><select id="' + cfg.prefix + i + '" aria-label="Placement for ' + esc(it.text) + '"><option value="">Not placed</option>' +
+        cfg.bins.map(function (b) { return '<option value="' + esc(b[0]) + '">' + esc(b[1]) + '</option>'; }).join('') +
+        '</select></div>';
+    }).join('');
+    function label(v) {
+      if (!v) return 'not placed';
+      for (var i = 0; i < cfg.bins.length; i++) if (cfg.bins[i][0] === v) return cfg.bins[i][1];
+      return v;
+    }
+    $(cfg.btn).addEventListener('click', function () {
+      var html = '<ul class="place">';
+      cfg.items.forEach(function (it, i) {
+        var v = $('#' + cfg.prefix + i).value;
+        html += '<li><b>' + esc(it.text) + '</b><br>Your placement: ' + esc(label(v)) + '. Spec placement: ' + esc(label(it.spec)) + '.<br>' + it.tag + ' ' + esc(it.why) + '</li>';
+      });
+      $(cfg.out).innerHTML = html + '</ul>';
+    });
+  }
+  mountSorter({
+    host: '#roleRows', out: '#roleOut', btn: '#roleRun', prefix: 'role',
+    bins: [['host', 'Host'], ['client', 'Client'], ['server', 'Server']],
+    items: [
+      { text: 'The window where a dispatcher types a visit request', spec: 'host', tag: TG.q, why: 'The host is the LLM application that initiates connections and coordinates clients.' },
+      { text: 'The connector Hearth opens for the jobs server', spec: 'client', tag: TG.q, why: 'Each client is created by the host and communicates with exactly one server.' },
+      { text: 'The program that lists open windows and books the visit', spec: 'server', tag: TG.q, why: 'Servers expose resources, tools, and prompts.' },
+      { text: 'A second connector Hearth would open for a different server', spec: 'client', tag: TG.q, why: 'A host manages multiple clients, with one client per server.' }
+    ]
+  });
+  mountSorter({
+    host: '#primRows', out: '#primOut', btn: '#primRun', prefix: 'prim',
+    bins: [['tool', 'Tool'], ['resource', 'Resource'], ['prompt', 'Prompt']],
+    items: [
+      { text: 'Book a faucet visit in a Thursday afternoon window', spec: 'tool', tag: TG.q, why: 'Tools are functions the model can invoke to perform an action. The tools page calls them model-controlled.' },
+      { text: 'Ask the server which windows are still open', spec: 'tool', tag: TG.d, why: 'Computing the open set is an action with arguments, so it is a tool call, not a document the host only reads.' },
+      { text: "The crew's visit board for today, read by a URI", spec: 'resource', tag: TG.q, why: 'Resources are data identified by a URI. The resources page calls them application-driven.' },
+      { text: 'Notes already saved on one job, fetched by the host', spec: 'resource', tag: TG.q, why: 'resources/read returns the contents for one URI. The host decides whether they enter the model context.' },
+      { text: 'A dispatcher-chosen template that drafts a confirmation', spec: 'prompt', tag: TG.q, why: 'Prompts are templates the user explicitly selects. The server authors the content.' },
+      { text: 'A slash command the dispatcher inserts before the model speaks', spec: 'prompt', tag: TG.q, why: 'The prompts page gives slash commands as an example of that user-controlled selection.' }
+    ]
+  });
+  mountSorter({
+    host: '#authRows', out: '#authOut', btn: '#authRun', prefix: 'auth',
+    bins: [['client', 'MCP client'], ['as', 'Authorization server'], ['rs', 'MCP server (resource server)'], ['env', 'Process environment'], ['no', 'Must not']],
+    items: [
+      { text: 'The access token attached to a Streamable HTTP request', spec: 'client', tag: TG.q, why: 'The MCP client is the OAuth client and makes protected requests with the access token.' },
+      { text: 'The screen where a person approves access', spec: 'as', tag: TG.q, why: 'The authorization server is responsible for interacting with the user and issuing tokens.' },
+      { text: 'The HTTP 401 and its WWW-Authenticate header', spec: 'rs', tag: TG.q, why: 'The protected MCP server, acting as the resource server, returns 401 when a token is missing.' },
+      { text: 'A credential a local jobs process reads at startup', spec: 'env', tag: TG.q, why: 'Implementations using stdio SHOULD NOT follow the HTTP authorization spec, and SHOULD retrieve credentials from the environment.' },
+      { text: 'Forwarding the jobs access token unchanged to another API', spec: 'no', tag: TG.q, why: 'The security guide forbids token passthrough. A server MUST NOT accept a token that was not issued for that MCP server.' }
+    ]
+  });
+  mountSorter({
+    host: '#trustRows', out: '#trustOut', btn: '#trustRun', prefix: 'trust',
+    bins: [['consent', 'Host must get consent'], ['untrusted', 'Untrusted server text'], ['check', 'Server must check']],
+    items: [
+      { text: 'The model wants to call book_visit', spec: 'consent', tag: TG.q, why: 'Hosts must obtain explicit consent before invoking a tool, and there SHOULD be a human who can deny the call.' },
+      { text: 'The tool description says the call only reads the board', spec: 'untrusted', tag: TG.q, why: 'The specification says descriptions of tool behavior, such as annotations, should be considered untrusted unless they come from a trusted server. Clients MUST treat tool annotations that way.' },
+      { text: 'A one-click config that would launch a local jobs command', spec: 'consent', tag: TG.q, why: 'The security guide says the client MUST show the exact command and require approval before it runs.' },
+      { text: 'A request to read jobs://board/today', spec: 'check', tag: TG.q, why: 'Servers MUST validate resource URIs before they act on them.' },
+      { text: 'Copying a resource\'s contents out to a different server', spec: 'consent', tag: TG.q, why: 'Hosts must not transmit resource data elsewhere without user consent.' }
+    ]
+  });
+
+  // ---------------- schema lab ----------------
+  $('#toolJson').value = pretty(TOOL_DEFAULT);
+  function readTool() {
+    var raw = $('#toolJson').value, obj;
+    try { obj = JSON.parse(raw); }
+    catch (e) { return { error: 'This is not valid JSON (' + e.message + '). The payload below is empty until it parses.' }; }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return { error: 'The tool must be one JSON object.' };
+    if (!obj.inputSchema || typeof obj.inputSchema !== 'object' || Array.isArray(obj.inputSchema)) {
+      return { error: 'inputSchema must be a JSON Schema object. The tools spec says it MUST NOT be null.' };
+    }
+    return { tool: obj };
+  }
+  function nameNotes(name) {
+    var notes = [];
+    if (typeof name !== 'string' || !name) notes.push('A tool needs a name. The spec lists name as the unique identifier.');
+    else {
+      if (name.length < 1 || name.length > 128) notes.push('Tool names SHOULD be 1 to 128 characters. This one is ' + name.length + '.');
+      if (!/^[A-Za-z0-9._-]+$/.test(name)) notes.push('Tool names SHOULD use only letters, digits, underscore, hyphen, and dot.');
+    }
+    return notes;
+  }
+  function schemaCard(tool) {
+    var schema = tool.inputSchema;
+    var dialect = schema.$schema ? String(schema.$schema) : 'JSON Schema 2020-12 (no $schema field, so the tools spec\'s default applies)';
+    var props = schema.properties && typeof schema.properties === 'object' ? schema.properties : {};
+    var req = Array.isArray(schema.required) ? schema.required.map(String) : [];
+    var rows = Object.keys(props).map(function (k) {
+      var p = props[k] || {};
+      var typ = Array.isArray(p.type) ? p.type.join('|') : (p.type || 'unspecified');
+      var flag = req.indexOf(k) >= 0 ? 'required' : 'optional';
+      return '<li><code>' + esc(k) + '</code> <span class="num">' + esc(typ) + '</span> (' + flag + ')</li>';
+    }).join('');
+    var envelope = {
+      model: MODEL.id,
+      messages: [{ role: 'user', content: USER_LINE }],
+      tools: [{ type: 'function', function: { name: tool.name, description: tool.description, parameters: schema } }],
+      tool_choice: 'auto'
+    };
+    var notes = nameNotes(tool.name).map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('');
+    return '<h4>Fields the model is told about ' + TG.d + '</h4>' +
+      '<p>Name: <code>' + esc(tool.name || '') + '</code>. Description: ' + esc(tool.description || '(none)') + '.</p>' +
+      '<p>Schema dialect: <span class="num">' + esc(dialect) + '</span>. ' + TG.q + '</p>' +
+      '<ul>' + (rows || '<li>No properties. A tool with no parameters can use an object schema that rejects extra keys.</li>') + '</ul>' +
+      (notes ? '<p>Name guidance, which the spec marks SHOULD:</p><ul>' + notes + '</ul>' : '') +
+      '<h4>Chat payload this page would send ' + TG.c + '</h4>' +
+      '<p class="muted">MCP does not define this envelope. This page copies name, description, and inputSchema into an OpenRouter tools array. The user line is fixed.</p>' +
+      '<pre><code>' + esc(pretty(envelope)) + '</code></pre>';
+  }
+  function showSchema() {
+    var got = readTool();
+    if (got.error) { $('#schemaOut').innerHTML = '<p class="bad">' + esc(got.error) + '</p>'; return null; }
+    $('#schemaOut').innerHTML = schemaCard(got.tool);
+    return got.tool;
+  }
+  $('#schemaRun').addEventListener('click', showSchema);
+
+  function setMsg(el, text, kind) { el.textContent = text; el.className = 'msg' + (kind ? ' ' + kind : ''); }
+  var apiKey = null;
+  var state = { live: false, spent: 0, budget: 1 };
+  function updateSpend() { $('#spendVal').textContent = usd(state.spent); }
+  function setLive(on) {
+    state.live = on;
+    $('#connect').classList.toggle('live', on);
+    $('#lampText').textContent = on ? 'Live' : 'Demo';
+    $('#connectBtn').hidden = on;
+    $('#disconnectBtn').hidden = !on;
+    $('#keyIn').disabled = on;
+  }
+  function validateKey(k) {
+    if (!k) return 'Paste an OpenRouter key first. Create one at openrouter.ai/keys and set a credit limit on it.';
+    if (/\s/.test(k)) return 'The key contains a space or a line break. Paste only the key.';
+    if (k.indexOf('sk-or-') !== 0) return 'OpenRouter keys start with sk-or-. Create one at openrouter.ai/keys.';
+    if (k.length < 30) return 'That key is too short to be complete. Copy it again from openrouter.ai/keys.';
+    return '';
+  }
+  function scrub(s) {
+    s = String(s == null ? '' : s);
+    if (apiKey) s = s.split(apiKey).join('[key]');
+    return s.replace(/sk-or-[A-Za-z0-9_-]{6,}/g, '[key]').replace(/Bearer\s+\S+/gi, 'Bearer [key]');
+  }
+  function UserError(m) { this.message = m; this.user = true; }
+  function num(el, d, lo, hi) { var v = parseFloat(el.value); if (!isFinite(v)) v = d; return Math.max(lo, Math.min(hi, v)); }
+  async function connect() {
+    var input = $('#keyIn'), msg = $('#connectMsg');
+    wsTrack('connect_click');
+    var cand = input.value.trim();
+    input.value = '';
+    var problem = validateKey(cand);
+    if (problem) { setMsg(msg, problem + ' The field was cleared; paste the key again.', 'err'); return; }
+    setMsg(msg, 'Checking the key with OpenRouter...', '');
+    try {
+      var res = await fetch('https://openrouter.ai/api/v1/key', { headers: { Authorization: 'Bearer ' + cand } });
+      if (res.status === 401 || res.status === 403) { setMsg(msg, 'OpenRouter rejected this key (' + res.status + '). Create a new one at openrouter.ai/keys.', 'err'); return; }
+      if (!res.ok) { setMsg(msg, 'OpenRouter answered ' + res.status + ' when checking the key. Try again in a minute.', 'err'); return; }
+      var data = null; try { data = await res.json(); } catch (e) { data = null; }
+      apiKey = cand;
+      setLive(true);
+      wsTrack('connected');
+      var info = data && data.data;
+      if (info && (info.limit === null || info.limit === undefined)) setMsg(msg, 'Connected. This key has no credit limit. Set one at openrouter.ai/keys before a live lab.', 'warnm');
+      else if (info && typeof info.limit === 'number') setMsg(msg, 'Connected. Key credit limit: $' + info.limit.toFixed(2) + '.', 'okm');
+      else setMsg(msg, 'Connected. The live button now calls the model.', 'okm');
+    } catch (e) {
+      setMsg(msg, 'Could not reach openrouter.ai. Check the connection, then try again.', 'err');
+    }
+  }
+  function disconnect() {
+    apiKey = null;
+    setLive(false);
+    setMsg($('#connectMsg'), 'Disconnected. The key was cleared from memory. Demo mode is back on.', '');
+  }
+  $('#connectBtn').addEventListener('click', connect);
+  $('#disconnectBtn').addEventListener('click', disconnect);
+  $('#keyIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); connect(); } });
+  $('#budgetIn').addEventListener('change', function () { var v = parseFloat(this.value); state.budget = isFinite(v) && v > 0 ? v : 1; this.value = state.budget; });
+
+  function costOf(inTok, outTok) { return (inTok * MODEL.inM + outTok * MODEL.outM) / 1e6; }
+  async function callModel(tool) {
+    var maxTok = num($('#maxTokIn'), 400, 200, 2000);
+    var user = USER_LINE;
+    var proj = costOf(Math.ceil((user.length + JSON.stringify(tool).length) / 4) + 40, maxTok);
+    if (state.spent + proj > state.budget) throw new UserError('That call could pass the session budget of ' + usd(state.budget) + ' (spent ' + usd(state.spent) + '). Raise the budget in the Live labs panel.');
+    var body = {
+      model: MODEL.id,
+      messages: [{ role: 'user', content: user }],
+      tools: [{ type: 'function', function: { name: tool.name, description: tool.description, parameters: tool.inputSchema } }],
+      tool_choice: 'auto',
+      temperature: 0,
+      max_tokens: maxTok
+    };
+    var headers = { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'X-Title': 'MCP architecture workshop' };
+    if (location.origin && location.origin !== 'null') headers['HTTP-Referer'] = location.origin;
+    var res, data = null;
+    try { res = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: headers, body: JSON.stringify(body) }); }
+    catch (e) { throw new UserError('Network error reaching openrouter.ai.'); }
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok) {
+      var d = data && data.error && (data.error.message || data.error.code) ? scrub(String(data.error.message || data.error.code)).slice(0, 300) : '';
+      throw new UserError('Request failed (' + res.status + ')' + (d ? ': ' + d : '') + '.');
+    }
+    var ch = data && data.choices && data.choices[0];
+    var msg = ch && ch.message ? ch.message : {};
+    var text = msg.content;
+    if (Array.isArray(text)) text = text.map(function (p) { return p && p.text ? p.text : ''; }).join('');
+    var u = (data && data.usage) || {};
+    var cost = costOf(u.prompt_tokens || 0, u.completion_tokens || 0);
+    state.spent += cost;
+    updateSpend();
+    return { text: String(text || ''), calls: msg.tool_calls || [], cost: cost, usage: u, finish: ch && ch.finish_reason };
+  }
+  $('#schemaLive').addEventListener('click', async function () {
+    var btn = this, tool = showSchema();
+    if (!tool) return;
+    if (!state.live || !apiKey) {
+      $('#schemaOut').insertAdjacentHTML('beforeend', '<p>Connect a key in the Live labs panel to send this payload. Nothing was sent.</p>');
+      return;
+    }
+    btn.disabled = true;
+    var label = btn.textContent;
+    btn.textContent = 'Sending...';
+    try {
+      var got = await callModel(tool);
+      var block = '<h4>Model reply ' + TG.t + '</h4>';
+      if (got.calls && got.calls.length) block += '<pre><code>' + esc(pretty(got.calls)) + '</code></pre>';
+      if (got.text) block += '<pre><code>' + esc(got.text) + '</code></pre>';
+      if (!got.text && !(got.calls && got.calls.length)) block += '<p class="bad">The model returned no text and no tool call (finish: ' + esc(got.finish || 'unknown') + ').</p>';
+      block += '<p class="muted">Spend this call <span class="num">' + esc(usd(got.cost)) + '</span> ' + TG.d + ' from reported prompt and completion tokens at the recorded rates. Session total <span class="num">' + esc(usd(state.spent)) + '</span>.</p>';
+      $('#schemaOut').insertAdjacentHTML('beforeend', block);
+    } catch (e) {
+      $('#schemaOut').insertAdjacentHTML('beforeend', '<p class="bad">' + esc(scrub(e && e.message ? e.message : e)) + '</p>');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  });
+
+  function isChat(m) {
+    var arch = m.architecture || {};
+    var ins = arch.input_modalities || [];
+    var outs = arch.output_modalities || [];
+    if (ins.indexOf('text') < 0 || outs.indexOf('text') < 0) return false;
+    if (outs.indexOf('image') >= 0 || outs.indexOf('embeddings') >= 0) return false;
+    var id = String(m.id || '');
+    if (/:free$|:batch$/.test(id)) return false;
+    var p = parseFloat(m.pricing && m.pricing.prompt), c = parseFloat(m.pricing && m.pricing.completion);
+    if (!isFinite(p) || !isFinite(c) || p <= 0 || c <= 0) return false;
+    if (m.expiration_date && m.expiration_date < '2026-11-16') return false;
+    return true;
+  }
+  $('#priceCheck').addEventListener('click', function () {
+    var box = $('#priceOut');
+    box.innerHTML = '<p class="muted">Reading the public catalog...</p>';
+    fetch('https://openrouter.ai/api/v1/models').then(function (r) {
+      if (!r.ok) throw new Error('status ' + r.status);
+      return r.json();
+    }).then(function (j) {
+      var rows = (j.data || []).filter(isChat);
+      var mine = null;
+      (j.data || []).forEach(function (m) { if (m.id === MODEL.id) mine = m; });
+      rows.sort(function (a, b) {
+        var as = parseFloat(a.pricing.prompt) * 1000 + parseFloat(a.pricing.completion) * 200;
+        var bs = parseFloat(b.pricing.prompt) * 1000 + parseFloat(b.pricing.completion) * 200;
+        return as - bs;
+      });
+      var html = '<h4>Catalog check ' + TG.t + '</h4>';
+      if (!mine) {
+        html += '<p class="bad"><code>' + esc(MODEL.id) + '</code> is not in the catalog now. Pick a replacement before a live call.</p>';
+      } else {
+        var pin = parseFloat(mine.pricing && mine.pricing.prompt) * 1e6;
+        var pout = parseFloat(mine.pricing && mine.pricing.completion) * 1e6;
+        var same = Math.abs(pin - MODEL.inM) < 0.0005 && Math.abs(pout - MODEL.outM) < 0.0005;
+        html += '<p><code>' + esc(MODEL.id) + '</code> lists <span class="num">$' + pin.toFixed(3) + '</span> / <span class="num">$' + pout.toFixed(3) + '</span> per million. ' +
+          (same ? 'That matches the price recorded on ' + MODEL.date + '.' : 'That differs from the $' + MODEL.inM + ' / $' + MODEL.outM + ' recorded on ' + MODEL.date + '. Trust the live numbers.') + '</p>';
+      }
+      if (rows.length) {
+        var top = rows[0];
+        var still = top.id === MODEL.id;
+        html += '<p>Cheapest under this page\'s filter (text among the outputs, no image output, prompt and completion prices both above zero, id not ending in :free or :batch): <code>' + esc(top.id) + '</code>. ' +
+          (still ? 'That is still the recorded model.' : 'That is no longer the recorded model. Read its page before you treat ' + esc(MODEL.id) + ' as cheapest.') + '</p>';
+      } else {
+        html += '<p class="bad">No model matched the filter, so this page cannot confirm a cheapest slug.</p>';
+      }
+      html += '<p class="muted">$0 endpoints, negative router prices, and :free or :batch ids are outside this filter. The sort key is 1,000 input tokens plus 200 output tokens ' + TG.d + '.</p>';
+      box.innerHTML = html;
+    }).catch(function (e) {
+      box.innerHTML = '<p class="bad">Could not read the catalog (' + esc(e && e.message ? e.message : 'network error') + '). Open openrouter.ai/inclusionai/ling-3.0-tiny and compare the price by hand.</p>';
+    });
+  });
+
+  // ---------------- message steps ----------------
+  function jobsDiscover() {
+    return {
+      jsonrpc: '2.0', id: 1,
+      result: {
+        resultType: 'complete',
+        supportedVersions: [SPEC],
+        capabilities: { tools: { listChanged: true }, resources: {}, prompts: {} },
+        _meta: { 'io.modelcontextprotocol/serverInfo': { name: 'jobs', version: '0.1.0' } }
+      }
+    };
+  }
+  function jobsList() {
+    return {
+      jsonrpc: '2.0', id: 2,
+      result: {
+        resultType: 'complete',
+        tools: [
+          { name: 'list_open_windows', title: 'List open windows', description: 'List open visit windows for one trade on one day.', inputSchema: { type: 'object', properties: { trade: { type: 'string', enum: ['plumbing', 'electrical'] }, day: { type: 'string' } }, required: ['trade', 'day'], additionalProperties: false } },
+          TOOL_DEFAULT
+        ],
+        ttlMs: 300000,
+        cacheScope: 'public',
+        _meta: { 'io.modelcontextprotocol/serverInfo': { name: 'jobs', version: '0.1.0' } }
+      }
+    };
+  }
+  function jobsCall() {
+    return {
+      jsonrpc: '2.0', id: 3,
+      result: {
+        resultType: 'complete',
+        content: [{ type: 'text', text: 'Booked plumbing window w-thu-14 for a faucet repair.' }],
+        _meta: { 'io.modelcontextprotocol/serverInfo': { name: 'jobs', version: '0.1.0' } }
+      }
+    };
+  }
+  function stepHtml(i) {
+    if (i === 0) {
+      var oldReq = { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: PREV, capabilities: {}, clientInfo: { name: 'ExampleClient', version: '1.0.0' } } };
+      return '<h4>1. initialize, revision ' + PREV + ' only</h4>' +
+        '<p>' + TG.d + ' Shortened from the lifecycle example. The spec required <code>protocolVersion</code>, <code>capabilities</code>, and <code>clientInfo</code>, then a <code>notifications/initialized</code> notification from the client.</p>' +
+        '<pre><code>' + esc(pretty(oldReq)) + '</code></pre>' +
+        '<p>' + TG.q + ' The 2026-07-28 changelog removes this handshake. A client speaking ' + SPEC + ' does not send it. Version and capabilities travel in <code>_meta</code> on every request instead.</p>';
+    }
+    if (i === 1) {
+      var req = rpc(1, 'server/discover', { _meta: meta() });
+      return '<h4>2. server/discover</h4>' +
+        '<p>' + TG.d + ' Request built from the documented discover shape. <code>clientInfo</code> is a SHOULD. Capabilities here are empty because Hearth is not declaring elicitation.</p>' +
+        '<pre><code>' + esc(pretty(req)) + '</code></pre>' +
+        ILLUS + '<p>' + TG.i + ' A possible <code>jobs</code> result. Field names match the spec example. Nothing here was returned by a server.</p>' +
+        '<pre><code>' + esc(pretty(jobsDiscover())) + '</code></pre>' +
+        '<p>' + TG.q + ' Servers MUST implement <code>server/discover</code>. Clients MAY skip it and send another request directly. A version the server does not support comes back as <code>UnsupportedProtocolVersionError</code>.</p>';
+    }
+    if (i === 2) {
+      var listReq = rpc(2, 'tools/list', { _meta: meta() });
+      return '<h4>3. tools/list</h4>' +
+        '<p>' + TG.d + ' Same <code>_meta</code> as every other request. An optional <code>cursor</code> is omitted.</p>' +
+        '<pre><code>' + esc(pretty(listReq)) + '</code></pre>' +
+        ILLUS + '<p>' + TG.i + ' Simulated tool list for <code>jobs</code>. <code>ttlMs</code> of 300000 and <code>cacheScope</code> of public are example values, not a measured cache.</p>' +
+        '<pre><code>' + esc(pretty(jobsList())) + '</code></pre>' +
+        '<p>' + TG.q + ' <code>tools/list</code> results MUST include <code>resultType</code>, <code>ttlMs</code>, and <code>cacheScope</code>. Servers SHOULD keep a stable tool order.</p>';
+    }
+    var callReq = rpc(3, 'tools/call', { name: 'book_visit', arguments: { trade: 'plumbing', window_id: 'w-thu-14', task: 'faucet repair' }, _meta: meta() });
+    return '<h4>4. tools/call</h4>' +
+      '<p>' + TG.d + ' <code>name</code> matches a tool from the list, and <code>arguments</code> follow that tool\'s <code>inputSchema</code>. The argument values are an example for Hearth.</p>' +
+      '<pre><code>' + esc(pretty(callReq)) + '</code></pre>' +
+      ILLUS + '<p>' + TG.i + ' Simulated result. A real <code>jobs</code> server was not called.</p>' +
+      '<pre><code>' + esc(pretty(jobsCall())) + '</code></pre>' +
+      '<p>' + TG.q + ' The JSON-RPC <code>id</code> pairs this result with the request. Servers do not send their own JSON-RPC requests; if they need more input they return <code>resultType</code> <code>input_required</code>.</p>';
+  }
+  var msgStep = 0;
+  var stepNames = ['initialize', 'discover', 'list', 'call'];
+  function paintSteps() {
+    $('#msgSteps').innerHTML = stepNames.map(function (n, i) {
+      var cls = i < msgStep ? 'past' : (i === msgStep ? 'now' : '');
+      return '<li class="' + cls + '">' + (i + 1) + ' ' + n + '</li>';
+    }).join('');
+  }
+  function showMsg(i) {
+    msgStep = i;
+    paintSteps();
+    $('#msgOut').innerHTML = stepHtml(i);
+  }
+  $('#msgNext').addEventListener('click', function () { showMsg((msgStep + 1) % 4); });
+  $('#msgAll').addEventListener('click', function () {
+    msgStep = 3;
+    paintSteps();
+    $('#msgOut').innerHTML = [0, 1, 2, 3].map(stepHtml).join('');
+  });
+  showMsg(0);
+
+  // ---------------- transports ----------------
+  function txBody(kind) {
+    if (kind === 'discover') return rpc(1, 'server/discover', { _meta: meta() });
+    if (kind === 'list') return rpc(2, 'tools/list', { _meta: meta() });
+    return rpc(3, 'tools/call', { name: 'book_visit', arguments: { trade: 'plumbing', window_id: 'w-thu-14', task: 'faucet repair' }, _meta: meta() });
+  }
+  function showTx() {
+    var kind = $('#txMsg').value;
+    var body = txBody(kind);
+    var oneLine = JSON.stringify(body);
+    var authOn = $('#txAuth').checked;
+    var headers = [
+      'POST /mcp HTTP/1.1',
+      'Host: jobs.example',
+      'Content-Type: application/json',
+      'Accept: application/json, text/event-stream',
+      'MCP-Protocol-Version: ' + SPEC,
+      'Mcp-Method: ' + body.method
+    ];
+    if (body.method === 'tools/call') headers.push('Mcp-Name: book_visit');
+    if (authOn) headers.push('Authorization: Bearer <access-token>');
+    var http = headers.join('\n') + '\n\n' + pretty(body);
+    var html = '<div class="ab"><div><h4>stdio ' + TG.d + '</h4><p class="muted">One JSON object, one line, on the child process stdin. No embedded newlines on the wire.</p><pre><code>' + esc(oneLine) + '</code></pre></div>' +
+      '<div><h4>Streamable HTTP ' + TG.d + '</h4><p class="muted">The same JSON-RPC object is the POST body. <code>jobs.example</code> is a reserved example name.</p><pre><code>' + esc(http) + '</code></pre></div></div>';
+    html += '<ul class="place">' +
+      '<li>' + TG.q + ' stdio logs go to stderr. stdout MUST contain only MCP messages. HTTP has no stderr; status codes and SSE frames carry the reply.</li>' +
+      '<li>' + TG.q + ' Cancel a stdio request with <code>notifications/cancelled</code>. Cancel an HTTP request by closing that response stream. There is no <code>notifications/cancelled</code> on Streamable HTTP in this revision.</li>' +
+      '<li>' + TG.q + ' <code>MCP-Protocol-Version</code> MUST match <code>_meta</code>. A mismatch is rejected as <code>HeaderMismatch</code>. Servers MUST validate <code>Origin</code> on HTTP.</li>' +
+      '<li>' + (authOn
+        ? TG.q + ' The bearer token is an HTTP header, not a JSON-RPC field. stdio would not use this OAuth flow; it would read a credential from the environment.'
+        : TG.q + ' Authorization is optional. With the box off, this POST carries no token. Turn it on to see where a bearer token sits.') +
+      '</li></ul>';
+    $('#txOut').innerHTML = html;
+  }
+  $('#txRun').addEventListener('click', showTx);
+  $('#txMsg').addEventListener('change', showTx);
+  $('#txAuth').addEventListener('change', showTx);
+
+  // ---------------- ship gate ----------------
+  var GATE = [
+    'I can point to the host, the client, and the server on one Hearth connection.',
+    'I can place a scheduling need as a tool, a resource, or a prompt using the spec\'s control model.',
+    'I can read an inputSchema and list the fields a model is told to supply.',
+    'I can tell a 2026-07-28 request, with _meta, from a 2025-11-25 initialize request.',
+    'I can say what stdio changes and what Streamable HTTP changes around the same JSON-RPC body.',
+    'I can say who holds an access token, and that stdio credentials come from the environment.',
+    'I treat tool descriptions as untrusted unless I trust that server, and a person can deny the call.',
+    'I can state the limitation: a valid tools/call is not the same thing as consent.'
+  ];
+  var gateState = {};
+  try { gateState = JSON.parse(store('mcp-arch-gate') || '{}') || {}; } catch (e) { gateState = {}; }
+  $('#gate').innerHTML = GATE.map(function (g, i) {
+    return '<li><button type="button" data-g="' + i + '" aria-pressed="' + (gateState[i] ? 'true' : 'false') + '"><span class="box"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>' + esc(g) + '</span></button></li>';
+  }).join('');
+  function gateCount() {
+    var n = GATE.filter(function (g, i) { return gateState[i]; }).length;
+    $('#gateCount').textContent = n + ' of ' + GATE.length + ' ticked.';
+  }
+  $$('#gate button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = b.getAttribute('data-g');
+      gateState[i] = !gateState[i];
+      b.setAttribute('aria-pressed', String(!!gateState[i]));
+      store('mcp-arch-gate', JSON.stringify(gateState));
+      gateCount();
+    });
+  });
+  gateCount();
+
+  wsTrack.gate('#gate button', function (b) { return b.getAttribute('aria-pressed') === 'true'; });
+  wsTrack.labs({
+    '#roleRun': 'm0-roles',
+    '#primRun': 'm1-sort',
+    '#schemaRun': 'm2-schema',
+    '#schemaLive': ['m2-live', 'liveModel'],
+    '#priceCheck': 'm2-price',
+    '#msgNext': 'm3-step',
+    '#msgAll': 'm3-all',
+    '#txRun': 'm4-transport',
+    '#authRun': 'm5-auth',
+    '#trustRun': 'm6-trust'
+  });
+
+  // ---------------- scroll spy ----------------
+  var mods = $$('.mod'), links = $$('#navList a'), seen = {};
+  function setActive(i) {
+    links.forEach(function (a, j) {
+      a.classList.toggle('active', j === i);
+      if (j === i) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+    wsTrack.module(i);
+    seen[i] = true;
+    links.forEach(function (a, j) { a.classList.toggle('seen', !!seen[j]); });
+    var n = Object.keys(seen).length;
+    $('#meterFill').style.transform = 'scaleX(' + (n / mods.length) + ')';
+    $('#meter').setAttribute('aria-valuenow', String(n));
+    $('#progressLabel').textContent = n + ' of ' + mods.length + ' sections visited';
+    renderRail(i);
+  }
+  if ('IntersectionObserver' in window) {
+    var reveal = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); reveal.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    mods.forEach(function (m) { reveal.observe(m); });
+    var spy = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) setActive(+e.target.getAttribute('data-mod')); });
+    }, { rootMargin: '-20% 0px -55% 0px' });
+    mods.forEach(function (m) { spy.observe(m); });
+  } else {
+    mods.forEach(function (m) { m.classList.add('in'); });
+    setActive(0);
+  }
+
+  paintAll();
+  showTx();
+})();
+</script>
+</body>
+</html>
