@@ -1,0 +1,1340 @@
+<!doctype html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task routing</title>
+<meta name="description" content="A hands-on Field Guide to task routing: predictive routers, cascades, error fallbacks, cost and latency, and a twelve-ticket eval. Labs run in demo mode. Independent project by Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/task-routing-workshop/">
+<meta property="og:title" content="Task routing">
+<meta property="og:description" content="Six modules on routing a request to a model: classification, cost and latency, rules and learned routers, fallbacks, and a small eval. Demo mode needs no key.">
+<meta property="og:url" content="https://www.kpphillips.com/ai-workshops/task-routing-workshop/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Task routing">
+<meta name="twitter:description" content="Predictive routers, cascades, error fallbacks, and a twelve-ticket eval. Demo mode needs no key.">
+<meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Task routing",
+  "description": "A hands-on guide to routing a request to a model: classification, cost and latency, rule and learned routers, fallbacks, and a small eval on a fictional IT queue.",
+  "url": "https://www.kpphillips.com/ai-workshops/task-routing-workshop/",
+  "author": { "@type": "Person", "name": "Kevin Phillips" },
+  "educationalLevel": "Intermediate",
+  "learningResourceType": "Interactive workshop",
+  "isAccessibleForFree": true
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--nav-w:236px;--rail-w:328px;--r:6px;--f-display:'Fraunces',Georgia,serif;--f-body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace}
+html,html[data-palette="tide"]{--bg:#0b1620;--surface:#102130;--surface-2:#162a3b;--ink:#e6eef5;--ink-soft:#b5c5d3;--ink-faint:#93a8ba;--line:#24394c;--line-strong:#4d6e8d;--accent:#5cc8e6;--accent-ink:#04141c;--green:#5fd39a;--clay:#e8b75e;--red:#f28b85;--alt:#bcaaf4}
+html[data-palette="tide"][data-theme="light"]{--bg:#f3f6f8;--surface:#ffffff;--surface-2:#e8eef2;--ink:#0e1d29;--ink-soft:#34495a;--ink-faint:#4e6376;--line:#cfd9e1;--line-strong:#82909b;--accent:#0a6583;--accent-ink:#ffffff;--green:#136b45;--clay:#835406;--red:#ad2a22;--alt:#5a3eae}
+html[data-palette="ember"]{--bg:#17110c;--surface:#211811;--surface-2:#2c2118;--ink:#f3ebe3;--ink-soft:#d0c2b4;--ink-faint:#ad9e8f;--line:#3b2d21;--line-strong:#7d6148;--accent:#f0a34a;--accent-ink:#1c1005;--green:#72d39b;--clay:#ebc56e;--red:#f38c7d;--alt:#a3bbf2}
+html[data-palette="ember"][data-theme="light"]{--bg:#faf5ef;--surface:#ffffff;--surface-2:#f1e8dd;--ink:#24170c;--ink-soft:#4d3b2b;--ink-faint:#67533f;--line:#e2d4c3;--line-strong:#9a8a77;--accent:#94490a;--accent-ink:#ffffff;--green:#1d6a42;--clay:#7a5500;--red:#aa2b20;--alt:#3a51a4}
+html[data-palette="iris"]{--bg:#120f1e;--surface:#1a1629;--surface-2:#231e36;--ink:#ece8f7;--ink-soft:#c5bedc;--ink-faint:#a39bbd;--line:#322b4b;--line-strong:#6a5d9c;--accent:#b99eff;--accent-ink:#150d2b;--green:#72d6a3;--clay:#e8c070;--red:#f39191;--alt:#82cbea}
+html[data-palette="iris"][data-theme="light"]{--bg:#f6f5fb;--surface:#ffffff;--surface-2:#ece9f6;--ink:#1a1530;--ink-soft:#433b63;--ink-faint:#5a537c;--line:#d9d4eb;--line-strong:#918aab;--accent:#5732c4;--accent-ink:#ffffff;--green:#18693f;--clay:#785300;--red:#a8262a;--alt:#0a5f7a}
+*{box-sizing:border-box}
+html{color-scheme:dark;scroll-behavior:auto;scrollbar-color:var(--line-strong) var(--bg)}
+html[data-theme="light"]{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--f-body);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--accent-ink)}
+input,textarea,select{caret-color:var(--accent)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:6px;border:2px solid var(--bg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-0.02em;line-height:1.15;margin:0 0 .6rem;color:var(--ink)}
+h1{font-size:clamp(2rem,4vw,3rem)}
+h2{font-size:clamp(1.5rem,2.6vw,2rem)}
+h3{font-size:1.15rem;margin-top:1.4rem}
+p{margin:0 0 .9rem}
+code,pre,.mono{font-family:var(--f-mono);font-size:.88em}
+code{background:var(--surface-2);padding:.08em .35em;border-radius:4px}
+pre{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;overflow:auto;margin:.4rem 0 .8rem;line-height:1.5;font-size:.82rem;white-space:pre-wrap;word-break:break-word}
+pre code{background:none;padding:0;font-size:1em}
+.skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:var(--accent-ink);padding:.5rem 1rem;z-index:10}
+.skip:focus{left:1rem}
+.shell{display:grid;grid-template-columns:var(--nav-w) minmax(0,1fr) var(--rail-w);min-height:100vh}
+@media (max-width:1180px){:root{--nav-w:200px;--rail-w:292px}}
+@media (max-width:900px){:root{--nav-w:170px;--rail-w:250px}}
+.nav,.rail{position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;background:var(--surface);scrollbar-width:thin}
+.nav{border-inline-end:1px solid var(--line);padding:1.25rem 1rem;display:flex;flex-direction:column;gap:.9rem}
+.rail{border-inline-start:1px solid var(--line);padding:1rem}
+main{padding:2rem clamp(1rem,3.5vw,3rem) 4rem;min-width:0}
+.content{max-width:860px;margin:0 auto}
+.brand{font-weight:700;font-size:1.05rem;letter-spacing:-.01em;line-height:1.3}
+.brand span{display:block;font-weight:400;font-size:.85rem;color:var(--ink-soft)}
+.nav .back{align-self:flex-start;display:inline-flex;align-items:center;gap:.35rem;font-weight:600;font-size:.84rem;text-decoration:none;color:var(--accent)}
+.nav .back svg{width:14px;height:14px}
+.nav-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.nav-list a{display:grid;grid-template-columns:1.6rem 1fr;gap:.25rem;padding:.38rem .5rem;border-radius:5px;color:var(--ink-soft);text-decoration:none;font-size:.9rem;line-height:1.3;border:1px solid transparent}
+.nav-list a .n{color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.nav-list a:hover{background:var(--surface-2);color:var(--ink)}
+.nav-list a.active{background:var(--surface-2);color:var(--ink);border-color:var(--line-strong)}
+.nav-list a.active .n{color:var(--accent)}
+.nav-list a.seen .n{color:var(--ink-soft)}
+.nav-foot{margin-top:auto;display:flex;flex-direction:column;gap:.6rem;padding-top:.8rem;border-top:1px solid var(--line)}
+.nav-foot .lbl{font-size:.78rem;color:var(--ink-soft)}
+.swatches{display:flex;gap:.45rem;align-items:center}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);cursor:pointer;padding:0;display:grid;place-items:center;background:var(--surface)}
+.swatch[data-p="tide"]{background:#2f9ec0}
+.swatch[data-p="ember"]{background:#d98a2e}
+.swatch[data-p="iris"]{background:#8a6ce6}
+.swatch[aria-pressed="true"]{border-color:var(--ink)}
+.swatch[aria-pressed="true"]::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--bg)}
+.tick{height:12px;margin:0 0 1rem;background:
+ linear-gradient(var(--line-strong),var(--line-strong)) left bottom/100% 1px no-repeat,
+ repeating-linear-gradient(90deg,var(--line-strong) 0 1px,transparent 1px 48px) left bottom/100% 11px no-repeat,
+ repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 8px) left bottom/100% 6px no-repeat}
+.meter{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--line)}
+.meter span{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left center;transform:scaleX(0)}
+.progress{display:flex;flex-direction:column;gap:.35rem}
+.progress small{color:var(--ink-soft);font-size:.78rem}
+.mod{padding:2.4rem 0 1.2rem;scroll-margin-top:1rem}
+.js .mod{transform:translateY(12px);transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.js .mod.in{transform:none}
+.lead{font-size:1.08rem;color:var(--ink-soft);max-width:66ch}
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.2rem;margin:1rem 0 1.2rem}
+.lab-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:.5rem;margin-bottom:.8rem}
+.lab-head h3{margin:0;font-size:1.08rem}
+.lab-kind{font-size:.78rem;font-weight:600;padding:.12rem .5rem;border-radius:4px;border:1px solid var(--line-strong);color:var(--ink-soft)}
+.row{display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;margin:.6rem 0}
+.field{display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.field>span,.field>label{font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.grow{flex:1 1 220px}
+input[type=text],input[type=number],input[type=password],select,textarea{font:inherit;font-size:.92rem;background:var(--bg);color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r);padding:.45rem .6rem;min-width:0;max-width:100%}
+textarea{width:100%;min-height:8rem;resize:vertical;font-family:var(--f-mono);font-size:.8rem;line-height:1.5}
+input[type=number]{width:7.5rem}
+input[type=range]{width:100%;height:1.6rem;background:transparent;accent-color:var(--accent)}
+input[type=range]::-webkit-slider-runnable-track{height:6px;background:var(--line-strong);border-radius:3px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;margin-top:-6px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+input[type=range]::-moz-range-track{height:6px;background:var(--line-strong);border:none;border-radius:3px}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+input::placeholder,textarea::placeholder{color:var(--ink-faint)}
+input[type=checkbox]{accent-color:var(--accent);width:1rem;height:1rem;margin:.15rem 0 0}
+.checks{display:flex;flex-wrap:wrap;gap:.35rem .9rem}
+.checks label,.toggles label{display:flex;gap:.35rem;align-items:flex-start;font-size:.9rem;cursor:pointer}
+.toggles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.45rem .8rem;margin:.4rem 0 .2rem}
+.btn{font:600 .9rem var(--f-body);background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:var(--r);padding:.5rem .95rem;cursor:pointer;line-height:1.2}
+.btn:disabled{background:var(--surface-2);color:var(--ink-soft);border-color:var(--line-strong);cursor:progress}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{padding:.3rem .6rem;font-size:.82rem}
+.out{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;margin-top:.8rem;font-size:.92rem;font-variant-numeric:tabular-nums;min-height:2.6rem}
+.out:empty::before{content:"Output appears here.";color:var(--ink-faint)}
+.out h4{margin:.2rem 0 .5rem;font:600 .95rem var(--f-body)}
+.muted{color:var(--ink-soft)}
+.faint{color:var(--ink-faint)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--clay)}
+.tbl-wrap{overflow-x:auto;margin:.6rem 0 1rem}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-soft);font-size:.8rem;background:var(--surface-2)}
+.tag{display:inline-block;font:600 .72rem/1.3 var(--f-body);padding:.08rem .42rem;border-radius:4px;border:1px solid;white-space:nowrap;vertical-align:.08em}
+.tag.q{color:var(--ink);border-color:var(--green);background:color-mix(in srgb,var(--green) 16%,var(--surface))}
+.tag.d{color:var(--ink);border-color:var(--line-strong);background:var(--surface-2)}
+.tag.i{color:var(--ink);border-color:var(--clay);background:color-mix(in srgb,var(--clay) 16%,var(--surface))}
+.tag.t{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.tag.c{color:var(--ink);border-color:var(--alt);background:color-mix(in srgb,var(--alt) 14%,var(--surface))}
+.cap{font-size:.84rem;color:var(--ink-soft);margin:.2rem 0 .8rem}
+canvas.fig{width:100%;display:block;background:var(--bg);border:1px solid var(--line);border-radius:var(--r)}
+canvas[data-h="168"]{height:168px}
+.rowsel{display:grid;grid-template-columns:1fr minmax(9rem,13rem);gap:.5rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.rowsel:last-child{border-bottom:0}
+.rowsel select{width:100%}
+.place{list-style:none;padding:0;margin:.2rem 0}
+.place li{padding:.45rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.place li:last-child{border-bottom:0}
+ol.place{list-style:decimal;padding-left:1.2rem}
+ol.place li{border-bottom:0;padding:.25rem 0}
+.illus{display:block;font-size:.8rem;font-weight:600;color:var(--clay);margin:0 0 .4rem}
+.legend{display:flex;flex-wrap:wrap;gap:.45rem .8rem;margin:.4rem 0 1rem;font-size:.86rem;color:var(--ink-soft)}
+.connect{border:1px solid var(--line-strong);border-radius:10px;padding:.8rem;background:var(--surface-2)}
+.connect.live{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--surface))}
+.connect h2{font:700 .95rem var(--f-body);letter-spacing:0;margin:0}
+.lamp-row{display:flex;align-items:center;gap:.45rem;justify-content:space-between;margin-bottom:.5rem}
+.lamp{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.lamp i{width:10px;height:10px;border-radius:50%;background:var(--ink-faint);display:inline-block;border:2px solid var(--line-strong)}
+.connect.live .lamp i{background:var(--green);border-color:var(--green)}
+.connect .row{margin-bottom:.5rem;gap:.4rem}
+.connect input[type=password]{flex:1 1 120px;width:100%}
+.connect select{width:100%}
+.msg{font-size:.8rem;margin:.3rem 0 .4rem;color:var(--ink-soft);min-height:1rem}
+.msg.err{color:var(--red)}.msg.okm{color:var(--green)}.msg.warnm{color:var(--clay)}
+.spend{font-size:.82rem;color:var(--ink-soft);display:flex;align-items:center;justify-content:space-between;gap:.4rem;flex-wrap:wrap}
+.spend input{width:5.2rem;padding:.25rem .4rem}
+details{margin-top:.5rem}
+summary{cursor:pointer;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
+details .field{margin-top:.45rem}
+details input{width:100%}
+.rail h3{font:700 .8rem var(--f-body);letter-spacing:0;color:var(--ink-soft);margin:1rem 0 .4rem}
+.rail ul{margin:0;padding-left:1.05rem;font-size:.86rem;line-height:1.5}
+.rail li{margin-bottom:.4rem}
+.rail dl{margin:0;font-size:.85rem}
+.rail dt{font-weight:700;margin-top:.45rem}
+.rail dd{margin:0;color:var(--ink-soft)}
+.rail .mod-name{font:600 1rem var(--f-display);letter-spacing:-.02em;margin:.2rem 0 0;color:var(--ink)}
+.all-src ul{max-height:260px;overflow:auto}
+.gate{list-style:none;padding:0;margin:.5rem 0}
+.gate li{margin:.35rem 0}
+.gate button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1.4rem 1fr;gap:.55rem;align-items:start;width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer;font-size:.93rem;line-height:1.45}
+.gate button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gate button[aria-pressed="true"]{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface))}
+.box{width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:4px;display:grid;place-items:center;margin-top:.1rem}
+.gate button[aria-pressed="true"] .box{border-color:var(--green);background:var(--green)}
+.box svg{width:12px;height:12px;opacity:0}
+.gate button[aria-pressed="true"] .box svg{opacity:1}
+.count{font-weight:600;font-size:.9rem}
+.limit{border:1px solid var(--clay);background:color-mix(in srgb,var(--clay) 10%,var(--surface));border-radius:var(--r);padding:.8rem 1rem;margin:1rem 0}
+.limit .ttl{display:block;font-weight:700;font-size:.82rem;margin-bottom:.25rem}
+footer{border-top:1px solid var(--line);padding:1.5rem clamp(1rem,3.5vw,3rem) 2.5rem;font-size:.84rem;color:var(--ink-soft);background:var(--surface)}
+footer p{max-width:900px;margin:0 auto .5rem}
+@media (max-width:560px){
+ .shell{display:block}
+ .nav,.rail{position:static;height:auto;border:0;border-bottom:1px solid var(--line)}
+ .nav-list{display:grid;grid-template-columns:1fr 1fr}
+ main{padding:1.2rem 1rem 3rem}
+ .rowsel{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+ .js .mod,.js .mod.in{transform:none;transition:none}
+}
+</style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics events (Umami, cookie-free). Calls are no-ops if the Umami script is blocked.
+   Properties are fixed slugs and ids only: never typed text, keys, prompts or model output.
+   module {workshop, module}   lab_run {workshop, lab, model?}   connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}              ref_click {workshop, domain} */
+window.wsTrack=(function(){
+  var WS='task-routing-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<nav class="nav" aria-label="Workshop modules">
+  <div class="brand">Task routing<span>Intermediate</span></div>
+  <a class="back" href="https://www.kpphillips.com/ai-workshops/"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M12 7H2.5M6.5 3L2.5 7l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All workshops</a>
+  <div class="tick" aria-hidden="true"></div>
+  <div class="progress">
+    <div class="meter" role="progressbar" aria-label="Sections visited" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
+    <small id="progressLabel">0 of 7 sections visited</small>
+  </div>
+  <ol class="nav-list" id="navList">
+    <li><a href="#m0"><span class="n">1</span>What routing is</a></li>
+    <li><a href="#m1"><span class="n">2</span>Task classification</a></li>
+    <li><a href="#m2"><span class="n">3</span>Cost, latency, quality</a></li>
+    <li><a href="#m3"><span class="n">4</span>Three routers</a></li>
+    <li><a href="#m4"><span class="n">5</span>Fallbacks</a></li>
+    <li><a href="#m5"><span class="n">6</span>A small eval</a></li>
+    <li><a href="#m6"><span class="n">7</span>Ship gate</a></li>
+  </ol>
+  <div class="nav-foot">
+    <span class="lbl" id="palLbl">Palette</span>
+    <div class="swatches" role="group" aria-labelledby="palLbl">
+      <button class="swatch" type="button" data-p="tide" aria-label="Tide palette" aria-pressed="true"></button>
+      <button class="swatch" type="button" data-p="ember" aria-label="Ember palette" aria-pressed="false"></button>
+      <button class="swatch" type="button" data-p="iris" aria-label="Iris palette" aria-pressed="false"></button>
+    </div>
+    <button class="btn ghost sm" id="modeBtn" type="button">Switch to light</button>
+  </div>
+</nav>
+
+<main id="main">
+<div class="content">
+
+<section class="mod" id="m0" data-mod="0">
+  <div class="tick" aria-hidden="true"></div>
+  <h1>Task routing</h1>
+  <p class="lead">A router chooses which model answers a request: RouteLLM trains that choice between a strong model and a weak model on human preference data, and FrugalGPT's cascade calls models in sequence and stops when a score says the generation is reliable enough. Halden Instruments, a fictional internal IT queue, is the running example; its tickets are text, and it is not a product.</p>
+  <div class="legend" aria-label="Evidence labels">
+    <span><span class="tag q">Quoted</span> a figure or requirement from the linked paper or docs</span>
+    <span><span class="tag d">Derived</span> arithmetic from numbers shown on this page</span>
+    <span><span class="tag i">Illustrative</span> a simulation, not a measurement</span>
+    <span><span class="tag t">Your run</span> a live catalog read or a live model request</span>
+    <span><span class="tag c">Convention</span> a label this page assigns for the case</span>
+  </div>
+  <div class="tbl-wrap"><table>
+    <caption class="cap"><span class="tag q">Quoted</span> Four ways a request can meet a model, from the sources named in the last column. Halden is not in those sources.</caption>
+    <thead><tr><th scope="col">Mechanism</th><th scope="col">What the source says happens</th><th scope="col">Source</th></tr></thead>
+    <tbody>
+      <tr><td>One model</td><td>The request goes to a single model. FrugalGPT's Figure 1 calls this the standard usage.</td><td><a href="https://arxiv.org/abs/2305.05176" target="_blank" rel="noopener noreferrer">FrugalGPT</a></td></tr>
+      <tr><td>Predictive router</td><td>A function picks one model before generation. RouteLLM picks a strong or a weak model. RouterBench calls this predictive routing.</td><td><a href="https://arxiv.org/abs/2406.18665" target="_blank" rel="noopener noreferrer">RouteLLM</a>, <a href="https://arxiv.org/abs/2403.12031" target="_blank" rel="noopener noreferrer">RouterBench</a></td></tr>
+      <tr><td>Quality cascade</td><td>Models are queried in order. A generation is returned when its score meets that step's threshold. Otherwise the next model is queried.</td><td><a href="https://arxiv.org/abs/2305.05176" target="_blank" rel="noopener noreferrer">FrugalGPT</a></td></tr>
+      <tr><td>Error fallback</td><td>If the current model returns an error, the next model id in the list is tried. Listed errors include context length, moderation, rate limits, and downtime.</td><td><a href="https://openrouter.ai/docs/guides/routing/model-fallbacks" target="_blank" rel="noopener noreferrer">OpenRouter model fallbacks</a></td></tr>
+    </tbody>
+  </table></div>
+  <p class="cap"><span class="tag d">Derived</span> One request, then a router, then one of three tiers. The three tiers are this page's case, not a split from the papers. Papers cited here often use two models.</p>
+  <canvas class="fig" id="archCanvas" data-h="168" role="img" aria-label="A ticket goes to a router, which selects one of three tiers: small, mid, or strong."></canvas>
+  <div class="lab">
+    <div class="lab-head"><h3>Place each description</h3><span class="lab-kind">Sorter</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Choose a bin, then read the source placement beside yours. Nothing is scored.</p>
+    <div id="whatRows"></div>
+    <div class="row"><button class="btn" id="whatRun" type="button">Show placements</button></div>
+    <div class="out" id="whatOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m1" data-mod="1">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Task classification</h2>
+  <p class="lead">RouteLLM learns which of two models a preference label would pick, and Hybrid LLM trains a BERT-style encoder to score whether the small model's answer will be close enough to the large model's. The four Halden ticket types below carry labels this page assigned for the case; those labels are not a result from either paper.</p>
+  <div class="tbl-wrap"><table>
+    <caption class="cap"><span class="tag c">Convention</span> Page labels for Halden Instruments. Password reset goes to the small tier, hardware requests to the mid tier, and outage reports and security incidents to the strong tier.</caption>
+    <thead><tr><th scope="col">Ticket type</th><th scope="col">Page tier</th><th scope="col">Example text on this page</th></tr></thead>
+    <tbody>
+      <tr><td>Password reset</td><td>Small</td><td>Reset my SSO password. The account is j.okonkwo.</td></tr>
+      <tr><td>Hardware request</td><td>Mid</td><td>Request a replacement laptop. The dock failed.</td></tr>
+      <tr><td>Outage report</td><td>Strong</td><td>VPN is down for the whole finance floor.</td></tr>
+      <tr><td>Security incident</td><td>Strong</td><td>A staff member forwarded a payroll spreadsheet to an external address.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="lab">
+    <div class="lab-head"><h3>Sort tickets onto tiers</h3><span class="lab-kind">Sorter</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Place each ticket, then read this page's tier beside yours.</p>
+    <div id="tierRows"></div>
+    <div class="row"><button class="btn" id="tierRun" type="button">Show placements</button></div>
+    <div class="out" id="tierOut" aria-live="polite"></div>
+  </div>
+  <div class="lab">
+    <div class="lab-head"><h3>Ask one model for a label</h3><span class="lab-kind">Live, optional</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Demo mode sends nothing. Connect sends the selected ticket text, and not this page's tier, to the model in the list.</p>
+    <div class="tbl-wrap"><table>
+      <caption class="cap"><span class="tag q">Quoted</span> Cheapest model under this page's filter on 18 Nov 2026. Filter and prices are restated in the next section. Catalog list price, not a measured bill.</caption>
+      <thead><tr><th scope="col">Slug</th><th scope="col">Input / 1M</th><th scope="col">Output / 1M</th><th scope="col">Context</th></tr></thead>
+      <tbody><tr><td><code>inclusionai/ling-3.0-tiny</code></td><td class="num">$0.015</td><td class="num">$0.045</td><td class="num">262144</td></tr></tbody>
+    </table></div>
+    <div class="row">
+      <label class="field grow"><span>Ticket</span>
+        <select id="liveTicket" aria-label="Ticket to label"></select>
+      </label>
+      <label class="field grow"><span>Live model</span>
+        <select id="liveModel" aria-label="Live model">
+          <option value="inclusionai/ling-3.0-tiny">inclusionai/ling-3.0-tiny</option>
+        </select>
+      </label>
+    </div>
+    <div class="row"><button class="btn" id="tierLive" type="button">Label this ticket</button></div>
+    <div class="out" id="liveOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m2" data-mod="2">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Cost, latency, quality</h2>
+  <p class="lead">Published routers report a cost and a quality pair on their own benchmarks, and those pairs are not interchangeable. The calculator multiplies the shares, token counts, and prices in its controls; it does not replay any paper.</p>
+  <div class="tbl-wrap"><table>
+    <caption class="cap"><span class="tag q">Quoted</span> Reported pairs from the linked papers. Each row is that paper's result on its data, not a result for Halden.</caption>
+    <thead><tr><th scope="col">Source</th><th scope="col">What that source reports</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://arxiv.org/abs/2406.18665" target="_blank" rel="noopener noreferrer">RouteLLM</a> abstract</td><td>On public benchmarks, the approach can reduce costs by over 2 times without sacrificing response quality.</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2404.14618" target="_blank" rel="noopener noreferrer">Hybrid LLM</a> abstract</td><td>Up to 40% fewer calls to the large model, with no drop in response quality, in their experiments.</td></tr>
+      <tr><td>Hybrid LLM, Figure 1(c)</td><td>For Llama-2 13B against GPT-3.5-turbo, 22% fewer calls to GPT-3.5-turbo with under a 1% drop in BART score.</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2305.05176" target="_blank" rel="noopener noreferrer">FrugalGPT</a> abstract</td><td>Match the best individual LLM in their experiments (they name GPT-4) with up to 98% cost reduction, or improve accuracy over GPT-4 by 4% at the same cost.</td></tr>
+      <tr><td><a href="https://arxiv.org/abs/2403.12031" target="_blank" rel="noopener noreferrer">RouterBench</a></td><td>In their evaluation, monetary costs of LLM services can routinely vary by factors of 2 to 5 for comparable levels of performance.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tbl-wrap"><table>
+    <caption class="cap"><span class="tag q">Quoted</span> <code>pricing.prompt</code>, <code>pricing.completion</code>, and <code>context_length</code> from the <a href="https://openrouter.ai/api/v1/models" target="_blank" rel="noopener noreferrer">OpenRouter catalog API</a> on 18 Nov 2026, prompt and completion converted to dollars per million tokens. The first row matches the <a href="https://openrouter.ai/inclusionai/ling-3.0-tiny" target="_blank" rel="noopener noreferrer">model page</a> list price the same day ($0.015 / $0.045 per 1M; cache reads listed at $0.003 per 1M; P50 latency 0.36 s on Ant Digital). These ids are price examples. They are not Halden's models. Cache reads and long-context overrides are outside this table.</caption>
+    <thead><tr><th scope="col">Tier on this page</th><th scope="col">Catalog id used as the starting price</th><th scope="col">Input / 1M</th><th scope="col">Output / 1M</th><th scope="col">Context</th></tr></thead>
+    <tbody>
+      <tr><td>Small</td><td><code>inclusionai/ling-3.0-tiny</code></td><td class="num">$0.015</td><td class="num">$0.045</td><td class="num">262144</td></tr>
+      <tr><td>Mid</td><td><code>openai/gpt-4.1-mini</code></td><td class="num">$0.400</td><td class="num">$1.600</td><td class="num">1047576</td></tr>
+      <tr><td>Strong</td><td><code>anthropic/claude-sonnet-4.5</code></td><td class="num">$3.000</td><td class="num">$15.000</td><td class="num">1000000</td></tr>
+    </tbody>
+  </table></div>
+  <div class="row"><button class="btn ghost" id="priceCheck" type="button">Check the catalog price</button></div>
+  <div class="out" id="priceOut" aria-live="polite"></div>
+  <div class="lab">
+    <div class="lab-head"><h3>Cost and latency from the sliders</h3><span class="lab-kind">Calculator</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Shares and token counts start as assumptions, and every latency slider starts at 360 ms, which is the quoted 0.36 s P50 copied into all three.</p>
+    <div class="row">
+      <label class="field grow"><span>Small share <b class="num" id="shSmallVal">50%</b></span>
+        <input type="range" id="shSmall" min="0" max="100" step="1" value="50" aria-valuemin="0" aria-valuemax="100">
+      </label>
+      <label class="field grow"><span>Mid share <b class="num" id="shMidVal">30%</b></span>
+        <input type="range" id="shMid" min="0" max="100" step="1" value="30">
+      </label>
+    </div>
+    <p class="muted" style="font-size:.9rem">Strong share <b class="num" id="shStrongVal">20%</b> is the remainder, and moving one slider reduces the other when the pair would pass 100.</p>
+    <div class="row">
+      <label class="field grow"><span>Input tokens <b class="num" id="tokInVal">800</b></span>
+        <input type="range" id="tokIn" min="50" max="4000" step="50" value="800">
+      </label>
+      <label class="field grow"><span>Output tokens <b class="num" id="tokOutVal">200</b></span>
+        <input type="range" id="tokOut" min="20" max="2000" step="20" value="200">
+      </label>
+    </div>
+    <div class="row">
+      <label class="field grow"><span>Small latency, ms <b class="num" id="latSmallVal">360</b></span>
+        <input type="range" id="latSmall" min="50" max="8000" step="10" value="360">
+      </label>
+      <label class="field grow"><span>Mid latency, ms <b class="num" id="latMidVal">360</b></span>
+        <input type="range" id="latMid" min="50" max="8000" step="10" value="360">
+      </label>
+      <label class="field grow"><span>Strong latency, ms <b class="num" id="latStrongVal">360</b></span>
+        <input type="range" id="latStrong" min="50" max="8000" step="10" value="360">
+      </label>
+    </div>
+    <div class="row">
+      <label class="field"><span>Small input / 1M</span><input type="number" id="pSmallIn" min="0" step="0.001" value="0.015" aria-label="Small tier input dollars per million tokens"></label>
+      <label class="field"><span>Small output / 1M</span><input type="number" id="pSmallOut" min="0" step="0.001" value="0.045" aria-label="Small tier output dollars per million tokens"></label>
+      <label class="field"><span>Mid input / 1M</span><input type="number" id="pMidIn" min="0" step="0.001" value="0.4" aria-label="Mid tier input dollars per million tokens"></label>
+      <label class="field"><span>Mid output / 1M</span><input type="number" id="pMidOut" min="0" step="0.001" value="1.6" aria-label="Mid tier output dollars per million tokens"></label>
+      <label class="field"><span>Strong input / 1M</span><input type="number" id="pStrongIn" min="0" step="0.001" value="3" aria-label="Strong tier input dollars per million tokens"></label>
+      <label class="field"><span>Strong output / 1M</span><input type="number" id="pStrongOut" min="0" step="0.001" value="15" aria-label="Strong tier output dollars per million tokens"></label>
+    </div>
+    <div class="row"><button class="btn" id="calcRun" type="button">Compute the mix</button></div>
+    <div class="out" id="calcOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m3" data-mod="3">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Rule, classifier, and LLM routers</h2>
+  <p class="lead">RouteLLM's BERT router and its causal-LLM router both turn a query into a win probability, and a threshold turns that probability into a strong or weak choice. The keyword router in the lab is a rule this page applies to the fictional tickets; that paper does not train this rule.</p>
+  <div class="tbl-wrap"><table>
+    <caption class="cap"><span class="tag q">Quoted</span> Router architectures in RouteLLM, section 4. The win probability is for the strong model against the weak model.</caption>
+    <thead><tr><th scope="col">Router</th><th scope="col">What the paper specifies</th></tr></thead>
+    <tbody>
+      <tr><td>Similarity-weighted ranking</td><td>Bradley-Terry coefficients solved at inference time. Each training query is weighted by embedding similarity to the new query.</td></tr>
+      <tr><td>Matrix factorization</td><td>A bilinear score from model and query embeddings, trained on the preference data.</td></tr>
+      <tr><td>BERT classifier</td><td>BERT base embeds the query. A logistic regression head on the CLS token outputs the win probability. Full-parameter fine-tune.</td></tr>
+      <tr><td>Causal LLM classifier</td><td>Llama 3 8B. An instruction prompt contains the query, and the win probability is a softmax over label tokens added to the vocabulary. No separate classification head.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="lab">
+    <div class="lab-head"><h3>Build a rule router</h3><span class="lab-kind">Rules</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">A keyword matches when the lowercased ticket contains it. Tiers are checked in the order you set, and no match uses the strong tier.</p>
+    <div class="row">
+      <label class="field grow"><span>Check first</span>
+        <select class="ord" id="ord0" aria-label="First tier to check"></select>
+      </label>
+      <label class="field grow"><span>Check second</span>
+        <select class="ord" id="ord1" aria-label="Second tier to check"></select>
+      </label>
+      <label class="field grow"><span>Check third</span>
+        <select class="ord" id="ord2" aria-label="Third tier to check"></select>
+      </label>
+    </div>
+    <label class="field"><span>Small keywords, comma separated</span>
+      <input type="text" id="keySmall" maxlength="240" spellcheck="false" value="password, sign in, sign-in, locked, sso, reset" aria-label="Small tier keywords">
+    </label>
+    <label class="field"><span>Mid keywords</span>
+      <input type="text" id="keyMid" maxlength="240" spellcheck="false" value="laptop, monitor, keyboard, dock, printer, badge, hardware" aria-label="Mid tier keywords">
+    </label>
+    <label class="field"><span>Strong keywords</span>
+      <input type="text" id="keyStrong" maxlength="240" spellcheck="false" value="outage, offline, down, security, phish, malware, breach, forwarded" aria-label="Strong tier keywords">
+    </label>
+    <label class="field" style="margin-top:.6rem"><span>Classifier threshold <b class="num" id="clfThrVal">0.55</b></span>
+      <input type="range" id="clfThr" min="0" max="1" step="0.05" value="0.55" aria-label="Classifier score threshold">
+    </label>
+    <p class="muted" style="font-size:.9rem">Below the threshold the classifier column uses the strong tier, and at or above it the column uses the stored tier, which is a constant on this page.</p>
+    <div class="row"><button class="btn" id="ruleRun" type="button">Run the three routers</button></div>
+    <div class="out" id="ruleOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m4" data-mod="4">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Fallbacks and escalation</h2>
+  <p class="lead">OpenRouter's <code>models</code> list tries the next model when the current one returns an error, including downtime, rate limits, context-length errors, and moderation flags. FrugalGPT's cascade is a separate step: it can move on after a successful generation when a score says that generation is not reliable enough.</p>
+  <div class="tbl-wrap"><table>
+    <caption class="cap"><span class="tag q">Quoted</span> What moves a request along, and what the source says about price. The Halden chain in the lab is not one of these products.</caption>
+    <thead><tr><th scope="col">Mechanism</th><th scope="col">Move to the next model when</th><th scope="col">Price note in the source</th></tr></thead>
+    <tbody>
+      <tr><td>OpenRouter <code>models</code></td><td>The current model returns an error. The docs list context length, moderation flags, rate limits, and downtime. Any error can trigger a fallback by default.</td><td>The request is priced using the model that was ultimately used, returned in the response <code>model</code> field.</td></tr>
+      <tr><td>OpenRouter provider routing</td><td>Another provider of the same model. <code>allow_fallbacks</code> defaults to true.</td><td>This stays on one model id. It is not the <code>models</code> list.</td></tr>
+      <tr><td>FrugalGPT cascade</td><td>The generation score is below that step's threshold. The paper's reported study uses a cascade length of 3.</td><td>Cost in their formulation adds the prompt, generation, and any per-request fee of each API that was queried.</td></tr>
+      <tr><td>Bedrock prompt router</td><td>The guide's fallback model is an anchor. The router leaves it when the response-quality difference says another model in the family is far enough ahead. The <a href="https://docs.aws.amazon.com/bedrock/latest/APIReference/API_RoutingCriteria.html" target="_blank" rel="noopener noreferrer">API reference</a> types <code>responseQualityDifference</code> as a double from 0 to 100.</td><td>The user guide's example: a difference of 10% with Nova Lite as the fallback switches to Nova Pro only when Nova Pro's predicted quality is more than 10% higher.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="lab">
+    <div class="lab-head"><h3>Step a chain of three</h3><span class="lab-kind">Chain</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">The chain is small, then mid, then strong, then a person if nothing is accepted. An error is applied before a quality gate on the same tier.</p>
+    <label class="field"><span>Ticket</span><select id="fallTicket" aria-label="Ticket for the chain"></select></label>
+    <div class="toggles">
+      <label><input type="checkbox" id="smallErr"> <span>Small tier returns an error</span></label>
+      <label><input type="checkbox" id="smallQual"> <span>Small tier fails the quality gate</span></label>
+      <label><input type="checkbox" id="midErr"> <span>Mid tier returns an error</span></label>
+      <label><input type="checkbox" id="midQual"> <span>Mid tier fails the quality gate</span></label>
+      <label><input type="checkbox" id="strongErr"> <span>Strong tier returns an error</span></label>
+      <label><input type="checkbox" id="strongQual"> <span>Strong tier fails the quality gate</span></label>
+    </div>
+    <div class="row"><button class="btn" id="fallRun" type="button">Run the chain</button></div>
+    <div class="out" id="fallOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m5" data-mod="5">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Measure a router</h2>
+  <p class="lead">RouterBench defines a router as a function from a prompt to one model and scores that function on cost and quality over a fixed set of precomputed outputs. The table below scores routers on twelve fictional tickets with labels this page assigned, and that score is not a RouterBench result.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Twelve tickets, four routers</h3><span class="lab-kind">Eval</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Keyword lists and check order come from the router lab. This threshold is separate. Cost uses 800 input tokens and 200 output tokens at the catalog list prices, with no cache.</p>
+    <label class="field"><span>Classifier threshold for this eval <b class="num" id="evalThrVal">0.55</b></span>
+      <input type="range" id="evalThr" min="0" max="1" step="0.05" value="0.55" aria-label="Eval classifier threshold">
+    </label>
+    <div class="row"><button class="btn" id="evalRun" type="button">Score the routers</button></div>
+    <div class="out" id="evalOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m6" data-mod="6">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Ship gate</h2>
+  <p class="lead">Tick a line when you can point to the source for it. There is no score.</p>
+  <ul class="gate" id="gate"></ul>
+  <p class="count" id="gateCount" role="status">0 ticked.</p>
+  <div class="limit"><span class="ttl">One honest limitation</span>Amazon Bedrock's user guide says intelligent prompt routing cannot adjust routing decisions or responses from application-specific performance data, and that effectiveness depends on the initial training data. RouterBench and the twelve tickets on this page each score a router on one fixed set, and neither score is the error rate on tickets those sets do not contain.</div>
+</section>
+
+</div>
+</main>
+
+<aside class="rail" aria-label="Live labs and module notes">
+  <section class="connect" id="connect" aria-labelledby="connectTitle">
+    <div class="lamp-row"><h2 id="connectTitle">Live labs</h2><span class="lamp" id="lamp"><i aria-hidden="true"></i><span id="lampText">Demo</span></span></div>
+    <p class="msg" id="connectMsg" role="status">Demo mode: labs run with no key. Simulated rows are marked illustrative, not measurements.</p>
+    <div class="row">
+      <input type="password" id="keyIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="OpenRouter key (sk-or-...)" aria-label="OpenRouter API key">
+      <button class="btn sm" id="connectBtn" type="button">Connect</button>
+      <button class="btn ghost sm" id="disconnectBtn" type="button" hidden>Disconnect</button>
+    </div>
+    <div class="spend"><span>Session spend <b class="num" id="spendVal">$0.00000000</b> <span class="tag d">Derived</span></span><label>Budget $<input type="number" id="budgetIn" min="0.1" step="0.5" value="1" aria-label="Session budget in dollars"></label></div>
+    <details><summary>Advanced</summary>
+      <label class="field"><span>max_tokens per reply</span><input type="number" id="maxTokIn" min="16" max="400" step="8" value="80"></label>
+      <p class="msg">The key stays in page memory only and is cleared on Disconnect or reload. Live requests go to openrouter.ai and nowhere else. Set a credit limit on the key before you connect.</p>
+    </details>
+  </section>
+  <div class="tick" aria-hidden="true" style="margin-top:1rem"></div>
+  <div class="rail-body" id="railBody" aria-live="polite"></div>
+  <details class="all-src"><summary>All sources</summary><ul id="allSources"></ul></details>
+</aside>
+</div>
+
+<footer>
+  <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by OpenRouter, Ant Digital, Amazon, Anthropic, OpenAI, or the authors of the papers cited here. Product and model names belong to their owners. Halden Instruments and its tickets are fictional.</p>
+  <p>Live requests use your own OpenRouter key to send one ticket to <code>inclusionai/ling-3.0-tiny</code> and cost real money. On 18 Nov 2026 the model page and the catalog API both listed <span class="num">$0.015</span> per million input tokens and <span class="num">$0.045</span> per million output tokens. Ant Digital is the provider named on that page. Set a credit limit on the key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">openrouter.ai/keys</a> before connecting, and set the session budget in the Live labs panel.</p>
+  <p>Usage policies and terms: <a href="https://openrouter.ai/terms" target="_blank" rel="noopener noreferrer">OpenRouter Terms</a>, <a href="https://maas-global.oss-ap-southeast-1.aliyuncs.com/Terms%20of%20Service.pdf" target="_blank" rel="noopener noreferrer">Ant Digital Terms of Service</a> (the URL OpenRouter lists for this provider), <a href="https://aws.amazon.com/aup/" target="_blank" rel="noopener noreferrer">AWS Acceptable Use Policy</a>, <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener noreferrer">Anthropic Usage Policy</a>, and <a href="https://openai.com/policies/usage-policies/" target="_blank" rel="noopener noreferrer">OpenAI Usage Policies</a>.</p>
+  <p>Papers and prices were checked on 18 Nov 2026. Spec text, model slugs, and prices change; re-check them before you rely on a number. Simulated rows say "illustrative, not measurements".</p>
+  <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data. The API key and anything you type stay in this tab.</p>
+</footer>
+<script>
+(function () {
+  'use strict';
+  document.documentElement.classList.add('js');
+
+  var MODEL = { id: 'inclusionai/ling-3.0-tiny', inM: 0.015, outM: 0.045, ctx: 262144, date: '2026-11-18' };
+  var PRICE = {
+    small: { inM: 0.015, outM: 0.045 },
+    mid: { inM: 0.4, outM: 1.6 },
+    strong: { inM: 3, outM: 15 }
+  };
+  var ASSUME = { tin: 800, tout: 200 };
+  var TICKETS = [
+    { id: 'pwd-1', type: 'password reset', text: 'Reset my SSO password. The account is j.okonkwo.', gold: 'small', clf: 'small', score: 0.91, llm: 'small' },
+    { id: 'pwd-2', type: 'password reset', text: 'Account locked after three wrong passwords. No one else is affected.', gold: 'small', clf: 'small', score: 0.84, llm: 'small' },
+    { id: 'hw-1', type: 'hardware request', text: 'Request a replacement laptop. The dock failed.', gold: 'mid', clf: 'mid', score: 0.77, llm: 'mid' },
+    { id: 'hw-2', type: 'hardware request', text: 'Need a second monitor for the design desk.', gold: 'mid', clf: 'mid', score: 0.73, llm: 'mid' },
+    { id: 'out-1', type: 'outage report', text: 'VPN is down for the whole finance floor.', gold: 'strong', clf: 'strong', score: 0.88, llm: 'strong' },
+    { id: 'out-2', type: 'outage report', text: 'The build server is offline after the nightly deploy.', gold: 'strong', clf: 'strong', score: 0.80, llm: 'strong' },
+    { id: 'sec-1', type: 'security incident', text: 'A staff member forwarded a payroll spreadsheet to an external address.', gold: 'strong', clf: 'strong', score: 0.70, llm: 'strong' },
+    { id: 'sec-2', type: 'security incident', text: 'Malware alert on the finance file server. Isolate the host.', gold: 'strong', clf: 'strong', score: 0.93, llm: 'strong' },
+    { id: 'mix-1', type: 'outage report', text: 'I cannot sign in. The intranet page says there is an outage.', gold: 'strong', clf: 'small', score: 0.62, llm: 'strong' },
+    { id: 'mix-2', type: 'hardware request', text: 'Please reset the badge printer. It jams every morning.', gold: 'mid', clf: 'small', score: 0.58, llm: 'mid' },
+    { id: 'mix-3', type: 'security incident', text: 'Email looked like our password portal. I entered my password and then reported it.', gold: 'strong', clf: 'small', score: 0.81, llm: 'small' },
+    { id: 'mix-4', type: 'hardware request', text: 'The badge printer is down.', gold: 'mid', clf: 'strong', score: 0.66, llm: 'mid' }
+  ];
+  var TIERS = ['small', 'mid', 'strong'];
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } return null; }
+  function money(n) {
+    if (!isFinite(n)) return '$0';
+    var a = Math.abs(n);
+    if (a >= 1) return '$' + n.toFixed(2);
+    return '$' + n.toFixed(8);
+  }
+  function pretty(o) { return JSON.stringify(o, null, 2); }
+  function cssVar(name, fb) { var v = getComputedStyle(document.documentElement).getPropertyValue(name); v = v ? v.trim() : ''; return v || fb; }
+  function num(el, d, lo, hi) { var v = parseFloat(el && el.value); if (!isFinite(v)) v = d; return Math.max(lo, Math.min(hi, v)); }
+  function ticketById(id) { for (var i = 0; i < TICKETS.length; i++) if (TICKETS[i].id === id) return TICKETS[i]; return TICKETS[0]; }
+  function tierName(t) { return t === 'small' ? 'Small' : t === 'mid' ? 'Mid' : 'Strong'; }
+  function listCost(tier, tin, tout) { var p = PRICE[tier]; return (tin * p.inM + tout * p.outM) / 1e6; }
+  var TG = {
+    q: '<span class="tag q">Quoted</span>',
+    d: '<span class="tag d">Derived</span>',
+    i: '<span class="tag i">Illustrative</span>',
+    t: '<span class="tag t">Your run</span>',
+    c: '<span class="tag c">Convention</span>'
+  };
+  var SIM = '<p class="illus">This output is illustrative, not measurements.</p>';
+
+  // ---------------- theme (palette and per-palette theme, stored apart) ----------------
+  var root = document.documentElement;
+  function themeKey(p) { return 'task-routing-theme-' + p; }
+  function applyTheme(p, t) {
+    root.setAttribute('data-palette', p);
+    root.setAttribute('data-theme', t);
+    $$('.swatch').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-p') === p)); });
+    var modeBtn = $('#modeBtn');
+    if (modeBtn) modeBtn.textContent = t === 'light' ? 'Switch to dark' : 'Switch to light';
+    paintAll();
+  }
+  var prefersLight = false;
+  try { prefersLight = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); } catch (e) { prefersLight = false; }
+  function themeFor(p) {
+    var saved = store(themeKey(p));
+    if (saved === 'light' || saved === 'dark') return saved;
+    var fallback = prefersLight ? 'light' : 'dark';
+    store(themeKey(p), fallback);
+    return fallback;
+  }
+  var pal = store('task-routing-palette') || 'tide';
+  if (['tide', 'ember', 'iris'].indexOf(pal) < 0) pal = 'tide';
+  var mode = themeFor(pal);
+  applyTheme(pal, mode);
+  $$('.swatch').forEach(function (b) {
+    b.addEventListener('click', function () {
+      pal = b.getAttribute('data-p');
+      store('task-routing-palette', pal);
+      mode = themeFor(pal);
+      applyTheme(pal, mode);
+    });
+  });
+  $('#modeBtn').addEventListener('click', function () {
+    mode = mode === 'light' ? 'dark' : 'light';
+    store(themeKey(pal), mode);
+    applyTheme(pal, mode);
+  });
+
+  // ---------------- canvas ----------------
+  function ctxOf(canvas) {
+    if (!canvas || typeof canvas.getContext !== 'function') return null;
+    if (typeof CanvasRenderingContext2D === 'undefined') return null;
+    var g;
+    try { g = canvas.getContext('2d'); } catch (e) { return null; }
+    if (!g || typeof g.fillRect !== 'function') return null;
+    var cssW = canvas.clientWidth || 640;
+    var cssH = canvas.clientHeight || (+canvas.getAttribute('data-h') || 168);
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.round(cssW * dpr));
+    canvas.height = Math.max(1, Math.round(cssH * dpr));
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, cssW, cssH);
+    return { g: g, w: cssW, h: cssH };
+  }
+  function colors() {
+    return {
+      bg: cssVar('--bg', '#0b1620'),
+      s2: cssVar('--surface-2', '#162a3b'),
+      ink: cssVar('--ink', '#e6eef5'),
+      soft: cssVar('--ink-soft', '#b5c5d3'),
+      line: cssVar('--line-strong', '#4d6e8d'),
+      accent: cssVar('--accent', '#5cc8e6')
+    };
+  }
+  function box(g, x, y, w, h, fill, stroke) {
+    g.fillStyle = fill; g.strokeStyle = stroke; g.lineWidth = 1.5;
+    g.fillRect(x, y, w, h); g.strokeRect(x, y, w, h);
+  }
+  function label(g, text, x, y, font, fill, align) {
+    g.font = font; g.fillStyle = fill; g.textAlign = align || 'left'; g.textBaseline = 'middle';
+    g.fillText(text, x, y);
+  }
+  function paintArch() {
+    var canvas = $('#archCanvas'); if (!canvas) return;
+    var c = ctxOf(canvas); if (!c) return;
+    var col = colors(), g = c.g, w = c.w, h = c.h;
+    var gap = Math.max(28, w * 0.06);
+    var bw = Math.max(72, (w - gap * 2 - 24) / 3);
+    var x0 = 12, y = 28, bh = h - 44;
+    box(g, x0, y, bw, bh, col.s2, col.line);
+    label(g, 'Ticket', x0 + bw / 2, y + bh / 2, "600 14px 'Public Sans', sans-serif", col.ink, 'center');
+    box(g, x0 + bw + gap, y, bw, bh, col.s2, col.accent);
+    label(g, 'Router', x0 + bw + gap + bw / 2, y + bh / 2, "600 14px 'Public Sans', sans-serif", col.ink, 'center');
+    var x2 = x0 + (bw + gap) * 2;
+    var rowH = (bh - 16) / 3;
+    ['Small', 'Mid', 'Strong'].forEach(function (name, i) {
+      var yy = y + 6 + i * (rowH + 2);
+      box(g, x2, yy, bw, rowH - 2, col.bg, col.line);
+      label(g, name, x2 + bw / 2, yy + (rowH - 2) / 2, "600 13px 'Public Sans', sans-serif", col.ink, 'center');
+    });
+    g.strokeStyle = col.accent; g.lineWidth = 1.5;
+    g.beginPath();
+    g.moveTo(x0 + bw, y + bh / 2);
+    g.lineTo(x0 + bw + gap, y + bh / 2);
+    g.moveTo(x0 + bw * 2 + gap, y + bh / 2);
+    g.lineTo(x2, y + bh / 2);
+    g.stroke();
+    label(g, 'one tier', x0 + bw + gap + bw / 2, 14, "400 11px 'Public Sans', sans-serif", col.soft, 'center');
+  }
+  function paintAll() { paintArch(); }
+  window.addEventListener('resize', paintAll);
+
+  // ---------------- sources and rail ----------------
+  var S = {
+    route: ['Ong et al., RouteLLM (arXiv:2406.18665)', 'https://arxiv.org/abs/2406.18665'],
+    hybrid: ['Ding et al., Hybrid LLM (arXiv:2404.14618)', 'https://arxiv.org/abs/2404.14618'],
+    frugal: ['Chen, Zaharia, and Zou, FrugalGPT (arXiv:2305.05176)', 'https://arxiv.org/abs/2305.05176'],
+    bench: ['Hu et al., RouterBench (arXiv:2403.12031)', 'https://arxiv.org/abs/2403.12031'],
+    orFall: ['OpenRouter: model fallbacks', 'https://openrouter.ai/docs/guides/routing/model-fallbacks'],
+    orProv: ['OpenRouter: provider routing', 'https://openrouter.ai/docs/guides/routing/provider-selection'],
+    orModel: ['OpenRouter: Ling 3.0 Tiny', 'https://openrouter.ai/inclusionai/ling-3.0-tiny'],
+    orCat: ['OpenRouter model catalog', 'https://openrouter.ai/api/v1/models'],
+    orKeys: ['OpenRouter keys and credit limits', 'https://openrouter.ai/keys'],
+    orTerms: ['OpenRouter Terms', 'https://openrouter.ai/terms'],
+    aws: ['Amazon Bedrock: intelligent prompt routing', 'https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-routing.html'],
+    awsApi: ['Amazon Bedrock API: RoutingCriteria', 'https://docs.aws.amazon.com/bedrock/latest/APIReference/API_RoutingCriteria.html'],
+    awsAup: ['AWS Acceptable Use Policy', 'https://aws.amazon.com/aup/'],
+    ant: ['Ant Digital Terms of Service', 'https://maas-global.oss-ap-southeast-1.aliyuncs.com/Terms%20of%20Service.pdf'],
+    aup: ['Anthropic Usage Policy', 'https://www.anthropic.com/legal/aup'],
+    oai: ['OpenAI Usage Policies', 'https://openai.com/policies/usage-policies/']
+  };
+  function refLi(k) { var s = S[k]; return s ? '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(s[0]) + '</a></li>' : ''; }
+  var RAIL = [
+    { name: 'What routing is',
+      tips: ['RouteLLM routes between two classes: a strong model and a weak model.', 'FrugalGPT names three cost strategies: prompt adaptation, LLM approximation, and LLM cascade. This page follows the cascade.', 'RouterBench separates predictive routing, which picks a model before generation, from non-predictive routing, which generates and then judges.', 'Halden Instruments and its tickets are fictional.'],
+      refs: ['route', 'frugal', 'bench'],
+      gloss: [['Predictive router', 'Picks a model before any generation.'], ['Cascade', 'Queries models in order and may stop on a score.'], ['Error fallback', 'Tries the next model after an error.']] },
+    { name: 'Task classification',
+      tips: ['Hybrid LLM trains a BERT-style encoder, and names DeBERTa as an example, to score a query.', 'RouteLLM preference labels come from Chatbot Arena battles: a person votes for one of two anonymous replies, or a tie.', 'The four type-to-tier labels on this page are a convention for the case.', 'The live request sends a fixed instruction plus the selected ticket text. This page tier is not in that request.'],
+      refs: ['hybrid', 'route', 'orModel'],
+      gloss: [['Strong model', 'RouteLLM: higher quality, higher cost. Their example pair is GPT-4.'], ['Weak model', 'RouteLLM: lower cost. Their example pair uses Mixtral-8x7B.'], ['Quality gap', 'Hybrid LLM: small-model score minus large-model score.']] },
+    { name: 'Cost, latency, quality',
+      tips: ['RouteLLM abstract: cost reductions of over 2 times on its public benchmarks, without sacrificing response quality.', 'Hybrid LLM abstract: up to 40% fewer calls to the large model with no drop in response quality. Figure 1(c) is one pair: 22% fewer calls to GPT-3.5-turbo and under 1% BART-score drop with Llama-2 13B.', 'FrugalGPT abstract: up to 98% cost reduction while matching the best individual LLM in their experiments, or 4% higher accuracy at the same cost.', 'A P50 latency on a model page is that page\'s measurement for one provider on the day it was read. It is not a latency for this queue.', 'The calculator uses the numbers in its controls. Cache reads are not applied.'],
+      refs: ['route', 'hybrid', 'frugal', 'bench', 'orCat', 'orModel'],
+      gloss: [['List price', 'Catalog pricing.prompt and pricing.completion, dollars per token in the API.'], ['P50', 'The latency the model page lists as the 50th percentile for the named provider.']] },
+    { name: 'Three routers',
+      tips: ['RouteLLM trains similarity-weighted ranking, matrix factorization, a BERT classifier, and a causal LLM (Llama 3 8B) that emits a win probability.', 'In that paper, a higher cost threshold alpha sends more queries to the weak model.', 'On this page a keyword matches when the lowercased ticket contains the lowercased keyword.', 'No keyword match sends the ticket to the strong tier. That is a convention of the lab.', 'Classifier scores and the causal-LLM column are constants written in the page. They are not model outputs.'],
+      refs: ['route', 'hybrid'],
+      gloss: [['Win probability', 'RouteLLM: estimated chance the strong model beats the weak model on that query.'], ['Threshold', 'The cutoff that turns a score into a model choice.']] },
+    { name: 'Fallbacks',
+      tips: ['OpenRouter prices an error fallback at the model that answered. The response model field names it.', 'Provider routing stays on one model and moves between providers. allow_fallbacks defaults to true.', 'FrugalGPT returns a generation when its score meets the step threshold, and otherwise queries the next API.', 'Their reported cascade study uses a cascade length of 3.', 'Bedrock\'s fallback model is the anchor. The API types responseQualityDifference from 0 to 100.', 'The same Bedrock guide says the router is only optimized for English prompts.', 'If a tier is marked as returning an error, this lab does not also apply the quality gate to it.'],
+      refs: ['orFall', 'orProv', 'frugal', 'aws', 'awsApi'],
+      gloss: [['models array', 'OpenRouter: model ids tried in order after an error.'], ['Quality gate', 'A score checked after a generation exists. FrugalGPT uses one per cascade step.']] },
+    { name: 'A small eval',
+      tips: ['RouterBench reports a dataset of over 405k inference outcomes. This page uses 12 tickets.', 'Agreement counts tickets whose router tier equals this page\'s label.', 'Cost uses 800 input tokens and 200 output tokens times the catalog list price for that tier.', 'Keyword lists are read from the router lab when you press the button.', 'The scripted LLM column ignores the threshold. It is a fixed tier per ticket.'],
+      refs: ['bench', 'route', 'orCat'],
+      gloss: [['Agreement', 'Count of tickets where the router tier equals the page label.'], ['Always strong', 'The baseline that sends every ticket to the strong tier.']] },
+    { name: 'Ship gate',
+      tips: ['Bedrock\'s guide says the router cannot adjust decisions from application-specific performance data.', 'The same guide says effectiveness depends on the initial training data.', 'Re-check the catalog price with the button in the cost section before quoting it.', 'This page is not linked from the workshop index.'],
+      refs: ['aws', 'bench', 'orModel'],
+      gloss: [['Ship gate', 'A list to tick when you can point at the source.']] }
+  ];
+  function renderRail(i) {
+    var r = RAIL[i]; if (!r) return;
+    var body = $('#railBody');
+    if (body.getAttribute('data-i') === String(i)) return;
+    body.setAttribute('data-i', String(i));
+    body.innerHTML = '<h3 class="mod-name">' + esc(r.name) + '</h3>' +
+      '<h3>Notes</h3><ul>' + r.tips.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
+      '<h3>References</h3><ul>' + r.refs.map(refLi).join('') + '</ul>' +
+      '<h3>Glossary</h3><dl>' + r.gloss.map(function (g) { return '<dt>' + esc(g[0]) + '</dt><dd>' + esc(g[1]) + '</dd>'; }).join('') + '</dl>';
+  }
+  $('#allSources').innerHTML = Object.keys(S).map(refLi).join('');
+
+  // ---------------- routing functions ----------------
+  function keyEl(tier) { return tier === 'small' ? $('#keySmall') : tier === 'mid' ? $('#keyMid') : $('#keyStrong'); }
+  function keywordList(tier) {
+    var el = keyEl(tier);
+    var raw = el ? el.value : '';
+    return raw.split(',').map(function (s) { return s.trim().toLowerCase(); }).filter(Boolean).slice(0, 40);
+  }
+  function readOrder() {
+    var arr = [0, 1, 2].map(function (i) { return $('#ord' + i).value; });
+    var seen = {};
+    for (var i = 0; i < arr.length; i++) {
+      if (TIERS.indexOf(arr[i]) < 0 || seen[arr[i]]) return null;
+      seen[arr[i]] = 1;
+    }
+    return arr;
+  }
+  function ruleOf(text, order) {
+    var low = String(text).toLowerCase();
+    for (var i = 0; i < order.length; i++) {
+      var tier = order[i];
+      var keys = keywordList(tier);
+      for (var k = 0; k < keys.length; k++) {
+        if (keys[k] && low.indexOf(keys[k]) !== -1) return { tier: tier, keyword: keys[k], matched: true };
+      }
+    }
+    return { tier: 'strong', keyword: '', matched: false };
+  }
+  function clfOf(t, thr) {
+    if (t.score < thr) return { tier: 'strong', escalated: true };
+    return { tier: t.clf, escalated: false };
+  }
+  function fillOrderSelects() {
+    var opts = TIERS.map(function (t) { return '<option value="' + t + '">' + tierName(t) + '</option>'; }).join('');
+    ['strong', 'small', 'mid'].forEach(function (v, i) {
+      var el = $('#ord' + i);
+      el.innerHTML = opts;
+      el.value = v;
+    });
+  }
+  function fillTicketSelect(el) {
+    el.innerHTML = TICKETS.map(function (t) {
+      return '<option value="' + esc(t.id) + '">' + esc(t.id) + ', ' + esc(t.type) + '</option>';
+    }).join('');
+  }
+  fillOrderSelects();
+  fillTicketSelect($('#liveTicket'));
+  fillTicketSelect($('#fallTicket'));
+  $$('.ord').forEach(function (sel) {
+    sel.addEventListener('focus', function () { sel.dataset.prev = sel.value; });
+    sel.addEventListener('change', function () {
+      var prev = sel.dataset.prev || sel.value;
+      $$('.ord').forEach(function (other) {
+        if (other !== sel && other.value === sel.value) other.value = prev;
+      });
+      sel.dataset.prev = sel.value;
+    });
+  });
+
+  // ---------------- sorters ----------------
+  function mountSorter(cfg) {
+    $(cfg.host).innerHTML = cfg.items.map(function (it, i) {
+      return '<div class="rowsel"><span>' + esc(it.text) + '</span><select id="' + cfg.prefix + i + '" aria-label="Placement for item ' + (i + 1) + '"><option value="">Not placed</option>' +
+        cfg.bins.map(function (b) { return '<option value="' + esc(b[0]) + '">' + esc(b[1]) + '</option>'; }).join('') +
+        '</select></div>';
+    }).join('');
+    function labelOf(v) {
+      if (!v) return 'not placed';
+      for (var i = 0; i < cfg.bins.length; i++) if (cfg.bins[i][0] === v) return cfg.bins[i][1];
+      return v;
+    }
+    $(cfg.btn).addEventListener('click', function () {
+      var html = cfg.sim ? SIM : '';
+      html += '<ul class="place">';
+      cfg.items.forEach(function (it, i) {
+        var v = $('#' + cfg.prefix + i).value;
+        html += '<li><b>' + esc(it.text) + '</b><br>Your placement: ' + esc(labelOf(v)) + '. ' + esc(cfg.beside) + ': ' + esc(labelOf(it.spec)) + '.<br>' + it.tag + ' ' + esc(it.why) + '</li>';
+      });
+      $(cfg.out).innerHTML = html + '</ul>';
+    });
+  }
+  mountSorter({
+    host: '#whatRows', out: '#whatOut', btn: '#whatRun', prefix: 'what', beside: 'Source placement', sim: false,
+    bins: [['one', 'One model'], ['predict', 'Predictive router'], ['cascade', 'Quality cascade'], ['err', 'Error fallback']],
+    items: [
+      { text: 'Every ticket is sent to a single model.', spec: 'one', tag: TG.q, why: 'FrugalGPT Figure 1 calls sending each query to one LLM the standard usage.' },
+      { text: 'A trained model picks the strong or weak model before an answer is generated.', spec: 'predict', tag: TG.q, why: 'RouteLLM selects between a strong and a weak LLM during inference. RouterBench calls a choice made before generation predictive routing.' },
+      { text: 'Bedrock predicts response quality for each candidate model, then routes the request.', spec: 'predict', tag: TG.q, why: 'The Bedrock user guide says the router predicts response quality of each model and then routes the request. The guide also says configured routers choose exactly two models in one family.' },
+      { text: 'A cheaper model answers, and a score decides whether a later model is queried.', spec: 'cascade', tag: TG.q, why: 'FrugalGPT sends the query to a list of APIs and returns a generation when its score meets the threshold for that step.' },
+      { text: 'If the first model returns an error, the request is sent to the next model id.', spec: 'err', tag: TG.q, why: 'OpenRouter model fallbacks try the next id after an error, including downtime, rate limits, context length, and moderation.' }
+    ]
+  });
+  mountSorter({
+    host: '#tierRows', out: '#tierOut', btn: '#tierRun', prefix: 'tier', beside: 'Page tier', sim: true,
+    bins: [['small', 'Small'], ['mid', 'Mid'], ['strong', 'Strong']],
+    items: [
+      { text: 'Reset my SSO password. The account is j.okonkwo.', spec: 'small', tag: TG.c, why: 'This page labels a password reset as the small tier.' },
+      { text: 'Need a second monitor for the design desk.', spec: 'mid', tag: TG.c, why: 'This page labels a hardware request as the mid tier.' },
+      { text: 'The build server is offline after the nightly deploy.', spec: 'strong', tag: TG.c, why: 'This page labels an outage report as the strong tier.' },
+      { text: 'Malware alert on the finance file server. Isolate the host.', spec: 'strong', tag: TG.c, why: 'This page labels a security incident as the strong tier.' },
+      { text: 'I cannot sign in. The intranet page says there is an outage.', spec: 'strong', tag: TG.c, why: 'The ticket names an outage, so this page uses the outage label: strong. The sign-in wording does not change that label.' },
+      { text: 'Email looked like our password portal. I entered my password and then reported it.', spec: 'strong', tag: TG.c, why: 'This page labels that report as a security incident, which is the strong tier, even though the text says password.' }
+    ]
+  });
+
+  // ---------------- sliders ----------------
+  function lockShares(changed) {
+    var s = num($('#shSmall'), 50, 0, 100);
+    var m = num($('#shMid'), 30, 0, 100);
+    if (s + m > 100) {
+      if (changed === 'm') { s = 100 - m; $('#shSmall').value = String(s); }
+      else { m = 100 - s; $('#shMid').value = String(m); }
+    }
+    $('#shSmallVal').textContent = s + '%';
+    $('#shMidVal').textContent = m + '%';
+    $('#shStrongVal').textContent = (100 - s - m) + '%';
+  }
+  function bindRange(id, out, fmt) {
+    var el = $(id);
+    function paint() { $(out).textContent = fmt(el.value); }
+    el.addEventListener('input', paint);
+    paint();
+  }
+  $('#shSmall').addEventListener('input', function () { lockShares('s'); });
+  $('#shMid').addEventListener('input', function () { lockShares('m'); });
+  bindRange('#tokIn', '#tokInVal', function (v) { return String(v); });
+  bindRange('#tokOut', '#tokOutVal', function (v) { return String(v); });
+  bindRange('#latSmall', '#latSmallVal', function (v) { return String(v); });
+  bindRange('#latMid', '#latMidVal', function (v) { return String(v); });
+  bindRange('#latStrong', '#latStrongVal', function (v) { return String(v); });
+  bindRange('#clfThr', '#clfThrVal', function (v) { return Number(v).toFixed(2); });
+  bindRange('#evalThr', '#evalThrVal', function (v) { return Number(v).toFixed(2); });
+  lockShares('s');
+
+  function priceInput(id, d) {
+    var v = parseFloat($(id).value);
+    if (!isFinite(v) || v < 0) return d;
+    return v;
+  }
+  function computeMix() {
+    lockShares('s');
+    var s = num($('#shSmall'), 50, 0, 100) / 100;
+    var m = num($('#shMid'), 30, 0, 100) / 100;
+    var g = Math.max(0, 1 - s - m);
+    var tin = num($('#tokIn'), 800, 50, 4000);
+    var tout = num($('#tokOut'), 200, 20, 2000);
+    var prices = {
+      small: { inM: priceInput('#pSmallIn', 0.015), outM: priceInput('#pSmallOut', 0.045) },
+      mid: { inM: priceInput('#pMidIn', 0.4), outM: priceInput('#pMidOut', 1.6) },
+      strong: { inM: priceInput('#pStrongIn', 3), outM: priceInput('#pStrongOut', 15) }
+    };
+    function one(tier, share) {
+      var p = prices[tier];
+      return share * (tin * p.inM + tout * p.outM) / 1e6;
+    }
+    var parts = { small: one('small', s), mid: one('mid', m), strong: one('strong', g) };
+    var cost = parts.small + parts.mid + parts.strong;
+    var ls = num($('#latSmall'), 360, 50, 8000);
+    var lm = num($('#latMid'), 360, 50, 8000);
+    var lg = num($('#latStrong'), 360, 50, 8000);
+    var lat = s * ls + m * lm + g * lg;
+    var html = SIM + '<h4>Mix ' + TG.d + '</h4>';
+    html += '<p>Cost per ticket = small share x (input tokens x small input price + output tokens x small output price) / 1,000,000, and the same for mid and strong.</p>';
+    html += '<ul class="place">';
+    html += '<li>Small ' + TG.d + ' <span class="num">' + money(parts.small) + '</span> at share <span class="num">' + (s * 100).toFixed(0) + '%</span>, prices <span class="num">$' + prices.small.inM + '</span> / <span class="num">$' + prices.small.outM + '</span> per million.</li>';
+    html += '<li>Mid ' + TG.d + ' <span class="num">' + money(parts.mid) + '</span> at share <span class="num">' + (m * 100).toFixed(0) + '%</span>, prices <span class="num">$' + prices.mid.inM + '</span> / <span class="num">$' + prices.mid.outM + '</span> per million.</li>';
+    html += '<li>Strong ' + TG.d + ' <span class="num">' + money(parts.strong) + '</span> at share <span class="num">' + (g * 100).toFixed(0) + '%</span>, prices <span class="num">$' + prices.strong.inM + '</span> / <span class="num">$' + prices.strong.outM + '</span> per million.</li>';
+    html += '<li>Sum ' + TG.d + ' <span class="num">' + money(cost) + '</span> per ticket, at <span class="num">' + tin + '</span> input tokens and <span class="num">' + tout + '</span> output tokens. Cache is not applied.</li>';
+    html += '<li>Share-weighted latency ' + TG.d + ' <span class="num">' + lat.toFixed(1) + ' ms</span> from slider values <span class="num">' + ls + '</span>, <span class="num">' + lm + '</span>, and <span class="num">' + lg + '</span>. ' + TG.q + ' 360 ms is 0.36 s, the P50 the Ling 3.0 Tiny page listed for Ant Digital on 18 Nov 2026. A slider left at 360 repeats that one figure. It is not a measured latency for the other list prices.</li>';
+    html += '</ul>';
+    $('#calcOut').innerHTML = html;
+  }
+  $('#calcRun').addEventListener('click', computeMix);
+
+  // ---------------- rule lab ----------------
+  function runRules() {
+    var order = readOrder();
+    if (!order) {
+      $('#ruleOut').innerHTML = '<p class="bad">The three positions need three different tiers. Choose again, then run.</p>';
+      return;
+    }
+    var thr = num($('#clfThr'), 0.55, 0, 1);
+    var ruleDiff = 0, clfDiff = 0, llmDiff = 0;
+    var rows = TICKETS.map(function (t) {
+      var rule = ruleOf(t.text, order);
+      var clf = clfOf(t, thr);
+      if (rule.tier !== t.gold) ruleDiff++;
+      if (clf.tier !== t.gold) clfDiff++;
+      if (t.llm !== t.gold) llmDiff++;
+      return { t: t, rule: rule, clf: clf };
+    });
+    var html = SIM;
+    html += '<p>' + TG.c + ' Page tiers are the case labels. ' + TG.d + ' Rule tiers come from the keywords and the check order. ' + TG.i + ' Classifier and LLM columns use constants stored on this page, not a BERT model and not Llama 3.</p>';
+    html += '<p>Check order: ' + order.map(tierName).join(', then ') + '. Classifier threshold <span class="num">' + thr.toFixed(2) + '</span>. No keyword match uses Strong.</p>';
+    html += '<p>Rule tier differs from the page tier on <span class="num">' + ruleDiff + ' of ' + TICKETS.length + '</span> tickets. Classifier differs on <span class="num">' + clfDiff + ' of ' + TICKETS.length + '</span>. The stored LLM tier differs on <span class="num">' + llmDiff + ' of ' + TICKETS.length + '</span>.</p>';
+    html += '<div class="tbl-wrap"><table><thead><tr><th scope="col">Id</th><th scope="col">Page</th><th scope="col">Rule</th><th scope="col">Classifier</th><th scope="col">Stored LLM</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      var kw = r.rule.matched ? esc(r.rule.keyword) : 'no keyword';
+      var mark = function (tier, gold) { return tier === gold ? '<span class="ok">same</span>' : '<span class="warn">differs</span>'; };
+      var escNote = r.clf.escalated ? ', below threshold' : '';
+      html += '<tr><td><code>' + esc(r.t.id) + '</code></td><td>' + tierName(r.t.gold) + '</td><td>' + tierName(r.rule.tier) + ' (' + kw + ') ' + mark(r.rule.tier, r.t.gold) + '</td><td>' + tierName(r.clf.tier) + ' (score <span class="num">' + r.t.score.toFixed(2) + '</span>' + escNote + ') ' + mark(r.clf.tier, r.t.gold) + '</td><td>' + tierName(r.t.llm) + ' ' + mark(r.t.llm, r.t.gold) + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    $('#ruleOut').innerHTML = html;
+  }
+  $('#ruleRun').addEventListener('click', runRules);
+
+  // ---------------- fallback chain ----------------
+  function runChain() {
+    var t = ticketById($('#fallTicket').value);
+    var flags = {
+      small: { err: $('#smallErr').checked, qual: $('#smallQual').checked },
+      mid: { err: $('#midErr').checked, qual: $('#midQual').checked },
+      strong: { err: $('#strongErr').checked, qual: $('#strongQual').checked }
+    };
+    var steps = [];
+    var accepted = null;
+    TIERS.forEach(function (tier) {
+      if (accepted) return;
+      if (flags[tier].err) {
+        steps.push({ tier: tier, kind: 'error' });
+        return;
+      }
+      if (flags[tier].qual) {
+        steps.push({ tier: tier, kind: 'quality' });
+        return;
+      }
+      steps.push({ tier: tier, kind: 'accept' });
+      accepted = tier;
+    });
+    var tin = ASSUME.tin, tout = ASSUME.tout;
+    var answerCost = accepted ? listCost(accepted, tin, tout) : 0;
+    var cascade = 0;
+    steps.forEach(function (s) { if (s.kind !== 'error') cascade += listCost(s.tier, tin, tout); });
+    var html = SIM;
+    html += '<p>' + TG.c + ' Chain order is small, then mid, then strong. Ticket <code>' + esc(t.id) + '</code>, page tier ' + tierName(t.gold) + ' (' + esc(t.type) + ').</p>';
+    html += '<ol class="place">';
+    if (!steps.length) html += '<li>No step ran.</li>';
+    steps.forEach(function (s, i) {
+      var why = s.kind === 'error'
+        ? 'Returns an error. The lab moves on, which is the shape of an OpenRouter error fallback. ' + TG.q
+        : s.kind === 'quality'
+          ? 'A generation exists and fails the gate. The lab moves on, which is the shape of a FrugalGPT cascade step. ' + TG.q
+          : 'Accepted. The lab stops. ' + TG.c;
+      html += '<li>' + (i + 1) + '. ' + tierName(s.tier) + ': ' + (s.kind === 'accept' ? 'accepted' : s.kind === 'error' ? 'error' : 'quality gate fails') + '. ' + why + '</li>';
+    });
+    html += '</ol>';
+    if (!accepted) html += '<p>No tier was accepted. The lab stops at a person. ' + TG.c + ' FrugalGPT returns a generation only when a score meets the threshold, so a chain that never passes has no accepted generation.</p>';
+    else html += '<p>Accepted tier: ' + tierName(accepted) + '.</p>';
+    html += '<ul class="place">';
+    html += '<li>' + TG.q + ' OpenRouter prices a fallback at the model that was ultimately used. Applied here, an accepted tier bills <span class="num">' + money(answerCost) + '</span> and an all-error chain bills <span class="num">' + money(0) + '</span>. Quality-gate steps are not that rule. They produced a generation.</li>';
+    html += '<li>' + TG.d + ' A cascade sum adds every generation: <span class="num">' + money(cascade) + '</span>. Errors add nothing. Tokens are <span class="num">' + tin + '</span> in and <span class="num">' + tout + '</span> out, at the catalog list prices in the cost section. Cache is not applied.</li>';
+    html += '</ul>';
+    $('#fallOut').innerHTML = html;
+  }
+  $('#fallRun').addEventListener('click', runChain);
+
+  // ---------------- eval ----------------
+  function runEval() {
+    var order = readOrder();
+    if (!order) {
+      $('#evalOut').innerHTML = '<p class="bad">Set three different tiers in the router lab, then score again.</p>';
+      return;
+    }
+    var thr = num($('#evalThr'), 0.55, 0, 1);
+    var tin = ASSUME.tin, tout = ASSUME.tout;
+    var routers = [
+      { name: 'Always strong', tierOf: function () { return 'strong'; } },
+      { name: 'Keyword rules', tierOf: function (t) { return ruleOf(t.text, order).tier; } },
+      { name: 'Thresholded classifier', tierOf: function (t) { return clfOf(t, thr).tier; } },
+      { name: 'Stored LLM tier', tierOf: function (t) { return t.llm; } }
+    ];
+    var scored = routers.map(function (r) {
+      var agree = 0, cost = 0;
+      TICKETS.forEach(function (t) {
+        var tier = r.tierOf(t);
+        if (tier === t.gold) agree++;
+        cost += listCost(tier, tin, tout);
+      });
+      return { name: r.name, agree: agree, cost: cost };
+    });
+    var base = scored[0].cost || 1;
+    var html = SIM;
+    html += '<p>' + TG.c + ' The page tier is the label. ' + TG.d + ' Counts and dollars are arithmetic on the twelve tickets, the controls in this lab and the router lab, and the catalog list prices. ' + TG.i + ' The classifier scores and stored LLM tiers are constants, not a measured model.</p>';
+    html += '<p>Check order ' + order.map(tierName).join(', then ') + '. Keywords: small [' + esc(keywordList('small').join(', ')) + ']; mid [' + esc(keywordList('mid').join(', ')) + ']; strong [' + esc(keywordList('strong').join(', ')) + ']. Classifier threshold <span class="num">' + thr.toFixed(2) + '</span>. Tokens <span class="num">' + tin + '</span> / <span class="num">' + tout + '</span>.</p>';
+    html += '<div class="tbl-wrap"><table><thead><tr><th scope="col">Router</th><th scope="col">Labels matching the page</th><th scope="col">Derived cost, 12 tickets</th><th scope="col">Cost / always strong</th></tr></thead><tbody>';
+    scored.forEach(function (r) {
+      var ratio = base ? (r.cost / base) : 0;
+      html += '<tr><td>' + esc(r.name) + '</td><td class="num">' + r.agree + ' of ' + TICKETS.length + '</td><td class="num">' + money(r.cost) + '</td><td class="num">' + ratio.toFixed(4) + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '<p class="muted">RouterBench scores cost and quality on its own precomputed outputs. This table scores agreement with labels written on this page. ' + TG.q + '</p>';
+    $('#evalOut').innerHTML = html;
+  }
+  $('#evalRun').addEventListener('click', runEval);
+
+  // ---------------- connect and live request ----------------
+  function setMsg(el, text, kind) { el.textContent = text; el.className = 'msg' + (kind ? ' ' + kind : ''); }
+  var apiKey = null;
+  var state = { live: false, spent: 0, budget: 1 };
+  function updateSpend() { $('#spendVal').textContent = money(state.spent); }
+  function setLive(on) {
+    state.live = on;
+    $('#connect').classList.toggle('live', on);
+    $('#lampText').textContent = on ? 'Live' : 'Demo';
+    $('#connectBtn').hidden = on;
+    $('#disconnectBtn').hidden = !on;
+    $('#keyIn').disabled = on;
+  }
+  function validateKey(k) {
+    if (!k) return 'Paste an OpenRouter key first. Create one at openrouter.ai/keys and set a credit limit on it.';
+    if (/\s/.test(k)) return 'The key contains a space or a line break. Paste only the key.';
+    if (k.indexOf('sk-or-') !== 0) return 'OpenRouter keys start with sk-or-. Create one at openrouter.ai/keys.';
+    if (k.length < 30) return 'That key is too short to be complete. Copy it again from openrouter.ai/keys.';
+    return '';
+  }
+  function scrub(s) {
+    s = String(s == null ? '' : s);
+    if (apiKey) s = s.split(apiKey).join('[key]');
+    return s.replace(/sk-or-[A-Za-z0-9_-]{6,}/g, '[key]').replace(/Bearer\s+\S+/gi, 'Bearer [key]');
+  }
+  function UserError(m) { this.message = m; this.user = true; }
+  async function connect() {
+    var input = $('#keyIn'), msg = $('#connectMsg');
+    wsTrack('connect_click');
+    var cand = input.value.trim();
+    input.value = '';
+    var problem = validateKey(cand);
+    if (problem) { setMsg(msg, problem + ' The field was cleared; paste the key again.', 'err'); return; }
+    if (typeof fetch !== 'function') { setMsg(msg, 'This browser has no fetch, so the key was not sent.', 'err'); return; }
+    setMsg(msg, 'Checking the key with OpenRouter...', '');
+    try {
+      var res = await fetch('https://openrouter.ai/api/v1/key', { headers: { Authorization: 'Bearer ' + cand } });
+      if (res.status === 401 || res.status === 403) { setMsg(msg, 'OpenRouter rejected this key (' + res.status + '). Create a new one at openrouter.ai/keys.', 'err'); return; }
+      if (!res.ok) { setMsg(msg, 'OpenRouter answered ' + res.status + ' when checking the key. Try again in a minute.', 'err'); return; }
+      var data = null; try { data = await res.json(); } catch (e2) { data = null; }
+      apiKey = cand;
+      setLive(true);
+      wsTrack('connected');
+      var info = data && data.data;
+      if (info && (info.limit === null || info.limit === undefined)) setMsg(msg, 'Connected. This key has no credit limit. Set one at openrouter.ai/keys before a live request.', 'warnm');
+      else if (info && typeof info.limit === 'number') setMsg(msg, 'Connected. Key credit limit: $' + info.limit.toFixed(2) + '.', 'okm');
+      else setMsg(msg, 'Connected. Label this ticket now sends the request.', 'okm');
+    } catch (e) {
+      setMsg(msg, 'Could not reach openrouter.ai. Check the connection, then try again.', 'err');
+    }
+  }
+  function disconnect() {
+    apiKey = null;
+    setLive(false);
+    setMsg($('#connectMsg'), 'Disconnected. The key was cleared from memory. Demo mode is back on.', '');
+  }
+  $('#connectBtn').addEventListener('click', connect);
+  $('#disconnectBtn').addEventListener('click', disconnect);
+  $('#keyIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); connect(); } });
+  $('#budgetIn').addEventListener('change', function () { var v = parseFloat(this.value); state.budget = isFinite(v) && v > 0 ? v : 1; this.value = state.budget; });
+
+  function promptFor(t) {
+    return 'Classify the internal IT ticket into exactly one label: password_reset, outage_report, hardware_request, or security_incident. Reply with the label only.\nTicket: ' + t.text;
+  }
+  function readLabel(text) {
+    var s = String(text || '').toLowerCase();
+    var map = [['password_reset', 'password reset'], ['outage_report', 'outage report'], ['hardware_request', 'hardware request'], ['security_incident', 'security incident']];
+    for (var i = 0; i < map.length; i++) if (s.indexOf(map[i][0]) !== -1) return map[i][1];
+    return '';
+  }
+  function costOf(inTok, outTok) { return (inTok * MODEL.inM + outTok * MODEL.outM) / 1e6; }
+  async function callModel(user) {
+    var maxTok = num($('#maxTokIn'), 80, 16, 400);
+    var proj = costOf(Math.ceil(user.length / 4) + 20, maxTok);
+    if (state.spent + proj > state.budget) throw new UserError('That request could pass the session budget of ' + money(state.budget) + ' (spent ' + money(state.spent) + '). Raise the budget in the Live labs panel.');
+    var body = { model: MODEL.id, messages: [{ role: 'user', content: user }], temperature: 0, max_tokens: maxTok };
+    var headers = { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'X-Title': 'Task routing workshop' };
+    if (location.origin && location.origin !== 'null') headers['HTTP-Referer'] = location.origin;
+    var res, data = null;
+    try { res = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: headers, body: JSON.stringify(body) }); }
+    catch (e) { throw new UserError('Network error reaching openrouter.ai.'); }
+    try { data = await res.json(); } catch (e2) { data = null; }
+    if (!res.ok) {
+      var d = data && data.error && (data.error.message || data.error.code) ? scrub(String(data.error.message || data.error.code)).slice(0, 300) : '';
+      throw new UserError('Request failed (' + res.status + ')' + (d ? ': ' + d : '') + '.');
+    }
+    var ch = data && data.choices && data.choices[0];
+    var msg = ch && ch.message ? ch.message : {};
+    var text = msg.content;
+    if (Array.isArray(text)) text = text.map(function (p) { return p && p.text ? p.text : ''; }).join('');
+    var u = (data && data.usage) || {};
+    var cost = costOf(u.prompt_tokens || 0, u.completion_tokens || 0);
+    state.spent += cost;
+    updateSpend();
+    return { text: String(text || ''), cost: cost, usage: u, finish: ch && ch.finish_reason };
+  }
+  async function runLive() {
+    var t = ticketById($('#liveTicket').value);
+    var user = promptFor(t);
+    var html = '<h4>Request body, without a key ' + TG.d + '</h4><pre><code>' + esc(pretty({ model: MODEL.id, temperature: 0, messages: [{ role: 'user', content: user }] })) + '</code></pre>';
+    html += '<p>' + TG.c + ' Page tier for this ticket: ' + tierName(t.gold) + ' (' + esc(t.type) + '). That tier is not in the request.</p>';
+    if (!state.live || !apiKey) {
+      html += SIM + '<p>Nothing was sent. Connect a key in the Live labs panel to send this ticket.</p>';
+      $('#liveOut').innerHTML = html;
+      return;
+    }
+    var btn = $('#tierLive');
+    btn.disabled = true;
+    var label = btn.textContent;
+    btn.textContent = 'Sending...';
+    try {
+      var got = await callModel(user);
+      var found = readLabel(got.text);
+      html += '<h4>Model reply ' + TG.t + '</h4>';
+      html += got.text ? '<pre><code>' + esc(got.text) + '</code></pre>' : '<p class="bad">The model returned no text (finish: ' + esc(got.finish || 'unknown') + ').</p>';
+      html += '<p>' + (found ? 'The reply contains the label ' + esc(found) + '.' : 'The reply does not contain one of the four labels.') + ' Page type: ' + esc(t.type) + '.</p>';
+      html += '<p class="muted">Spend this request <span class="num">' + money(got.cost) + '</span> ' + TG.d + ' from reported prompt tokens <span class="num">' + (got.usage.prompt_tokens || 0) + '</span> and completion tokens <span class="num">' + (got.usage.completion_tokens || 0) + '</span> at the recorded rates of $' + MODEL.inM + ' and $' + MODEL.outM + ' per million. Session total <span class="num">' + money(state.spent) + '</span>.</p>';
+      $('#liveOut').innerHTML = html;
+    } catch (e) {
+      $('#liveOut').innerHTML = html + '<p class="bad">' + esc(scrub(e && e.message ? e.message : e)) + '</p>';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  }
+  $('#tierLive').addEventListener('click', function () { runLive(); });
+
+  function isChat(m) {
+    var arch = m.architecture || {};
+    var ins = arch.input_modalities || [];
+    var outs = arch.output_modalities || [];
+    if (ins.indexOf('text') < 0 || outs.indexOf('text') < 0) return false;
+    if (outs.indexOf('image') >= 0 || outs.indexOf('embeddings') >= 0) return false;
+    var id = String(m.id || '');
+    if (/:free$|:batch$/.test(id)) return false;
+    var p = parseFloat(m.pricing && m.pricing.prompt), c = parseFloat(m.pricing && m.pricing.completion);
+    if (!isFinite(p) || !isFinite(c) || p <= 0 || c <= 0) return false;
+    if (m.expiration_date && String(m.expiration_date) < '2026-11-18') return false;
+    return true;
+  }
+  $('#priceCheck').addEventListener('click', function () {
+    var box = $('#priceOut');
+    if (typeof fetch !== 'function') {
+      box.innerHTML = '<p class="bad">Could not read the catalog (this browser has no fetch). Open openrouter.ai/api/v1/models and compare ' + esc(MODEL.id) + '.</p>';
+      return;
+    }
+    box.innerHTML = '<p class="muted">Reading the public catalog...</p>';
+    fetch('https://openrouter.ai/api/v1/models').then(function (r) {
+      if (!r.ok) throw new Error('status ' + r.status);
+      return r.json();
+    }).then(function (j) {
+      var rows = (j.data || []).filter(isChat);
+      var mine = null;
+      (j.data || []).forEach(function (m) { if (m.id === MODEL.id) mine = m; });
+      rows.sort(function (a, b) {
+        var as = parseFloat(a.pricing.prompt) * 1000 + parseFloat(a.pricing.completion) * 200;
+        var bs = parseFloat(b.pricing.prompt) * 1000 + parseFloat(b.pricing.completion) * 200;
+        return as - bs;
+      });
+      var html = '<h4>Catalog check ' + TG.t + '</h4>';
+      if (!mine) {
+        html += '<p class="bad"><code>' + esc(MODEL.id) + '</code> is not in the catalog now. The live button still names that slug.</p>';
+      } else {
+        var pin = parseFloat(mine.pricing && mine.pricing.prompt) * 1e6;
+        var pout = parseFloat(mine.pricing && mine.pricing.completion) * 1e6;
+        var same = Math.abs(pin - MODEL.inM) < 0.0005 && Math.abs(pout - MODEL.outM) < 0.0005;
+        html += '<p><code>' + esc(MODEL.id) + '</code> lists <span class="num">$' + pin.toFixed(3) + '</span> / <span class="num">$' + pout.toFixed(3) + '</span> per million. ' +
+          (same ? 'That matches the price recorded on 18 Nov 2026.' : 'That differs from the $' + MODEL.inM + ' / $' + MODEL.outM + ' recorded on 18 Nov 2026. The page still derives spend from the recorded rates.') + '</p>';
+      }
+      if (rows.length) {
+        var top = rows[0];
+        html += '<p>Cheapest under this filter (text in the inputs, text in the outputs, no image output, no embeddings output, prompt and completion prices both above zero, id not ending in :free or :batch, expiration not before 18 Nov 2026): <code>' + esc(top.id) + '</code>. ' +
+          (top.id === MODEL.id ? 'That is still the recorded model.' : 'That is no longer the recorded model. The live button still sends ' + esc(MODEL.id) + '.') + '</p>';
+      } else {
+        html += '<p class="bad">No model matched the filter, so this page cannot confirm a cheapest slug.</p>';
+      }
+      html += '<p class="muted">The sort key is the catalog price of 1,000 input tokens plus 200 output tokens. ' + TG.d + ' $0 endpoints and negative prices are outside the filter.</p>';
+      box.innerHTML = html;
+    }).catch(function (e) {
+      box.innerHTML = '<p class="bad">Could not read the catalog (' + esc(e && e.message ? e.message : 'network error') + '). Open openrouter.ai/inclusionai/ling-3.0-tiny and compare the price by hand. Page figures are from 18 Nov 2026.</p>';
+    });
+  });
+
+  // ---------------- ship gate ----------------
+  var GATE = [
+    'I can separate one model, a predictive router, a quality cascade, and an error fallback using the sources named here.',
+    'I can point to RouteLLM preference labels and to Hybrid LLM quality-gap scores as two different classification targets.',
+    'I can recompute a mix cost from token counts and list prices, and tell that number from a paper\'s reported savings.',
+    'I can show a keyword rule whose tier differs from this page\'s label on a Halden ticket.',
+    'I can say which errors move OpenRouter to the next model, and that a successful low-scoring reply is a cascade step instead.',
+    'I can state what this page\'s twelve-ticket agreement count is, and that it is not a RouterBench result.',
+    'I can state the limitation: a routing score on one set is not the error rate on tickets that set does not contain.'
+  ];
+  var gateState = {};
+  try { gateState = JSON.parse(store('task-routing-gate') || '{}') || {}; } catch (e) { gateState = {}; }
+  $('#gate').innerHTML = GATE.map(function (g, i) {
+    return '<li><button type="button" data-g="' + i + '" aria-pressed="' + (gateState[i] ? 'true' : 'false') + '"><span class="box"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>' + esc(g) + '</span></button></li>';
+  }).join('');
+  function gateCount() {
+    var n = GATE.filter(function (g, i) { return gateState[i]; }).length;
+    $('#gateCount').textContent = n + ' of ' + GATE.length + ' ticked.';
+  }
+  $$('#gate button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = b.getAttribute('data-g');
+      gateState[i] = !gateState[i];
+      b.setAttribute('aria-pressed', String(!!gateState[i]));
+      store('task-routing-gate', JSON.stringify(gateState));
+      gateCount();
+    });
+  });
+  gateCount();
+
+  wsTrack.gate('#gate button', function (b) { return b.getAttribute('aria-pressed') === 'true'; });
+  wsTrack.labs({
+    '#whatRun': 'm0-mechanisms',
+    '#tierRun': 'm1-tiers',
+    '#tierLive': ['m1-live', 'liveModel'],
+    '#priceCheck': 'm2-price',
+    '#calcRun': 'm2-calc',
+    '#ruleRun': 'm3-rules',
+    '#fallRun': 'm4-chain',
+    '#evalRun': 'm5-eval'
+  });
+
+  // ---------------- scroll spy ----------------
+  var mods = $$('.mod'), links = $$('#navList a'), seen = {};
+  function setActive(i) {
+    links.forEach(function (a, j) {
+      a.classList.toggle('active', j === i);
+      if (j === i) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+    wsTrack.module(i);
+    seen[i] = true;
+    links.forEach(function (a, j) { a.classList.toggle('seen', !!seen[j]); });
+    var n = Object.keys(seen).length;
+    $('#meterFill').style.transform = 'scaleX(' + (n / mods.length) + ')';
+    $('#meter').setAttribute('aria-valuenow', String(n));
+    $('#progressLabel').textContent = n + ' of ' + mods.length + ' sections visited';
+    renderRail(i);
+  }
+  try {
+    if ('IntersectionObserver' in window) {
+      var reveal = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); reveal.unobserve(e.target); } });
+      }, { rootMargin: '0px 0px -8% 0px' });
+      mods.forEach(function (m) { reveal.observe(m); });
+      var spy = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) setActive(+e.target.getAttribute('data-mod')); });
+      }, { rootMargin: '-20% 0px -55% 0px' });
+      mods.forEach(function (m) { spy.observe(m); });
+    } else {
+      mods.forEach(function (m) { m.classList.add('in'); });
+    }
+  } catch (e) {
+    mods.forEach(function (m) { m.classList.add('in'); });
+  }
+  setActive(0);
+  paintAll();
+})();
+</script>
+</body>
+</html>
