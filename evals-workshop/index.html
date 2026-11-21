@@ -8,7 +8,7 @@
 <meta name="author" content="Kevin Phillips">
 <link rel="canonical" href="https://www.kpphillips.com/ai-workshops/evals-workshop/">
 <meta property="og:title" content="Evals for agents: tests, baselines, and a release gate">
-<meta property="og:description" content="Ten labs on a fictional text receptionist: tests versus evals, a planted booking failure, baselines, levers, and a release gate that does not deploy.">
+<meta property="og:description" content="Labs on a fictional text receptionist: tests versus evals, a planted booking failure, baselines, levers, a release gate that does not deploy, and a grade-level tool reference.">
 <meta property="og:url" content="https://www.kpphillips.com/ai-workshops/evals-workshop/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
@@ -134,6 +134,12 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .stat{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.6rem .75rem}
 .stat .k{font-size:.78rem;font-weight:600;color:var(--ink-soft);display:block}
 .ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--clay)}
+.rowsel{display:grid;grid-template-columns:1fr minmax(11rem,16rem);gap:.5rem;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.rowsel:last-child{border-bottom:0}
+.rowsel select{width:100%}
+.place{list-style:none;padding:0;margin:.2rem 0}
+.place li{padding:.45rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.place li:last-child{border-bottom:0}
 .tbl-wrap{overflow-x:auto;margin:.6rem 0 1rem}
 table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
 th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--line);vertical-align:top}
@@ -212,6 +218,7 @@ footer p{max-width:900px;margin:0 auto .5rem}
  main{padding:1.2rem 1rem 3rem}
  .evt li{grid-template-columns:1.4rem 1fr}
  .evt li .who{display:none}
+ .rowsel{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){
  html{scroll-behavior:auto}
@@ -268,7 +275,7 @@ window.wsTrack=(function(){
   <a class="back" href="https://www.kpphillips.com/ai-workshops/"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M12 7H2.5M6.5 3L2.5 7l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All workshops</a>
   <div class="tick" aria-hidden="true"></div>
   <div class="progress">
-    <div class="meter" role="progressbar" aria-label="Sections visited" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
+    <div class="meter" role="progressbar" aria-label="Sections visited" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
     <small id="progressLabel">0 of 11 sections visited</small>
   </div>
   <ol class="nav-list" id="navList">
@@ -283,6 +290,7 @@ window.wsTrack=(function(){
     <li><a href="#m8"><span class="n">8</span>Grade the grader</a></li>
     <li><a href="#m9"><span class="n">9</span>Name the fault</a></li>
     <li><a href="#m10"><span class="n">10</span>Release gate</a></li>
+    <li><a href="#m11"><span class="n">11</span>Grade level</a></li>
   </ol>
   <div class="nav-foot">
     <span class="lbl" id="palLbl">Palette</span>
@@ -525,7 +533,7 @@ def grade(transcript, store, scenario):
 <section class="mod" id="m9" data-mod="9">
   <div class="tick" aria-hidden="true"></div>
   <h2>9. Diagnose, then change one thing</h2>
-  <p class="intro">Label the failure as an agent error, a tool defect, or a flawed test before you change anything. Change one of those, rerun the held-out tasks, and keep the regression.</p>
+  <p class="intro">Label the failure as an agent error, a tool defect, or a flawed test before you change anything. Keep the failure as a new test case, change one of those, and rerun both splits.</p>
   <div class="lab">
     <div class="lab-head"><h3>Three faults, one edit, both splits</h3><span class="lab-kind">Hands-on</span></div>
     <div class="checks" style="margin-bottom:.8rem">
@@ -540,7 +548,7 @@ def grade(transcript, store, scenario):
 <section class="mod" id="m10" data-mod="10">
   <div class="tick" aria-hidden="true"></div>
   <h2>10. Release gate</h2>
-  <p class="intro">Replay a closed slot and a forced tool failure, then record PASS or HOLD with reasons and do not deploy.</p>
+  <p class="intro">Replay a closed slot and a forced tool failure, then record PASS or HOLD with reasons and do not deploy. A HOLD case joins the suite; it is not discarded.</p>
   <div class="lab">
     <div class="lab-head"><h3>Replay, record, propose</h3><span class="lab-kind">Hands-on</span></div>
     <div class="row">
@@ -555,6 +563,117 @@ def grade(transcript, store, scenario):
   <div class="build"><span class="ttl">Build it in the repo</span>Open <a href="https://github.com/kpphillips/evals-workshop/tree/main/labs/10-release-gate/m10-release" target="_blank" rel="noopener noreferrer"><code>labs/10-release-gate/m10-release</code></a>, complete <code>starter.py</code>, and compare it with <code>solution.py</code>.</div>
   <div class="build"><span class="ttl">Build it in the repo</span>Open <a href="https://github.com/kpphillips/evals-workshop/tree/main/labs/10-release-gate/m10-save" target="_blank" rel="noopener noreferrer"><code>labs/10-release-gate/m10-save</code></a>, complete <code>starter.py</code>, and compare it with <code>solution.py</code>.</div>
   <div class="build"><span class="ttl">Build it in the repo</span>Open <a href="https://github.com/kpphillips/evals-workshop/tree/main/labs/10-release-gate/m10-learnings" target="_blank" rel="noopener noreferrer"><code>labs/10-release-gate/m10-learnings</code></a>, complete <code>starter.py</code>, and compare it with <code>solution.py</code>.</div>
+</section>
+
+<section class="mod" id="m11" data-mod="11">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>11. Name the grade level, then pick a tool</h2>
+  <p class="intro">First name what failed. Then read official docs for a tool that can grade that level. The table is a reference, not a ranking.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>Map the failure to a grade level</h3><span class="lab-kind">Sorter</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">These failures are fictional Quoinlatch Desk cases. Choose a bin, then read this page's placement beside yours. Nothing is scored.</p>
+    <div id="levelRows"></div>
+    <button class="btn" id="levelRun" type="button" data-lab="m11-grade-level" data-out="levelOut">Show placements</button>
+    <div class="out" id="levelOut" aria-live="polite"></div>
+  </div>
+  <h3>Official tool reference</h3>
+  <p>Each limit is quoted from that tool's official docs, checked November 21, 2026. This page does not recommend a tool. A <a href="https://x.com/sermakarevich/status/2124210425331921148" target="_blank" rel="noopener noreferrer">November 2026 article by Sergii Makarevych</a> collected many of these names in one place. That article is context only. It is not a source for any claim here.</p>
+  <div class="tbl-wrap">
+    <table>
+      <caption class="muted" style="text-align:left;padding:.4rem 0;caption-side:top;font-size:.86rem">Official scope and limits, quoted. Not a ranking.</caption>
+      <thead>
+        <tr>
+          <th scope="col">Tool</th>
+          <th scope="col">Official docs</th>
+          <th scope="col">Official scope or limit <span class="tag q">Quoted</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Inspect</td>
+          <td><a href="https://inspect.aisi.org.uk/" target="_blank" rel="noopener noreferrer">inspect.aisi.org.uk</a></td>
+          <td>&ldquo;An open-source framework for large language model evaluations,&rdquo; with &ldquo;a sandboxing system that supports running untrusted model code in Docker, Kubernetes, Modal, Proxmox, Vagrant, and other systems.&rdquo; Official homepage, November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>DeepEval</td>
+          <td><a href="https://www.deepeval.com/docs/getting-started" target="_blank" rel="noopener noreferrer">deepeval.com getting started</a></td>
+          <td>&ldquo;deepeval plugs into Pytest.&rdquo; The same page covers evaluating &ldquo;an AI agent's complete trajectory&rdquo; and tracing internal components. Official FAQ: &ldquo;DeepEval runs locally. Confident AI is optional.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>Pydantic Evals</td>
+          <td><a href="https://ai.pydantic.dev/evals/" target="_blank" rel="noopener noreferrer">ai.pydantic.dev/evals</a></td>
+          <td>&ldquo;A code-first philosophy where all evaluation components are defined in Python.&rdquo; Official docs say it grades &ldquo;an agent's final outputs and its trajectory&rdquo; and can attach evaluators to &ldquo;a sample of live production traffic.&rdquo; &ldquo;Evals are an emerging art/science.&rdquo; Logfire is an optional dependency. Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>SkillEvaluator</td>
+          <td><a href="https://docs.nvidia.com/skills/skillevaluator" target="_blank" rel="noopener noreferrer">NVIDIA SkillEvaluator docs</a></td>
+          <td>&ldquo;An open-source, multi-tier framework for evaluating AI agent artifacts, starting with agent skills.&rdquo; Official support note: &ldquo;Experimental: community-supported on a best-effort basis, with no SLA.&rdquo; Tier 3: &ldquo;Run the same tasks with and without your skill.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>lm-evaluation-harness</td>
+          <td><a href="https://github.com/EleutherAI/lm-evaluation-harness" target="_blank" rel="noopener noreferrer">EleutherAI/lm-evaluation-harness</a></td>
+          <td>Official GitHub description: &ldquo;A framework for few-shot evaluation of language models.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>Promptfoo</td>
+          <td><a href="https://www.promptfoo.dev/docs/intro/" target="_blank" rel="noopener noreferrer">promptfoo.dev intro</a></td>
+          <td>&ldquo;An open-source CLI and library for evaluating and red-teaming LLM apps.&rdquo; Official intro: use it &ldquo;as a CLI, library, or in CI/CD.&rdquo; &ldquo;Define evals without writing code or working with heavy notebooks.&rdquo; &ldquo;Evals run on your machine and call the configured providers. Red team generation may use hosted services.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>OpenAI Evals, hosted platform and GitHub repo</td>
+          <td><a href="https://developers.openai.com/api/docs/deprecations" target="_blank" rel="noopener noreferrer">OpenAI deprecations</a>; <a href="https://developers.openai.com/api/docs/guides/evals" target="_blank" rel="noopener noreferrer">Working with evals</a>; <a href="https://github.com/openai/evals" target="_blank" rel="noopener noreferrer">github.com/openai/evals</a></td>
+          <td>Hosted product, quoted from OpenAI: the deprecations table lists &ldquo;Evals dashboard, API, and graders for eval workflows,&rdquo; status &ldquo;Read-only,&rdquo; shutdown date November 30, 2026, replacement &ldquo;Migrate to Promptfoo.&rdquo; The Evals guide: &ldquo;Evals will become read-only for existing users on October 31, 2026, and the platform is scheduled to shut down on November 30, 2026.&rdquo; The GitHub <code>openai/evals</code> repo is a separate project. Official description: &ldquo;Evals is a framework for evaluating LLMs and LLM systems, and an open-source registry of benchmarks.&rdquo; This page did not find an official shutdown date for that GitHub repository. Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>HELM</td>
+          <td><a href="https://github.com/stanford-crfm/helm/blob/main/docs/maintenance_mode.md" target="_blank" rel="noopener noreferrer">HELM maintenance mode policy</a>; <a href="https://crfm.stanford.edu/helm/" target="_blank" rel="noopener noreferrer">crfm.stanford.edu/helm</a></td>
+          <td>&ldquo;HELM entered maintenance mode on June 1, 2026.&rdquo; Official policy: &ldquo;no new features will be added to HELM, and no new evaluations will be added to the HELM leaderboards.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>Braintrust</td>
+          <td><a href="https://www.braintrust.dev/docs/evaluate/score-online" target="_blank" rel="noopener noreferrer">Score production traces</a>; <a href="https://www.braintrust.dev/docs/annotate/datasets/create" target="_blank" rel="noopener noreferrer">Create datasets</a></td>
+          <td>&ldquo;Online scoring evaluates production traces automatically as they're logged, running evaluations asynchronously in the background.&rdquo; Official dataset docs: you can add a production log span to a dataset, &ldquo;useful when you see a notably good or bad response in production and want to capture it as a test case.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>MLflow GenAI</td>
+          <td><a href="https://mlflow.org/docs/latest/genai/eval-monitor/" target="_blank" rel="noopener noreferrer">Evaluating LLMs and Agents with MLflow</a></td>
+          <td>Official docs describe evaluation and monitoring &ldquo;throughout their lifecycle from development through production,&rdquo; and name &ldquo;Evaluation-Driven Development&rdquo; as a core tenet. Runs use <code>mlflow.genai.evaluate</code>. Production monitoring uses MLflow Tracing for &ldquo;key metrics like latency and token usage.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>Langfuse</td>
+          <td><a href="https://langfuse.com/docs/evaluation/overview" target="_blank" rel="noopener noreferrer">Evaluation overview</a>; <a href="https://langfuse.com/docs/evaluation/experiments/datasets" target="_blank" rel="noopener noreferrer">Datasets</a></td>
+          <td>&ldquo;It happens both online, on live production traces, and offline, before you ship a change.&rdquo; Dataset docs: &ldquo;Create test cases for your application with real production traces.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>LangSmith</td>
+          <td><a href="https://docs.langchain.com/langsmith/evaluation" target="_blank" rel="noopener noreferrer">LangSmith Evaluation</a></td>
+          <td>&ldquo;Add real traces to a dataset so a failure you saw once becomes a test you run every time.&rdquo; Official docs split &ldquo;Offline Evaluation&rdquo; (datasets, before you ship) and &ldquo;Online Evaluation&rdquo; (live traffic). Platform setup may be &ldquo;cloud, hybrid, or self-hosted.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>Phoenix</td>
+          <td><a href="https://arize.com/docs/phoenix/evaluation/llm-evals" target="_blank" rel="noopener noreferrer">Arize Phoenix evaluation</a></td>
+          <td>You can run evaluations &ldquo;on traces from production, on experiment results, or on any dataset.&rdquo; &ldquo;Decision-model evaluations return a label with per-label probabilities with no explanation.&rdquo; For continuous production-traffic evals with alerting, official docs point to Arize AX Online Evals. Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>TruLens</td>
+          <td><a href="https://www.trulens.org/getting_started/" target="_blank" rel="noopener noreferrer">TruLens getting started</a></td>
+          <td>Official getting started, November 21, 2026: &ldquo;TruLens now operates on OpenTelemetry traces.&rdquo; The same page documents installation of the <code>trulens</code> package and evaluation quickstarts. This page did not re-verify a current official limit beyond that operating model.</td>
+        </tr>
+        <tr>
+          <td>Evidently</td>
+          <td><a href="https://docs.evidentlyai.com/introduction" target="_blank" rel="noopener noreferrer">What is Evidently?</a></td>
+          <td>&ldquo;Evidently is an open-source framework (Apache 2.0)&rdquo; that helps teams &ldquo;evaluate, test, and monitor data and AI systems.&rdquo; Official intro: use it &ldquo;as a standalone Python library or as part of a self-hosted platform,&rdquo; with &ldquo;100+ metrics&rdquo; and a goal covering &ldquo;predictive ML models to complex LLM-powered systems.&rdquo; Checked November 21, 2026.</td>
+        </tr>
+        <tr>
+          <td>Ragas</td>
+          <td><a href="https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/" target="_blank" rel="noopener noreferrer">Ragas available metrics</a></td>
+          <td>&ldquo;Metrics are available for different applications and tasks, such as RAG and Agentic workflows.&rdquo; Official list includes RAG metrics (Context Precision, Context Recall, Faithfulness, and others) and agent metrics (Topic adherence, Tool call Accuracy, Tool Call F1, Agent Goal Accuracy). Checked November 21, 2026.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><span class="ttl">Hosted OpenAI Evals and HELM, read separately</span>The hosted OpenAI Evals platform becomes read-only on October 31, 2026 and is scheduled to shut down on November 30, 2026, per OpenAI deprecations and the Evals guide, checked November 21, 2026. The GitHub <code>openai/evals</code> repository is not that hosted product. HELM entered maintenance mode on June 1, 2026. Official policy: no new features, and no new evaluations on the HELM leaderboards.</div>
+  <div class="callout"><span class="ttl">Related workshops</span>Retriever versus generator grading is practiced in the <a href="../rag-alternatives-workshop/">RAG alternatives workshop</a>. Comparing a run with and without a skill is practiced in the <a href="../skills-workshop/">Skills workshop</a>.</div>
   <h3>Ship gate</h3>
   <ul class="gate" id="gate"></ul>
   <p class="count" id="gateCount" role="status">0 ticked.</p>
@@ -590,7 +709,7 @@ def grade(transcript, store, scenario):
 </div>
 
 <footer>
-  <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by OpenAI or Anthropic. Product and model names belong to their owners.</p>
+  <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by OpenAI, Anthropic, or the other vendors and projects named and linked in this workshop. Product and model names belong to their owners.</p>
   <p>Live labs call a paid model through your own OpenRouter key and cost real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">openrouter.ai/keys</a> before connecting, and set the session budget in the Live labs panel.</p>
   <p>Usage policies: <a href="https://openai.com/policies/usage-policies/" target="_blank" rel="noopener noreferrer">OpenAI Usage Policies</a> and <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener noreferrer">Anthropic Usage Policy</a>. Live calls also follow the <a href="https://openrouter.ai/terms" target="_blank" rel="noopener noreferrer">OpenRouter terms</a>.</p>
   <p>Catalog price checked November 11, 2026. Slugs and prices change. Re-check before you rely on them. Simulated rates say "illustrative, not measurements" in the output.</p>
@@ -974,7 +1093,30 @@ def grade(transcript, store, scenario):
     oaiPolicy: ['OpenAI Usage Policies', 'https://openai.com/policies/usage-policies/'],
     anthPolicy: ['Anthropic Usage Policy', 'https://www.anthropic.com/legal/aup'],
     orTerms: ['OpenRouter terms', 'https://openrouter.ai/terms'],
-    starter: ['kpphillips/evals-workshop (private starter)', 'https://github.com/kpphillips/evals-workshop']
+    starter: ['kpphillips/evals-workshop (private starter)', 'https://github.com/kpphillips/evals-workshop'],
+    inspect: ['Inspect AI (UK AISI)', 'https://inspect.aisi.org.uk/'],
+    deepeval: ['DeepEval getting started', 'https://www.deepeval.com/docs/getting-started'],
+    pydanticEvals: ['Pydantic Evals', 'https://ai.pydantic.dev/evals/'],
+    skillEval: ['NVIDIA SkillEvaluator docs', 'https://docs.nvidia.com/skills/skillevaluator'],
+    lmHarness: ['EleutherAI lm-evaluation-harness', 'https://github.com/EleutherAI/lm-evaluation-harness'],
+    promptfoo: ['Promptfoo intro', 'https://www.promptfoo.dev/docs/intro/'],
+    oaiDeprec: ['OpenAI: Deprecations', 'https://developers.openai.com/api/docs/deprecations'],
+    oaiEvalsGuide: ['OpenAI: Working with evals', 'https://developers.openai.com/api/docs/guides/evals'],
+    oaiEvalsGh: ['openai/evals (GitHub)', 'https://github.com/openai/evals'],
+    helmMaint: ['HELM maintenance mode policy', 'https://github.com/stanford-crfm/helm/blob/main/docs/maintenance_mode.md'],
+    helmHome: ['Stanford CRFM HELM', 'https://crfm.stanford.edu/helm/'],
+    braintrustOnline: ['Braintrust: Score production traces', 'https://www.braintrust.dev/docs/evaluate/score-online'],
+    braintrustData: ['Braintrust: Create datasets', 'https://www.braintrust.dev/docs/annotate/datasets/create'],
+    mlflowGenai: ['MLflow: Evaluating LLMs and Agents', 'https://mlflow.org/docs/latest/genai/eval-monitor/'],
+    langfuseEval: ['Langfuse: Evaluation overview', 'https://langfuse.com/docs/evaluation/overview'],
+    langfuseData: ['Langfuse: Datasets', 'https://langfuse.com/docs/evaluation/experiments/datasets'],
+    langsmithEval: ['LangSmith Evaluation', 'https://docs.langchain.com/langsmith/evaluation'],
+    phoenixEvals: ['Arize Phoenix: Evaluation', 'https://arize.com/docs/phoenix/evaluation/llm-evals'],
+    trulensStart: ['TruLens getting started', 'https://www.trulens.org/getting_started/'],
+    evidentlyIntro: ['Evidently: What is Evidently?', 'https://docs.evidentlyai.com/introduction'],
+    ragasMetrics: ['Ragas: List of available metrics', 'https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/'],
+    ragWs: ['RAG alternatives workshop', '../rag-alternatives-workshop/'],
+    skillsWs: ['Skills workshop', '../skills-workshop/']
   };
   function refLi(k) { var s = S[k]; return s ? '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(s[0]) + '</a></li>' : ''; }
   var RAIL = [
@@ -1011,17 +1153,21 @@ def grade(transcript, store, scenario):
       refs: ['toolsearch', 'writetools', 'sandbox'],
       gloss: [['Distractor', 'A tool the task does not need, present so selection can fail.'], ['Discovery router', 'A step that shows the model a short tool list instead of the whole catalog.']] },
     { name: 'Grade the grader',
-      tips: ['Shankar and colleagues: a model grader inherits the model\'s problems, so a person has to check it. They name criteria drift: grading outputs changes the criteria you thought you had.', 'The same paper notes, citing other work, that a model asked to pick the best of a set can be biased by order.', 'Keep the state check even when a prose grader is confident. The polished false booking is the case that makes this obvious.', 'Anthropic lists code, model, and human graders, and says model graders need calibration against people.', 'OpenAI\'s guide: keep agreement between automatic scores and human labels, and prefer comparisons the model is actually good at.', 'The grader in this lab is a scripted stand-in with planted misses. It is not a published judge and not a vendor comparison.'],
-      refs: ['validators', 'anthEvals', 'oaiEvals'],
-      gloss: [['Missed failure', 'The grader accepts a case a person marked fail.'], ['False alarm', 'The grader rejects a case a person marked pass.'], ['Criteria drift', 'The standard moves as you look at more outputs. Named in the validators paper.']] },
+      tips: ['Shankar and colleagues: a model grader inherits the model\'s problems, so a person has to check it. They name criteria drift: grading outputs changes the criteria you thought you had.', 'The same paper notes, citing other work, that a model asked to pick the best of a set can be biased by order.', 'Keep the state check even when a prose grader is confident. The polished false booking is the case that makes this obvious.', 'Anthropic lists code, model, and human graders, and says model graders need calibration against people.', 'OpenAI\'s guide: keep agreement between automatic scores and human labels, and prefer comparisons the model is actually good at.', 'The grader in this lab is a scripted stand-in with planted misses. It is not a published judge and not a vendor comparison.', 'Phoenix evaluation docs describe a fourth judge shape next to code checks, language-model judges, and human labels: a decision-model evaluation that returns a label with per-label probabilities and no explanation. Quoted from Arize Phoenix evaluation docs, checked November 21, 2026. This lab still uses a scripted stand-in.'],
+      refs: ['validators', 'anthEvals', 'oaiEvals', 'phoenixEvals'],
+      gloss: [['Missed failure', 'The grader accepts a case a person marked fail.'], ['False alarm', 'The grader rejects a case a person marked pass.'], ['Criteria drift', 'The standard moves as you look at more outputs. Named in the validators paper.'], ['Decision-model grader', 'A judge that returns a label and per-label probabilities, with no explanation. Named in Phoenix evaluation docs.']] },
     { name: 'Name the fault',
-      tips: ['Agent error: the store and the tools did the right thing available to them, and the agent still claimed a booking or skipped a step.', 'Tool defect: the tool reported success and the store did not change. Fix the tool, and add a regression test that would have caught it.', 'Flawed test: the store is right and the assertion demanded a phrase. Fix the test. Do not "fix" the agent to match a bad phrase.', 'Anthropic: capability tasks can graduate into a regression suite once they pass reliably. A new failure joins that suite.', 'Looking at held-out failures and then editing spends the holdout. The next claim needs tasks that edit did not see.', 'Rerun when the prompt, the model, or the tools change. The old baseline file stays immutable.'],
-      refs: ['anthEvals', 'writetools', 'oaiEvals'],
+      tips: ['Agent error: the store and the tools did the right thing available to them, and the agent still claimed a booking or skipped a step.', 'Tool defect: the tool reported success and the store did not change. Fix the tool, and add a regression test that would have caught it.', 'Flawed test: the store is right and the assertion demanded a phrase. Fix the test. Do not "fix" the agent to match a bad phrase.', 'Anthropic: capability tasks can graduate into a regression suite once they pass reliably. A new failure joins that suite.', 'Looking at held-out failures and then editing spends the holdout. The next claim needs tasks that edit did not see.', 'Rerun when the prompt, the model, or the tools change. The old baseline file stays immutable.', 'A new failure joins the regression suite. Official docs for Langfuse, Braintrust, and Phoenix describe the same move from production traces into a dataset, or online scoring of those traces. This workshop does that loop on a local JSONL file. It does not run a hosted tracing product.'],
+      refs: ['anthEvals', 'writetools', 'oaiEvals', 'langfuseEval', 'braintrustData', 'phoenixEvals'],
       gloss: [['Holdout spend', 'Using held-out results to choose a change, so those tasks no longer confirm it.'], ['One change', 'A single edit between the baseline and the rerun.']] },
     { name: 'Release gate',
-      tips: ['PASS and HOLD are human decisions with reasons. The page has no deploy button.', 'Replay a world that changed (the window closed) and a tool that throws. A suite that only saw the original fixture will miss both.', 'Save results under a config id. The demo fingerprint is FNV-1a, not a cryptographic hash. The Python repo should use hashlib.sha256. Same bytes, same fingerprint.', 'The learnings file proposes experiments. It does not edit the frozen prompt. A person reviews it before the next run.', 'tau2-bench\'s telecom user simulator, with tools constraining the user, had a 16% error rate and 6% critical errors, against 40% and 12% critical in the earlier retail simulator. User simulators are part of what you have to distrust.', 'Tick the gate when you did the thing. The count is a reminder, not a grade.', 'The limitation is the point of the gate: synthetic passes are not readiness for real callers.'],
-      refs: ['tau2', 'anthEvals', 'oaiPolicy', 'anthPolicy'],
-      gloss: [['PASS', 'The replays met the policy, with the reasons written down. Not a deploy.'], ['HOLD', 'At least one replay violated the policy. Ship nothing.'], ['Learnings file', 'Evidence-linked proposals that become new experiments after review.']] }
+      tips: ['PASS and HOLD are human decisions with reasons. The page has no deploy button.', 'Replay a world that changed (the window closed) and a tool that throws. A suite that only saw the original fixture will miss both.', 'Save results under a config id. The demo fingerprint is FNV-1a, not a cryptographic hash. The Python repo should use hashlib.sha256. Same bytes, same fingerprint.', 'The learnings file proposes experiments. It does not edit the frozen prompt. A person reviews it before the next run.', 'tau2-bench\'s telecom user simulator, with tools constraining the user, had a 16% error rate and 6% critical errors, against 40% and 12% critical in the earlier retail simulator. User simulators are part of what you have to distrust.', 'Tick the gate when you did the thing. The count is a reminder, not a grade.', 'The limitation is the point of the gate: synthetic passes are not readiness for real callers.', 'A HOLD is not only a no-ship decision. The failing replay is a new test case for the next baseline. Official production-trace platforms describe the same loop; this workshop records it in a local results file.'],
+      refs: ['tau2', 'anthEvals', 'oaiPolicy', 'anthPolicy', 'langfuseData', 'braintrustOnline', 'langsmithEval'],
+      gloss: [['PASS', 'The replays met the policy, with the reasons written down. Not a deploy.'], ['HOLD', 'At least one replay violated the policy. Ship nothing.'], ['Learnings file', 'Evidence-linked proposals that become new experiments after review.']] },
+    { name: 'Grade level',
+      tips: ['Name the grade level first. The table is not a ranking, and this page does not pick a tool for you.', 'Final answer here includes the appointment store, not only the last sentence. That is the same point as module 2.', 'Retriever versus generator grading is practiced in the RAG alternatives workshop. A with-versus-without skill comparison is practiced in the Skills workshop.', 'Hosted OpenAI Evals becomes read-only on October 31, 2026 and is scheduled to shut down on November 30, 2026. Quoted from OpenAI deprecations and the Evals guide, checked November 21, 2026. The GitHub openai/evals repository is a separate project.', 'HELM entered maintenance mode on June 1, 2026. Official policy: no new features, and no new evaluations on the HELM leaderboards. Quoted from the HELM maintenance mode policy, checked November 21, 2026.', 'Official limits change. Re-check the linked docs before you rely on them.', 'The November 2026 Makarevych article is context for why these names appear together. It is not a source for the quotes in the table.'],
+      refs: ['oaiDeprec', 'oaiEvalsGuide', 'oaiEvalsGh', 'helmMaint', 'phoenixEvals', 'inspect', 'skillEval', 'ragWs', 'skillsWs'],
+      gloss: [['Grade level', 'The slice of the run you score: final answer, a step or tool choice, the trajectory, the conversation, retriever versus generator, or the system bill.'], ['Official limit', 'A scope or constraint quoted from that tool\'s docs, not a ranking.']] }
   ];
   function renderRail(i) {
     var r = RAIL[i]; if (!r) return;
@@ -1463,6 +1609,45 @@ def grade(transcript, store, scenario):
   $('#liveRun').addEventListener('click', function () { showLive(); });
   $('#loadRun').addEventListener('click', showLoad);
   $('#loadN').addEventListener('input', function () { $('#loadNVal').textContent = String(num($('#loadN'), 12, 0, 24)); });
+  function mountSorter(cfg) {
+    $(cfg.host).innerHTML = cfg.items.map(function (it, i) {
+      return '<div class="rowsel"><span>' + esc(it.text) + '</span><select id="' + cfg.prefix + i + '" aria-label="Placement for item ' + (i + 1) + '"><option value="">Not placed</option>' +
+        cfg.bins.map(function (b) { return '<option value="' + esc(b[0]) + '">' + esc(b[1]) + '</option>'; }).join('') +
+        '</select></div>';
+    }).join('');
+    function label(v) {
+      if (!v) return 'not placed';
+      for (var i = 0; i < cfg.bins.length; i++) if (cfg.bins[i][0] === v) return cfg.bins[i][1];
+      return v;
+    }
+    $(cfg.btn).addEventListener('click', function () {
+      var html = '<ul class="place">';
+      cfg.items.forEach(function (it, i) {
+        var v = $('#' + cfg.prefix + i).value;
+        html += '<li><b>' + esc(it.text) + '</b><br>Your placement: ' + esc(label(v)) + '. This page\'s placement: ' + esc(label(it.spec)) + '.<br>' + it.tag + ' ' + esc(it.why) + '</li>';
+      });
+      $(cfg.out).innerHTML = html + '</ul><p class="muted">Nothing is scored. These cases are fictional. The placements are teaching judgments, not vendor claims.</p>';
+    });
+  }
+  mountSorter({
+    host: '#levelRows', out: '#levelOut', btn: '#levelRun', prefix: 'level',
+    bins: [
+      ['answer', 'Final answer'],
+      ['step', 'Step / tool choice'],
+      ['traj', 'Trajectory'],
+      ['conv', 'Conversation'],
+      ['rag', 'Retriever vs generator'],
+      ['bill', 'System bill']
+    ],
+    items: [
+      { text: 'The last message says "You\'re booked Thursday at 2," and the appointment store has no row for that slot.', spec: 'answer', tag: TG.j, why: 'Final answer here is the task result, including the store. The last sentence is not the grade. That is the same point as module 2.' },
+      { text: 'The agent called check_coverage when the caller asked only to move an existing booking to Wednesday.', spec: 'step', tag: TG.j, why: 'The miss is the tool that was chosen at this step, not the final store row or the whole path.' },
+      { text: 'The agent booked first, then checked coverage. Both tools succeeded. A second valid order, coverage then book, also exists.', spec: 'traj', tag: TG.j, why: 'Trajectory grading has to allow more than one valid order, which is the point of module 3. A single required sequence would reject a legal path.' },
+      { text: 'Over three turns the agent forgot the caller had already confirmed tue-14, asked again, and then booked a different window.', spec: 'conv', tag: TG.j, why: 'The fault is spread across the conversation, not a single final sentence or a single tool call.' },
+      { text: 'The desk retrieved a weekday-only policy paragraph for a Saturday request, then wrote a fluent, confident reason that followed that paragraph.', spec: 'rag', tag: TG.j, why: 'Grade retrieval separately from the written reason. The RAG alternatives workshop practices this split.' },
+      { text: 'The booking is in the store, but the run used eight tool rounds and crossed the latency budget.', spec: 'bill', tag: TG.j, why: 'The system bill is cost, latency, or token use for the whole run, even when the booking is correct.' }
+    ]
+  });
   $('#gradeRun').addEventListener('click', showGrade);
   $('#diagRun').addEventListener('click', showDiag);
   $('#relRun').addEventListener('click', showRel);
@@ -1481,6 +1666,7 @@ def grade(transcript, store, scenario):
     'I kept the state check separate from the prose grader, including on a polished false answer.',
     'I classified a failure before editing, and I wrote the new failure down as a regression test.',
     'The release decision is PASS or HOLD with reasons, and the results file is versioned.',
+    'I named the grade level for a failure before I looked at a tool, and I read official limits instead of a ranking.',
     'I can say the limitation: these synthetic passes are not readiness for real callers.'
   ];
   var gateState = {}; try { gateState = JSON.parse(store('ew-gate') || '{}') || {}; } catch (e) { gateState = {}; }
@@ -1503,7 +1689,7 @@ def grade(transcript, store, scenario):
     '#pathRun': 'm0-path', '#redactRun': 'm0-redact', '#priceRun': 'm0-catalog', '#defRun': 'm1-definitions',
     '#failRun': 'm2-planted', '#toolRun': 'm3-tools', '#splitRun': 'm4-split', '#baseRun': 'm5-baseline',
     '#leverRun': 'm6-lever', '#liveRun': 'm6-live', '#loadRun': 'm7-load', '#gradeRun': 'm8-grader',
-    '#diagRun': 'm9-diagnose', '#relRun': 'm10-release', '#relSave': 'm10-save', '#relLearn': 'm10-learnings'
+    '#diagRun': 'm9-diagnose', '#relRun': 'm10-release', '#relSave': 'm10-save', '#relLearn': 'm10-learnings', '#levelRun': 'm11-grade-level'
   });
 
   var mods = $$('.mod'), links = $$('#navList a'), seen = {};
