@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="en" data-palette="tide" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Looking things up</title>
+<meta name="description" content="A hands-on field guide to retrieval, long context, word scores, tool search, and fine-tuning, on a fictional IT handbook. Labs run without a key. By Kevin Phillips.">
+<meta name="author" content="Kevin Phillips">
+<link rel="canonical" href="https://www.kpphillips.com/ai-workshops/rag-alternatives-workshop/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--nav-w:236px;--rail-w:328px;--r:6px;--f-display:'Fraunces',Georgia,serif;--f-body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace}
+html,html[data-palette="tide"]{--bg:#0b1620;--surface:#102130;--surface-2:#162a3b;--ink:#e6eef5;--ink-soft:#b5c5d3;--ink-faint:#93a8ba;--line:#24394c;--line-strong:#3a536a;--accent:#5cc8e6;--accent-ink:#04141c;--green:#5fd39a;--clay:#e8b75e;--red:#f28b85;--alt:#bcaaf4}
+html[data-palette="tide"][data-theme="light"]{--bg:#f3f6f8;--surface:#ffffff;--surface-2:#e8eef2;--ink:#0e1d29;--ink-soft:#34495a;--ink-faint:#4e6376;--line:#cfd9e1;--line-strong:#9fb0bd;--accent:#0a6583;--accent-ink:#ffffff;--green:#136b45;--clay:#835406;--red:#ad2a22;--alt:#5a3eae}
+html[data-palette="ember"]{--bg:#17110c;--surface:#211811;--surface-2:#2c2118;--ink:#f3ebe3;--ink-soft:#d0c2b4;--ink-faint:#ad9e8f;--line:#3b2d21;--line-strong:#5a4634;--accent:#f0a34a;--accent-ink:#1c1005;--green:#72d39b;--clay:#ebc56e;--red:#f38c7d;--alt:#a3bbf2}
+html[data-palette="ember"][data-theme="light"]{--bg:#faf5ef;--surface:#ffffff;--surface-2:#f1e8dd;--ink:#24170c;--ink-soft:#4d3b2b;--ink-faint:#67533f;--line:#e2d4c3;--line-strong:#b9a58f;--accent:#94490a;--accent-ink:#ffffff;--green:#1d6a42;--clay:#7a5500;--red:#aa2b20;--alt:#3a51a4}
+html[data-palette="iris"]{--bg:#120f1e;--surface:#1a1629;--surface-2:#231e36;--ink:#ece8f7;--ink-soft:#c5bedc;--ink-faint:#a39bbd;--line:#322b4b;--line-strong:#4c4370;--accent:#b99eff;--accent-ink:#150d2b;--green:#72d6a3;--clay:#e8c070;--red:#f39191;--alt:#82cbea}
+html[data-palette="iris"][data-theme="light"]{--bg:#f6f5fb;--surface:#ffffff;--surface-2:#ece9f6;--ink:#1a1530;--ink-soft:#433b63;--ink-faint:#5a537c;--line:#d9d4eb;--line-strong:#aaa2c9;--accent:#5732c4;--accent-ink:#ffffff;--green:#18693f;--clay:#785300;--red:#a8262a;--alt:#0a5f7a}
+*{box-sizing:border-box}
+html{color-scheme:dark;scroll-behavior:smooth;scrollbar-color:var(--line-strong) var(--bg)}
+html[data-theme="light"]{color-scheme:light}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--f-body);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--accent-ink)}
+input,textarea,select{caret-color:var(--accent)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:6px;border:2px solid var(--bg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:-0.02em;line-height:1.15;margin:0 0 .6rem;color:var(--ink)}
+h1{font-size:clamp(2rem,4vw,3rem)}
+h2{font-size:clamp(1.5rem,2.6vw,2rem)}
+h3{font-size:1.15rem;margin-top:1.4rem}
+p{margin:0 0 .9rem}
+code,pre,kbd,.num{font-family:var(--f-mono);font-size:.88em}
+code{background:var(--surface-2);padding:.08em .35em;border-radius:4px}
+pre{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;overflow:auto;margin:0 0 1rem;line-height:1.5;font-size:.82rem;white-space:pre-wrap;word-break:break-word}
+pre code{background:none;padding:0}
+.skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:var(--accent-ink);padding:.5rem 1rem;z-index:10}
+.skip:focus{left:1rem}
+.shell{display:grid;grid-template-columns:var(--nav-w) minmax(0,1fr) var(--rail-w);min-height:100vh}
+@media (max-width:1180px){:root{--nav-w:200px;--rail-w:292px}}
+@media (max-width:900px){:root{--nav-w:170px;--rail-w:250px}}
+.nav,.rail{position:sticky;top:env(safe-area-inset-top,0px);height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;background:var(--surface);scrollbar-width:thin}
+.nav{border-right:1px solid var(--line);padding:1.25rem 1rem;display:flex;flex-direction:column;gap:.9rem}
+.rail{border-left:1px solid var(--line);padding:1rem}
+main{padding:2rem clamp(1rem,3.5vw,3rem) 4rem;min-width:0}
+.content{max-width:860px;margin:0 auto}
+.brand{font-weight:700;font-size:1.05rem;letter-spacing:-.01em;line-height:1.35}
+.brand span{display:block;font-weight:400;font-size:.85rem;color:var(--ink-soft)}
+.nav .back{align-self:flex-start}
+.nav-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.nav-list a{display:grid;grid-template-columns:1.6rem 1fr;gap:.25rem;padding:.38rem .5rem;border-radius:5px;color:var(--ink-soft);text-decoration:none;font-size:.9rem;line-height:1.3;border:1px solid transparent}
+.nav-list a .n{color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.nav-list a:hover{background:var(--surface-2);color:var(--ink)}
+.nav-list a.active{background:var(--surface-2);color:var(--ink);border-color:var(--line-strong)}
+.nav-list a.active .n{color:var(--accent)}
+.nav-list a.seen .n{color:var(--ink-soft)}
+.nav-foot{margin-top:auto;display:flex;flex-direction:column;gap:.6rem;padding-top:.8rem;border-top:1px solid var(--line)}
+.nav-foot .lbl{font-size:.78rem;color:var(--ink-soft)}
+.swatches{display:flex;gap:.45rem;align-items:center}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);cursor:pointer;padding:0;display:grid;place-items:center}
+.swatch[data-p="tide"]{background:#2f9ec0}.swatch[data-p="ember"]{background:#d98a2e}.swatch[data-p="iris"]{background:#8a6ce6}
+.swatch[aria-pressed="true"]{border-color:var(--ink)}
+.swatch[aria-pressed="true"]::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--bg)}
+.tick{height:12px;margin:0 0 1rem;background:
+ linear-gradient(var(--line-strong),var(--line-strong)) left bottom/100% 1px no-repeat,
+ repeating-linear-gradient(90deg,var(--line-strong) 0 1px,transparent 1px 48px) left bottom/100% 11px no-repeat,
+ repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 8px) left bottom/100% 6px no-repeat}
+.meter{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--line)}
+.meter span{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform .4s ease}
+.progress{display:flex;flex-direction:column;gap:.35rem}
+.progress small{color:var(--ink-soft);font-size:.78rem}
+.mod{padding:2.4rem 0 1.2rem;scroll-margin-top:1rem}
+.js .mod{transform:translateY(16px);transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.js .mod.in{transform:none}
+.lead{font-size:1.1rem;color:var(--ink-soft);max-width:62ch}
+.intro{color:var(--ink-soft);max-width:66ch}
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.2rem;margin:1rem 0 1.2rem}
+.lab-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:.5rem;margin-bottom:.8rem}
+.lab-head h3{margin:0;font-size:1.08rem}
+.lab-kind{font-size:.78rem;font-weight:600;padding:.12rem .5rem;border-radius:4px;border:1px solid var(--line-strong);color:var(--ink-soft)}
+.row{display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;margin-bottom:.8rem}
+.field{display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.field>span,.field>label,.lbl-sm{font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.grow{flex:1 1 220px}
+input[type=text],input[type=number],input[type=password],select,textarea{font:inherit;font-size:.92rem;background:var(--bg);color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r);padding:.45rem .6rem;min-width:0;max-width:100%}
+input[type=number]{width:8rem}
+input::placeholder{color:var(--ink-faint)}
+input[type=range]{accent-color:var(--accent);width:100%}
+input[type=checkbox]{accent-color:var(--accent);width:1rem;height:1rem;margin:0}
+.checks{display:flex;flex-direction:column;gap:.45rem}
+.checks label{display:flex;gap:.45rem;align-items:flex-start;font-size:.92rem;cursor:pointer}
+.btn{font:600 .9rem var(--f-body);background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:var(--r);padding:.5rem .95rem;cursor:pointer;line-height:1.2}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:progress}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{padding:.3rem .6rem;font-size:.82rem}
+.out{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;margin-top:.8rem;font-size:.92rem;font-variant-numeric:tabular-nums;min-height:2.6rem}
+.out:empty::before{content:"Output appears here.";color:var(--ink-faint)}
+.out h4{margin:.2rem 0 .5rem;font:600 .95rem var(--f-body)}
+.muted{color:var(--ink-soft)}
+.faint{color:var(--ink-faint)}
+.big{font-size:1.6rem;font-weight:600;line-height:1.1}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin:.6rem 0}
+.stat{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:.6rem .75rem}
+.stat .k{font-size:.78rem;font-weight:600;color:var(--ink-soft);display:block}
+.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--clay)}
+.tbl-wrap{overflow-x:auto;margin:.6rem 0 1rem}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-soft);font-size:.8rem;background:var(--surface-2)}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-size:.84em}
+.tag{display:inline-block;font:600 .72rem/1.3 var(--f-body);padding:.08rem .42rem;border-radius:4px;border:1px solid;white-space:nowrap;vertical-align:.08em}
+.tag.q{color:var(--ink);border-color:var(--green);background:color-mix(in srgb,var(--green) 16%,transparent)}
+.tag.d{color:var(--ink);border-color:var(--line-strong);background:var(--surface-2)}
+.tag.i{color:var(--ink);border-color:var(--clay);background:color-mix(in srgb,var(--clay) 16%,transparent)}
+.tag.c{color:var(--ink);border-color:var(--alt);background:color-mix(in srgb,var(--alt) 16%,transparent)}
+.tag.t{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.callout{border:1px solid var(--line-strong);background:var(--surface-2);border-radius:var(--r);padding:.75rem .95rem;margin:1rem 0;font-size:.93rem}
+.callout .ttl{display:block;font-weight:700;font-size:.82rem;margin-bottom:.2rem;color:var(--ink)}
+.callout.caution{border-color:var(--clay);background:color-mix(in srgb,var(--clay) 10%,var(--surface))}
+.illus{display:block;font-size:.8rem;font-weight:600;color:var(--clay);margin-bottom:.4rem}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem .9rem;margin:.6rem 0 1rem;font-size:.86rem;color:var(--ink-soft)}
+.connect{border:1px solid var(--line-strong);border-radius:10px;padding:.8rem;background:var(--surface-2);transition:background-color .3s,border-color .3s}
+.connect.live{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--surface))}
+.connect h2{font:700 .95rem var(--f-body);letter-spacing:0;margin:0}
+.lamp-row{display:flex;align-items:center;gap:.45rem;justify-content:space-between;margin-bottom:.5rem}
+.lamp{display:inline-flex;align-items:center;gap:.35rem;font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.lamp i{width:10px;height:10px;border-radius:50%;background:var(--ink-faint);display:inline-block;box-shadow:0 0 0 3px color-mix(in srgb,var(--ink-faint) 25%,transparent)}
+.connect.live .lamp i{background:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 30%,transparent)}
+.connect .row{margin-bottom:.5rem;gap:.4rem}
+.connect input[type=password]{flex:1 1 120px;width:100%}
+.msg{font-size:.8rem;margin:.3rem 0 .4rem;color:var(--ink-soft);min-height:1rem}
+.msg.err{color:var(--red)}.msg.okm{color:var(--green)}.msg.warnm{color:var(--clay)}
+.spend{font-size:.82rem;color:var(--ink-soft);display:flex;align-items:center;justify-content:space-between;gap:.4rem;flex-wrap:wrap}
+.spend input{width:5.2rem;padding:.25rem .4rem}
+details{margin-top:.5rem}
+summary{cursor:pointer;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
+details .field{margin-top:.45rem}
+details input{width:100%}
+.rail-body{transition:opacity .22s ease}
+.rail-body.fade{opacity:0}
+.rail h3{font:700 .8rem var(--f-body);letter-spacing:0;color:var(--ink-soft);margin:1rem 0 .4rem}
+.rail ul{margin:0;padding-left:1.05rem;font-size:.86rem;line-height:1.5}
+.rail li{margin-bottom:.4rem}
+.rail dl{margin:0;font-size:.85rem}
+.rail dt{font-weight:700;margin-top:.45rem}
+.rail dd{margin:0;color:var(--ink-soft)}
+.rail .mod-name{font:600 1rem var(--f-display);letter-spacing:-.02em;margin:.2rem 0 0}
+.all-src ul{max-height:260px;overflow:auto}
+.gate{list-style:none;padding:0;margin:.5rem 0}
+.gate li{margin:.35rem 0}
+.gate button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1.4rem 1fr;gap:.55rem;align-items:start;width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer;font-size:.93rem;line-height:1.45}
+.gate button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gate button[aria-pressed="true"]{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface))}
+.box{width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:4px;display:grid;place-items:center;margin-top:.1rem}
+.gate button[aria-pressed="true"] .box{border-color:var(--green);background:var(--green)}
+.box svg{width:12px;height:12px;opacity:0}
+.gate button[aria-pressed="true"] .box svg{opacity:1}
+.chunks{display:flex;flex-direction:column;gap:.4rem;margin-top:.6rem}
+.chunk{border:1px solid var(--line);border-radius:var(--r);padding:.45rem .6rem;background:var(--surface-2);font-size:.84rem}
+.chunk.whole{border-color:var(--green)}
+.chunk.part{border-color:var(--clay)}
+.chunk .meta{font-size:.78rem;font-weight:600;color:var(--ink-soft);margin-bottom:.15rem}
+.fact{background:color-mix(in srgb,var(--clay) 28%,transparent);border-radius:3px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.45rem}
+.steps li{border:1px solid var(--line);border-radius:var(--r);padding:.5rem .65rem;background:var(--surface-2)}
+.steps li.on{border-color:var(--accent)}
+.steps .who{font-weight:700;font-size:.78rem;color:var(--ink-soft)}
+footer{border-top:1px solid var(--line);padding:1.5rem clamp(1rem,3.5vw,3rem) 2.5rem;font-size:.84rem;color:var(--ink-soft);background:var(--surface)}
+footer p{max-width:900px;margin:0 auto .5rem}
+@media (max-width:560px){
+ .shell{display:block}
+ .nav,.rail{position:static;height:auto;border:0;border-bottom:1px solid var(--line)}
+ .nav-list{display:grid;grid-template-columns:1fr 1fr}
+ main{padding:1.2rem 1rem 3rem}
+}
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .js .mod,.js .mod.in{transform:none;transition:none}
+ .meter span,.rail-body,.connect{transition:none}
+}
+</style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1e1f8f28-e5be-4248-a060-d36f6c30d2c1"></script>
+<script>
+/* Analytics (Umami, cookie-free). No-ops if the script is blocked.
+   Properties are fixed slugs and ids only: never keys, prompts, or typed text.
+   module {workshop, module}  lab_run {workshop, lab, model?}  connect_click, connected {workshop}
+   gate_item {workshop, item}  gate_done {workshop}  ref_click {workshop, domain} */
+window.wsTrack=(function(){
+  var WS='rag-alternatives-workshop',q=[],ready=false,seen={};
+  function send(n,p){try{var u=window.umami;if(u&&typeof u.track==='function')u.track(n,p);}catch(e){}}
+  function t(n,p){p=p||{};p.workshop=WS;if(ready)send(n,p);else q.push([n,p]);}
+  document.addEventListener('DOMContentLoaded',function(){ready=true;q.splice(0).forEach(function(a){send(a[0],a[1]);});});
+  t.once=function(n,k,p){var id=n+':'+k;if(seen[id])return;seen[id]=1;t(n,p);};
+  t.module=function(m){t.once('module',m,{module:m});};
+  t.labs=function(map){document.addEventListener('click',function(e){
+    if(!e.target.closest)return;
+    Object.keys(map).forEach(function(s){
+      if(!e.target.closest(s))return;
+      var v=[].concat(map[s]),p={lab:v[0]},m=v[1]&&document.getElementById(v[1]);
+      if(m&&m.tagName==='SELECT')p.model=String(m.value).slice(0,60);
+      t('lab_run',p);
+    });
+  });};
+  t.gate=function(sel,on){var done=false;document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest(sel);if(!el||!on(el))return;
+    var all=[].slice.call(document.querySelectorAll(sel));
+    t.once('gate_item',all.indexOf(el),{item:all.indexOf(el)+1});
+    if(!done&&all.every(on)){done=true;t('gate_done');}
+  });};
+  function ref(e){
+    var a=e.target.closest&&e.target.closest('a[href]');
+    if(!a||!/^https?:$/.test(a.protocol))return;
+    var h=a.hostname.replace(/^www\./,'');
+    if(!h||h===location.hostname.replace(/^www\./,'')||/(^|\.)kpphillips\.com$/.test(h))return;
+    t('ref_click',{domain:h});
+  }
+  document.addEventListener('click',ref);document.addEventListener('auxclick',ref);
+  return t;
+})();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+<nav class="nav" aria-label="Workshop modules">
+  <div class="brand">Looking things up<span>Retrieval is one way. It is not the only way.</span></div>
+  <a class="back" href="https://www.kpphillips.com/ai-workshops/">← All workshops</a>
+  <div class="tick" aria-hidden="true"></div>
+  <div class="progress">
+    <div class="meter" role="progressbar" aria-label="Modules visited" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
+    <small id="progressLabel">0 of 7 modules visited</small>
+  </div>
+  <ol class="nav-list" id="navList">
+    <li><a href="#m1"><span class="n">1</span>Where a chunk cuts</a></li>
+    <li><a href="#m2"><span class="n">2</span>The whole handbook</a></li>
+    <li><a href="#m3"><span class="n">3</span>Words, vectors, fusion</a></li>
+    <li><a href="#m4"><span class="n">4</span>Search with tools</a></li>
+    <li><a href="#m5"><span class="n">5</span>Fine-tuning</a></li>
+    <li><a href="#m6"><span class="n">6</span>A five-question tally</a></li>
+    <li><a href="#m7"><span class="n">7</span>Ship gate</a></li>
+  </ol>
+  <div class="nav-foot">
+    <span class="lbl" id="palLbl">Palette</span>
+    <div class="swatches" role="group" aria-labelledby="palLbl">
+      <button class="swatch" data-p="tide" aria-label="Tide palette" aria-pressed="true" type="button"></button>
+      <button class="swatch" data-p="ember" aria-label="Ember palette" aria-pressed="false" type="button"></button>
+      <button class="swatch" data-p="iris" aria-label="Iris palette" aria-pressed="false" type="button"></button>
+    </div>
+    <button class="btn ghost sm" id="modeBtn" type="button">Switch to light</button>
+  </div>
+</nav>
+
+<main id="main">
+<div class="content">
+
+<section class="mod" id="m1" data-mod="1">
+  <div class="tick" aria-hidden="true"></div>
+  <h1>Looking things up</h1>
+  <p class="lead">A model can answer from its weights, from a retrieved page, from a long prompt, or from a tool that opens a file. This workshop runs all four against one small handbook so you can see what each one actually does.</p>
+  <div class="legend" aria-label="Evidence labels">
+    <span><span class="tag q">Quoted</span> published by the linked source</span>
+    <span><span class="tag d">Derived</span> computed on this page</span>
+    <span><span class="tag i">Illustrative</span> demo data, not measurements</span>
+    <span><span class="tag t">Your run</span> a live call you paid for</span>
+    <span><span class="tag c">Convention</span> this page's choice, not a spec</span>
+  </div>
+  <p class="muted">Every module is a lab. Nothing here is scored. Demo mode needs no key. One lab, in module 6, can call a model once you connect a key in the <a href="#connect">Live labs panel</a>. The other labs are arithmetic and scripted traces.</p>
+
+  <h2>1. What retrieval-augmented generation is, and where a fixed window cuts</h2>
+  <p class="intro">In 2020 Lewis and colleagues defined retrieval-augmented generation as a generator with two memories. The parametric memory is the generator's weights. In their system that generator was BART-large, which they describe as a seq2seq Transformer with 400 million parameters. The non-parametric memory was a dense index of Wikipedia, built from the December 2018 dump and split into disjoint 100-word chunks, 21 million of them, retrieved by a pretrained Dense Passage Retriever. <span class="tag q">Quoted</span> <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener">arXiv:2005.11401</a></p>
+  <p>They trained two ways of using the retrieved chunk. RAG-Sequence conditions every token of the answer on the same retrieved chunk. RAG-Token may use a different chunk for each token. Both marginalize over a top-k list. They kept the document encoder fixed and fine-tuned the query encoder and BART. <span class="tag q">Quoted</span></p>
+  <p>On the Natural Questions open-domain test set they report exact-match of <span class="num">44.5</span> for RAG-Sequence and <span class="num">44.1</span> for RAG-Token, against <span class="num">41.5</span> for the DPR extractive pipeline and <span class="num">34.5</span> for a closed-book T5 with 11 billion parameters. The abstract says the same models set the state of the art on three open-domain question sets: Natural Questions, WebQuestions, and CuratedTrec. Those are 2020 numbers on those sets. They are not a ranking of later systems. <span class="tag q">Quoted</span></p>
+  <p>The introduction names three limits of a weights-only model: it cannot easily expand or revise its memory, it cannot straightforwardly show where an answer came from, and it may produce hallucinations. In an index-swap test they built a second index from the December 2016 Wikipedia dump and asked “Who is {position}?” about 82 world leaders who had changed by December 2018. RAG answered 70% correctly with the 2016 index on the 2016 leaders and 68% with the 2018 index on the 2018 leaders. The 2018 index on the 2016 leaders scored 12%, and the 2016 index on the 2018 leaders scored 4%. <span class="tag q">Quoted</span></p>
+  <div class="callout">
+    <span class="ttl">A different cut, which that paper does not measure</span>
+    Their index unit was a 100-word Wikipedia chunk. A handbook procedure is not a Wikipedia paragraph. The lab below cuts one fictional page on a character window. Whether the watched sentence survives in a single chunk is arithmetic on this text. <span class="tag d">Derived</span> It is not a result from the paper.
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><h3>Cut one page</h3><span class="lab-kind">Chunk window</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">The page is fictional. The watched fact is the gateway sentence, marked in the source. Move the window, then split. A shorter window is not always the one that cuts the sentence. The boundary can fall just before it. Overlap is this page's control, not a setting from the 2020 paper. <span class="tag c">Convention</span></p>
+    <div class="field" style="margin-bottom:.6rem"><label for="chunkSize">Window <span class="num" id="chunkSizeVal">240</span> characters</label><input type="range" id="chunkSize" min="80" max="700" step="20" value="240"></div>
+    <div class="field" style="margin-bottom:.8rem"><label for="chunkOverlap">Overlap <span class="num" id="chunkOverlapVal">0</span> characters</label><input type="range" id="chunkOverlap" min="0" max="120" step="10" value="0"></div>
+    <details open><summary>The page, with the watched sentence marked</summary><p id="chunkSource" style="margin-top:.6rem"></p></details>
+    <div class="row"><button class="btn" id="chunkRun" type="button">Split the page</button></div>
+    <div class="out" id="chunkOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m2" data-mod="2">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>2. Put the whole handbook in the prompt</h2>
+  <p class="intro">Retrieval exists partly because the prompt used to be short. A long context window is a different design: paste the pages, and do not retrieve. Pasting has a budget, in tokens and in money. It also has a use question, which is not the same as the budget question.</p>
+  <p>Liu and colleagues, in 2023, studied multi-document question answering and a synthetic key-value task. They report that, on the models they tested, accuracy was often highest when the relevant text sat at the beginning or the end of the prompt, and lower when it sat in the middle. The models were MPT-30B-Instruct, LongChat-13B (16K), GPT-3.5-Turbo, and Claude-1.3. On their multi-document task, GPT-3.5-Turbo with the relevant document in the middle scored below its own closed-book figure of <span class="num">56.1%</span>. In a separate Natural Questions case study, moving from 20 retrieved documents to 50 improved GPT-3.5-Turbo by about 1.5 points and Claude-1.3 by about 1 point, which they describe with a tilde. <span class="tag q">Quoted</span> <a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener">arXiv:2307.03172</a></p>
+  <p>That paper does not measure models from 2026, and this page does not repeat the experiment. The lab only does the budget.</p>
+
+  <div class="lab">
+    <div class="lab-head"><h3>Context budget</h3><span class="lab-kind">Calculator</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Token counts here are characters divided by four. A real tokenizer will differ. <span class="tag c">Convention</span> The handbook is the eight short pages from module 3, not the long page you just cut. Prices are the OpenRouter figures recorded below.</p>
+    <div class="row">
+      <label class="field"><span>Context window (tokens)</span><input type="number" id="winIn" min="100" step="100" value="262144"></label>
+      <label class="field"><span>Instruction allowance</span><input type="number" id="instIn" min="0" step="10" value="200"></label>
+      <label class="field"><span>Output reserve</span><input type="number" id="outIn" min="1" step="10" value="300"></label>
+    </div>
+    <div class="row">
+      <button class="btn" id="budgetRun" type="button">Calculate the budget</button>
+      <button class="btn ghost" id="winPreset" type="button">Use 262,144</button>
+    </div>
+    <p class="faint" style="font-size:.84rem;margin:0">262,144 is the context length on OpenRouter's catalog and on the <a href="https://openrouter.ai/inclusionai/ling-3.0-tiny" target="_blank" rel="noopener">Ling 3.0 Tiny pricing page</a>, both read on 20 November 2026. <span class="tag q">Quoted</span> Type a smaller window if you want to see the overflow line. Fitting is a budget fact. It does not say whether a model will use a sentence in the middle.</p>
+    <div class="out" id="budgetOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m3" data-mod="3">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>3. Word scores, teaching vectors, and rank fusion</h2>
+  <p class="intro">The 2020 RAG system retrieved with a dense bi-encoder. In the same paper they also swapped that retriever for BM25 and used the BM25 scores as the retrieval logits. They report that BM25 performed best on FEVER in that comparison, and that the learned retriever improved the other tasks they measured. <span class="tag q">Quoted</span> A word score is the method that lights up when the query contains a rare string that also appears on the page. This module runs a word score, a hand-built vector score, and one merge of the two lists, on eight fictional pages. It is not a rerun of their table.</p>
+  <p>BM25 scores a page by summing, over the query words that appear on it, a product of an inverse-document-frequency term and a saturated term frequency, with a penalty for page length. Robertson and Zaragoza (2009) write that the model does not say how to set the saturation parameter <span class="num">k1</span> and the length parameter <span class="num">b</span>, and that experiments suggest values such as <span class="num">0.5 &lt; b &lt; 0.8</span> and <span class="num">1.2 &lt; k1 &lt; 2</span> are reasonably good on many collections, while the best values depend on the collection. <span class="tag q">Quoted</span> <a href="https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf" target="_blank" rel="noopener">The Probabilistic Relevance Framework: BM25 and Beyond</a></p>
+  <p>This page sets <span class="num">k1 = 1.2</span> and <span class="num">b = 0.75</span>. <span class="num">b</span> sits inside the range they report. <span class="num">k1</span> sits on the edge of the strict range they wrote. Both are a choice. <span class="tag c">Convention</span> The IDF term is <span class="num">ln(1 + (N − df + 0.5) / (df + 0.5))</span>, where <span class="num">N</span> is the number of pages and <span class="num">df</span> is how many pages contain the word. That expression is also a choice. <span class="tag c">Convention</span> Tokens are lowercase words and dotted identifiers. There is no stemmer, so "visitor" does not match "visitors" unless the page uses that form. A short stop list is dropped. <span class="tag c">Convention</span></p>
+  <p>The second ranker is not an embedding model. Each page and each fixed question has a hand-built vector over a few concepts (remote, credential, wireless, guest, and so on). The score is cosine similarity. Empty vectors are omitted. These vectors exist so a paraphrase can outrank a page that shares no words. They will miss an identifier they have no dimension for. <span class="tag i">Illustrative</span></p>
+  <p>The third list is reciprocal rank fusion. Cormack, Clarke, and Buettcher (SIGIR 2009) define the score of a document as the sum, over rankings, of <span class="num">1 / (k + rank)</span>, with <span class="num">k = 60</span> fixed in a pilot and not changed afterward. On the TREC runs they combined, they report that this beat Condorcet fusion and, with one exception where the best run was manual, the best single run. <span class="tag q">Quoted</span> <a href="https://cormack.uwaterloo.ca/cormacksigir09-rrf.pdf" target="_blank" rel="noopener">their SIGIR paper</a> This page uses <span class="num">k = 60</span> and 1-based ranks. A page missing from a list adds nothing from that list. Equal scores keep the earlier page in the handbook. <span class="tag c">Convention</span> Their TREC result is not a result on this handbook.</p>
+
+  <div class="lab">
+    <div class="lab-head"><h3>Rank one question three ways</h3><span class="lab-kind">Comparison</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">The five wordings are fixed, because the teaching vectors were written for those wordings. The correct page was chosen with the question, before any score on this page was computed.</p>
+    <div class="row">
+      <label class="field grow"><span>Question</span><select id="rankQ"></select></label>
+      <button class="btn" id="rankRun" type="button">Rank this question</button>
+    </div>
+    <div class="out" id="rankOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m4" data-mod="4">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>4. Let the model search with tools</h2>
+  <p class="intro">A retriever returns a list in one shot. A tool loop can grep, read, and grep again. Yao and colleagues (2022) describe ReAct as interleaving a reasoning trace with actions that read an external source. On HotpotQA and FEVER they used a Wikipedia API. On ALFWorld and WebShop they report absolute success-rate gains of 34 and 10 points against the imitation and reinforcement-learning methods in that paper, using one or two in-context examples. <span class="tag q">Quoted</span> <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener">arXiv:2210.03629</a></p>
+  <p>Those are their tasks. The stepper here is a scripted trace on the fictional handbook. It is not a model log, and it is not a ReAct run. <span class="tag i">Illustrative</span> Watch the context grow, and watch a first read that shares a word with the question and does not hold the answer.</p>
+
+  <div class="lab">
+    <div class="lab-head"><h3>Step through a scripted search</h3><span class="lab-kind">Stepper</span></div>
+    <div class="row">
+      <label class="field grow"><span>Trace</span><select id="stepWhich"></select></label>
+      <button class="btn" id="stepNext" type="button">Next step</button>
+      <button class="btn ghost" id="stepReset" type="button">Reset</button>
+    </div>
+    <div class="out" id="stepOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m5" data-mod="5">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>5. Fine-tuning and retrieval change different things</h2>
+  <p class="intro">Fine-tuning continues training and changes weights. Retrieval leaves the weights alone and adds text at question time. They are not two scores on one axis, and a paper that compares them has a setup.</p>
+  <p>Ovadia, Brief, Mishaeli, and Elisha (2023) compared unsupervised fine-tuning, meaning continued training on the raw text, with RAG. Their abstract says RAG consistently outperformed that fine-tuning, both for knowledge the models had seen in pretraining and for new knowledge, and that the models struggled to learn new facts from unsupervised fine-tuning alone. The conclusion says they found RAG the more reliable choice for knowledge injection in that work. <span class="tag q">Quoted</span> <a href="https://arxiv.org/abs/2312.05934" target="_blank" rel="noopener">arXiv:2312.05934</a></p>
+  <p>The same paper's limitations and future-work sections bound that sentence. They used unsupervised training, not instruction-tuning and not reinforcement learning. They used three models. Every knowledge base was from Wikipedia. The number of retrieved passages, K, was unstable across tasks, and they call that instability a practical downside of RAG. They say generalization to other models should be tested, and that hyperparameters matter. <span class="tag q">Quoted</span> This page did not fine-tune a model and did not repeat their tests.</p>
+  <p>Lewis and colleagues, separately, showed that replacing the non-parametric index updates what their 2020 system can answer. That is a property of an index you can rebuild. It is not a property of every file a tool might read, and it says nothing about a fine-tune whose job is the shape of a reply rather than a fact.</p>
+
+  <div class="lab">
+    <div class="lab-head"><h3>Which constraints apply</h3><span class="lab-kind">Approach picker</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Check the rows that describe the change you have in mind. The notes that come back are the considerations tied to those rows. They do not add up to a recommendation.</p>
+    <div class="checks" id="pickBoxes">
+      <label><input type="checkbox" value="edits"> A person can edit the page, and the words will change without a training run.</label>
+      <label><input type="checkbox" value="cite"> The reply should name the page it used.</label>
+      <label><input type="checkbox" value="shape"> The change I want is the shape of the reply, and I have examples of that shape.</label>
+      <label><input type="checkbox" value="size"> The handbook is larger than the window I want to pay to fill.</label>
+      <label><input type="checkbox" value="weights"> I cannot change the model's weights. I can change the files.</label>
+      <label><input type="checkbox" value="rare"> I believe this fact was rare in pretraining.</label>
+    </div>
+    <div class="row" style="margin-top:.8rem"><button class="btn" id="pickRun" type="button">Read the checked rows</button></div>
+    <div class="out" id="pickOut" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="mod" id="m6" data-mod="6">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>6. Count hits on five questions</h2>
+  <p class="intro">Manning, Raghavan, and Schütze define recall as the fraction of relevant documents that the system retrieved. Recall at k uses only the top k. With one relevant page, recall at k is 1 if that page is in the top k and 0 otherwise. <span class="tag q">Quoted</span> <a href="https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-unranked-retrieval-sets-1.html" target="_blank" rel="noopener">Introduction to Information Retrieval</a>, the unranked-evaluation section; the cutoff at k is the ranked variant of that ratio.</p>
+  <p>Five questions cannot settle a method. The tally is a teaching count on this handbook. The banner on the result says so. Two columns can share a count and miss different questions. Read the rows.</p>
+
+  <div class="lab">
+    <div class="lab-head"><h3>Tiny retrieval tally</h3><span class="lab-kind">Five questions</span></div>
+    <div class="row"><button class="btn" id="evalRun" type="button">Tally the five questions</button></div>
+    <div class="out" id="evalOut" aria-live="polite"></div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><h3>Answer from the top word-score page only</h3><span class="lab-kind">Demo or one live call</span></div>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Demo mode returns a canned reply written from that page, labeled illustrative, not measurements. Live mode sends the question and that one page to <span class="num">inclusionai/ling-3.0-tiny</span>. On 20 November 2026 the OpenRouter catalog and the <a href="https://openrouter.ai/inclusionai/ling-3.0-tiny" target="_blank" rel="noopener">pricing page</a> both listed <span class="num">$0.015</span> per million input tokens and <span class="num">$0.045</span> per million output tokens, context <span class="num">262,144</span>, one provider (Ant Digital). <span class="tag q">Quoted</span> The canonical slug in the catalog that day was <span class="num">inclusionai/ling-3.0-tiny-20260806</span>.</p>
+    <p class="muted" style="font-size:.9rem">Selection rule for this page: among text-to-text models that are not routers and whose slug does not end in <span class="num">:free</span>, take the lowest catalog prompt-plus-completion price whose pricing-page headline matches the catalog. <span class="tag c">Convention</span> Mistral Nemo's catalog row that day was slightly lower at <span class="num">$0.029 / $0.030</span>, but its pricing-page headline was <span class="num">$0.01656 / $0.0216</span> and the same page listed a provider at <span class="num">$0.15 / $0.15</span>. Those figures disagree, so the live lab does not use that slug. <span class="tag q">Quoted</span> <a href="https://openrouter.ai/mistralai/mistral-nemo" target="_blank" rel="noopener">Mistral Nemo page</a>, read the same day. Slugs ending in <span class="num">:free</span> listed a zero price. This page does not call them.</p>
+    <div class="row">
+      <label class="field grow"><span>Question</span><select id="ansQ"></select></label>
+      <button class="btn" id="answerRun" type="button">Answer from the top page</button>
+      <button class="btn ghost" id="catalogBtn" type="button">Check the slug against the live catalog</button>
+    </div>
+    <div class="out" id="answerOut" aria-live="polite"></div>
+    <div class="out" id="catalogOut" aria-live="polite"><p class="faint">The catalog check prints here. It sends no key.</p></div>
+  </div>
+</section>
+
+<section class="mod" id="m7" data-mod="7">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>7. Ship gate</h2>
+  <p class="intro">Tick a row when it is true of a system you are responsible for, not because a lab on this page ran. The count is only how many you have ticked.</p>
+  <ul class="gate" id="gate"></ul>
+  <p class="msg" id="gateCount" role="status"></p>
+  <div class="callout caution">
+    <span class="ttl">One limit to carry out of this page</span>
+    The rankings are a toy: eight short fictional pages, a word score with chosen parameters, and hand-built vectors. They are not a measurement of any retrieval system, and they do not decide what you should ship. A decision needs your pages, questions you did not use to tune the index, and a count of misses you can stand.
+  </div>
+</section>
+
+</div>
+</main>
+
+<aside class="rail" aria-label="Live labs and module notes">
+  <section class="connect" id="connect" aria-labelledby="connectTitle">
+    <div class="lamp-row"><h2 id="connectTitle">Live labs</h2><span class="lamp" id="lamp"><i aria-hidden="true"></i><span id="lampText">Demo</span></span></div>
+    <p class="msg" id="connectMsg" role="status">Demo mode: the answer lab uses a canned reply. The other labs never call a model.</p>
+    <div class="row">
+      <input type="password" id="keyIn" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="OpenRouter key (sk-or-...)" aria-label="OpenRouter API key">
+      <button class="btn sm" id="connectBtn" type="button">Connect</button>
+      <button class="btn ghost sm" id="disconnectBtn" type="button" hidden>Disconnect</button>
+    </div>
+    <div class="spend"><span>Session spend <b class="num" id="spendVal">$0.0000</b> <span class="tag d">Derived</span></span><label>Budget $<input type="number" id="budgetIn" min="0.1" step="0.5" value="1" aria-label="Session budget in dollars"></label></div>
+    <details><summary>Advanced</summary>
+      <label class="field"><span>max_tokens per reply</span><input type="number" id="maxTokIn" min="50" max="1500" step="50" value="400"></label>
+      <div class="checks" style="margin-top:.5rem"><label><input type="checkbox" id="reasonIn" checked> Ask for low reasoning effort</label></div>
+      <p class="msg">The key stays in page memory and is cleared when you disconnect or reload. It is not written to storage. Calls go to openrouter.ai and nowhere else. Turn reasoning off if a model rejects the request with a 400.</p>
+    </details>
+  </section>
+  <div class="tick" aria-hidden="true" style="margin-top:1rem"></div>
+  <div class="rail-body" id="railBody" aria-live="polite"></div>
+  <details class="all-src"><summary>All sources</summary><ul id="allSources"></ul></details>
+</aside>
+</div>
+
+<footer>
+  <p>An independent project by Kevin Phillips. Not affiliated with, endorsed by, or sponsored by OpenRouter, InclusionAI, Ant Digital, Anthropic, Google, Microsoft, Princeton University, or any other company, lab, or author named on this page. Product and model names belong to their owners.</p>
+  <p>The live lab calls a paid model through your own OpenRouter key and costs real money. Set a credit limit on the key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a> before connecting, and set the session budget in the Live labs panel. At the rates recorded on 20 November 2026, a short call is a fraction of a cent. The key is not limited to this page, so set the limit anyway.</p>
+  <p>Usage policies and terms: <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter Terms</a> and the <a href="https://www.anthropic.com/legal/aup" target="_blank" rel="noopener">Anthropic Usage Policy</a> (this page names Claude only as a model studied in Liu et al. 2023; it does not call Anthropic). The live model is InclusionAI's Ling 3.0 Tiny, served on OpenRouter by Ant Digital as listed on the model page that day. Provider terms are that provider's.</p>
+  <p>Facts checked against primary sources on 20 November 2026. Slugs, prices, and docs change; the catalog button re-reads OpenRouter's model list. Illustrative outputs are labeled "illustrative, not measurements". The handbook is fictional.</p>
+  <p><a href="../privacy/">Privacy</a>: this page uses cookie-free analytics and collects no personal data.</p>
+</footer>
+<script>
+(function () {
+  'use strict';
+  document.documentElement.classList.add('js');
+  var L = {};
+
+  var STOP = { a:1, an:1, the:1, of:1, to:1, and:1, for:1, from:1, on:1, in:1, it:1, is:1, my:1, will:1, not:1, at:1, with:1, that:1, this:1, are:1, be:1, or:1, if:1, do:1, was:1, when:1, then:1, you:1, your:1, i:1, me:1, we:1, our:1, they:1, their:1, by:1, as:1, over:1, because:1, cannot:1 };
+  function tokens(s) {
+    var m = String(s).toLowerCase().match(/[a-z0-9]+(?:\.[a-z0-9]+)*/g) || [];
+    var out = [];
+    for (var i = 0; i < m.length; i++) if (m[i].length > 1 && !STOP[m[i]]) out.push(m[i]);
+    return out;
+  }
+  L.tokens = tokens;
+
+  L.DOCS = [
+    { id:'remote', title:'Working from another network', text:'Use the office virtual private network when you are outside the office. The gateway name is vpn.internal.example. The address is 203.0.113.10. Install the client from the software shelf, then sign in with your passphrase. Split routing keeps printer traffic local. If the client says the gateway refused the session, check the clock on the laptop first.' },
+    { id:'passphrase', title:'A forgotten passphrase', text:'The account passphrase is at least 12 characters. If you have forgotten it, open the account page on the office network and choose reset. A temporary passphrase arrives in the mailbox and expires the same day. Do not send a passphrase to anyone who asks for it in a message.' },
+    { id:'guest', title:'Wireless for a visitor', text:'A visitor joins the wireless network named Guest. The passphrase for that network is written on the card at the front desk. It changes on the first Monday of each month. Employees do not use this network for the mailbox or the file shelf. The guest network cannot see printers.' },
+    { id:'printers', title:'The shared printer', text:'The queue name is Floor-2. A jam usually means the tray was overfilled. Open the front of the device, remove the sheet, and close it until it clicks. Toner is on the supply shelf. The device does not use the guest network.' },
+    { id:'disk', title:'Disk lock', text:'Laptops use full-disk encryption. The recovery key is stored with the people who keep the computers running, not in the mailbox. If the laptop asks for the recovery key at startup, bring the machine in. Do not photograph the key.' },
+    { id:'mailbox', title:'A full mailbox', text:'The mailbox holds 10 GB. When it is over that limit, new mail waits and a send fails. Archive messages older than one year, then empty the deleted folder. Large file shares belong on the file shelf, not in the mailbox.' },
+    { id:'badge', title:'Door badges', text:'The badge opens the office doors during the day. After 7 in the evening the rear door stays locked even with a badge, and you use the front door. A lost badge is cancelled the same day. Ask the front desk for a temporary badge.' },
+    { id:'software', title:'Asking for software', text:'New applications are installed from the software shelf. If the application is not listed, send a request with the application name and the task it is for. Allow two weeks. An account is required. Do not install a downloaded copy yourself.' }
+  ];
+  L.VEC = {
+    remote:{remote:1, credential:0.25},
+    passphrase:{credential:1, mail:0.15},
+    guest:{wireless:0.9, guest:1, credential:0.2},
+    printers:{print:1},
+    disk:{disk:1},
+    mailbox:{mail:1},
+    badge:{badge:1},
+    software:{software:1, credential:0.2}
+  };
+  L.QS = [
+    { id:'q-visitor', gold:'guest', text:'A visitor cannot join the office wireless', vec:{guest:1, wireless:1} },
+    { id:'q-tunnel', gold:'remote', text:'The tunnel will not start while I am away from the building', vec:{remote:1} },
+    { id:'q-card', gold:'badge', text:'The plastic card that opens the side entrance failed', vec:{badge:1} },
+    { id:'q-mail', gold:'mailbox', text:'Mailbox will not send because it is over the limit', vec:{mail:1} },
+    { id:'q-ip', gold:'remote', text:'Is the guest passphrase the address 203.0.113.10', vec:{guest:1} }
+  ];
+  L.SPAN = 'The gateway name is vpn.internal.example and the address is 203.0.113.10.';
+  L.PAGE = 'People who work outside the office reach internal pages through a virtual private network. The client is on the software shelf. Install it before the trip, not from a hotel network. Sign in with the same passphrase as the account page. ' + L.SPAN + ' If the client says the gateway refused the session, check the laptop clock, then the passphrase, then the cable. Split routing keeps printer traffic on the local network, so a home printer still prints. This page does not cover the guest wireless network. That network is for a visitor and is written up on its own page. Do not send the gateway address in an email. Read it from this page when you need it.';
+  L.MODEL = {
+    id:'inclusionai/ling-3.0-tiny',
+    canonical:'inclusionai/ling-3.0-tiny-20260806',
+    inM:0.015,
+    outM:0.045,
+    ctx:262144,
+    checked:'2026-11-20'
+  };
+  L.K1 = 1.2;
+  L.B = 0.75;
+  L.RRF_K = 60;
+
+  function docById(id) { for (var i = 0; i < L.DOCS.length; i++) if (L.DOCS[i].id === id) return L.DOCS[i]; return null; }
+  L.docById = docById;
+  function qById(id) { for (var i = 0; i < L.QS.length; i++) if (L.QS[i].id === id) return L.QS[i]; return null; }
+  L.qById = qById;
+
+  L.bm25 = function (query) {
+    var docs = L.DOCS, k1 = L.K1, b = L.B;
+    var tokenized = docs.map(function (d) { return tokens(d.title + ' ' + d.text); });
+    var N = docs.length, avg = 0, i, df = {};
+    for (i = 0; i < N; i++) avg += tokenized[i].length;
+    avg = avg / N;
+    tokenized.forEach(function (toks) {
+      var seen = {};
+      toks.forEach(function (t) { seen[t] = 1; });
+      Object.keys(seen).forEach(function (t) { df[t] = (df[t] || 0) + 1; });
+    });
+    var q = tokens(query);
+    return tokenized.map(function (toks) {
+      var tf = {};
+      toks.forEach(function (t) { tf[t] = (tf[t] || 0) + 1; });
+      var score = 0;
+      q.forEach(function (t) {
+        var f = tf[t] || 0;
+        if (!f) return;
+        var n = df[t] || 0;
+        var idf = Math.log(1 + (N - n + 0.5) / (n + 0.5));
+        score += idf * (f * (k1 + 1)) / (f + k1 * (1 - b + b * (toks.length / avg)));
+      });
+      return score;
+    });
+  };
+  function cosine(a, b) {
+    var keys = {}, k, dot = 0, na = 0, nb = 0, x, y;
+    for (k in a) keys[k] = 1;
+    for (k in b) keys[k] = 1;
+    var anyA = false, anyB = false;
+    for (k in a) if (a[k]) anyA = true;
+    for (k in b) if (b[k]) anyB = true;
+    if (!anyA || !anyB) return null;
+    for (k in keys) { x = a[k] || 0; y = b[k] || 0; dot += x * y; na += x * x; nb += y * y; }
+    if (na === 0 || nb === 0) return null;
+    return dot / Math.sqrt(na * nb);
+  }
+  L.cosine = cosine;
+  function byScore(rows) {
+    return rows.slice().sort(function (a, b) {
+      if (b.s !== a.s) return b.s - a.s;
+      return a.i - b.i;
+    });
+  }
+  L.rankQuery = function (q) {
+    var bscores = L.bm25(q.text);
+    var br = [];
+    bscores.forEach(function (s, i) { if (s > 0) br.push({ i:i, id:L.DOCS[i].id, s:s }); });
+    br = byScore(br);
+    var vr = [];
+    L.DOCS.forEach(function (d, i) {
+      var s = cosine(L.VEC[d.id], q.vec);
+      if (s) vr.push({ i:i, id:d.id, s:s });
+    });
+    vr = byScore(vr);
+    var acc = {}, lists = [br, vr];
+    lists.forEach(function (list) {
+      list.forEach(function (row, idx) {
+        acc[row.id] = (acc[row.id] || 0) + 1 / (L.RRF_K + idx + 1);
+      });
+    });
+    var hy = Object.keys(acc).map(function (id) {
+      var doc = docById(id);
+      return { id:id, i:L.DOCS.indexOf(doc), s:acc[id] };
+    });
+    hy = byScore(hy);
+    return { bm25:br, vec:vr, rrf:hy };
+  };
+  L.recallAt = function (rows, gold, k) {
+    for (var i = 0; i < rows.length && i < k; i++) if (rows[i].id === gold) return 1;
+    return 0;
+  };
+  L.matched = function (doc, query) {
+    var q = {}, toks = tokens(query), i, seen = {}, out = [];
+    for (i = 0; i < toks.length; i++) q[toks[i]] = 1;
+    tokens(doc.title + ' ' + doc.text).forEach(function (t) {
+      if (q[t] && !seen[t]) { seen[t] = 1; out.push(t); }
+    });
+    return out;
+  };
+  L.sharedConcepts = function (docId, vec) {
+    var dv = L.VEC[docId], out = [];
+    Object.keys(vec).forEach(function (k) {
+      if (vec[k] && dv[k]) out.push(k);
+    });
+    return out;
+  };
+  L.splitChunks = function (text, size, overlap) {
+    size = Math.max(40, size | 0);
+    overlap = Math.max(0, Math.min(overlap | 0, size - 1));
+    var chunks = [], start = 0, guard = 0, end;
+    while (start < text.length && guard < 500) {
+      end = Math.min(text.length, start + size);
+      chunks.push({ start:start, end:end, text:text.slice(start, end) });
+      if (end >= text.length) break;
+      start = end - overlap;
+      guard++;
+    }
+    return { chunks:chunks, size:size, overlap:overlap };
+  };
+  L.spanReport = function (text, span, chunks) {
+    var at = text.indexOf(span);
+    var whole = 0, part = 0;
+    chunks.forEach(function (c) {
+      var covers = at >= 0 && c.start <= at && c.end >= at + span.length;
+      var overlaps = at >= 0 && c.start < at + span.length && c.end > at;
+      c.whole = covers;
+      c.part = overlaps && !covers;
+      if (covers) whole++;
+      else if (overlaps) part++;
+    });
+    return { at:at, whole:whole, part:part };
+  };
+  L.approxTokens = function (text) { return Math.ceil(String(text || '').length / 4); };
+  L.handbookText = function () {
+    return L.DOCS.map(function (d) { return d.title + '\n' + d.text; }).join('\n\n');
+  };
+  L.budget = function (windowTok, inst, reserve) {
+    var hand = L.approxTokens(L.handbookText());
+    var input = inst + hand;
+    var need = input + reserve;
+    var room = windowTok - need;
+    var cost = (input * L.MODEL.inM + reserve * L.MODEL.outM) / 1e6;
+    return { hand:hand, input:input, need:need, room:room, cost:cost, fits:room >= 0 };
+  };
+  L.costOf = function (inTok, outTok) {
+    return (inTok * L.MODEL.inM + outTok * L.MODEL.outM) / 1e6;
+  };
+  L.tally = function () {
+    return L.QS.map(function (q) {
+      var r = L.rankQuery(q);
+      return {
+        q:q,
+        r:r,
+        bm1:L.recallAt(r.bm25, q.gold, 1), bm3:L.recallAt(r.bm25, q.gold, 3),
+        v1:L.recallAt(r.vec, q.gold, 1), v3:L.recallAt(r.vec, q.gold, 3),
+        h1:L.recallAt(r.rrf, q.gold, 1), h3:L.recallAt(r.rrf, q.gold, 3)
+      };
+    });
+  };
+  function sum(rows, key) { return rows.reduce(function (s, row) { return s + row[key]; }, 0); }
+  L.sum = sum;
+
+  L.TRACES = [
+    { id:'visitor', label:'A visitor and the wireless network', steps:[
+      { who:'Question', text:'A visitor cannot join the office wireless.' },
+      { who:'Tool: grep', text:'grep -n "visitor" pages/\n\nWireless for a visitor:1: A visitor joins the wireless network named Guest.' },
+      { who:'Tool: read', text:'read "Wireless for a visitor"\n\nThe page names the Guest network and says the passphrase is written on the card at the front desk. It does not mention a gateway address.' },
+      { who:'Stop', text:'The trace stops after one read. A reply can name that page. This script does not write the reply.' }
+    ]},
+    { id:'card', label:'A plastic card and a side entrance', steps:[
+      { who:'Question', text:'The plastic card that opens the side entrance failed.' },
+      { who:'Tool: grep', text:'grep -n "card" pages/\n\nWireless for a visitor:2: The passphrase for that network is written on the card at the front desk.\n\nNo other page contains the word "card". The door page says "badge".' },
+      { who:'Tool: read', text:'read "Wireless for a visitor"\n\nThe page is about a wireless network. It does not mention doors, badges, or a time of day.' },
+      { who:'Tool: grep', text:'grep -n "door" pages/\n\nDoor badges:1: The badge opens the office doors during the day.\nDoor badges:2: After 7 in the evening the rear door stays locked even with a badge, and you use the front door.' },
+      { who:'Tool: read', text:'read "Door badges"\n\nThe page holds the door rule. The first read did not. The trace used two reads and two searches.' },
+      { who:'Stop', text:'The trace stops. Cost, here, is the extra read, not a score.' }
+    ]}
+  ];
+
+  L.NOTES = {
+    edits:'Lewis et al. swapped a 2016 Wikipedia index for a 2018 one and, on 82 changed world-leader questions, matched indexes scored 70% and 68%, the 2018 index on the 2016 leaders scored 12%, and the 2016 index on the 2018 leaders scored 4%. A person editing a file is the same kind of move only if the next question reads the new file, or an index built from it. This page does not time a rebuild. A tool that reads the file sees the edit on the next read. A fine-tune does not, until someone trains again.',
+    cite:'Lewis et al. name provenance as an open problem for a weights-only model, and they say retrieved text can be inspected. A fine-tune does not, by itself, point at a page. A retrieval system can still fail to show the page. The requirement is a constraint you set.',
+    shape:'Ovadia et al. compared unsupervised continued training on facts. They wrote that they did not study instruction-tuning or reinforcement learning. A change to the shape of a reply sits outside that comparison. This page did not fine-tune anything, so it has no result on format learning.',
+    size:'If the handbook does not fit the window you will pay for, something has to select text first. That something can be a retriever, a tool, or a person. Module 2 is the arithmetic. The checkbox does not choose among the selectors.',
+    weights:'Under the constraint you checked, fine-tuning is unavailable and file edits are available. Retrieval and tool search both read files. This is the constraint, not a finding about quality.',
+    rare:'Ovadia et al., discussing Kandpal et al. 2023, say models struggle with long-tail facts and that they saw the same pattern under fine-tuning. They also say many phrasings of a fact helped in their study, and that the result needs more research. A belief about a training set is not a measurement. This page cannot see one.'
+  };
+
+  L.DEMO = {
+    'q-visitor':'The visitor page says a visitor joins the wireless network named Guest, and that the passphrase is written on the card at the front desk. It changes on the first Monday of the month. This reply uses only that page.',
+    'q-tunnel':'No page scored above zero on the word ranker for this wording. The demo does not invent a page or an answer.',
+    'q-card':'The top word-score page, breaking a tie by handbook order, is the visitor wireless page. It mentions a card at the front desk and does not mention doors. From that page alone, the entrance question is not answered.',
+    'q-mail':'The mailbox page says the mailbox holds 10 GB, and that when it is over that limit a send fails. Archive messages older than one year, then empty the deleted folder. This reply uses only that page.',
+    'q-ip':'The top word-score page is the network page. It says the address 203.0.113.10 is the gateway address for the virtual private network, named vpn.internal.example. This reply uses only that page.'
+  };
+
+  L.validateKey = function (k) {
+    if (!k) return 'Paste a key first. It should start with sk-or-.';
+    if (k.indexOf('sk-or-') !== 0) return 'This page expects an OpenRouter key, which starts with sk-or-.';
+    if (k.length < 20) return 'That key looks too short. Copy the full key from openrouter.ai/keys.';
+    return '';
+  };
+
+  window.__logic = L;
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } return null; }
+  function usd(n) { return '$' + (n < 0.1 ? n.toFixed(4) : n.toFixed(2)); }
+  function num(n, d) { return (Math.round(n * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d); }
+  function clamp(v, lo, hi, d) { v = parseInt(v, 10); if (!isFinite(v)) return d; return Math.max(lo, Math.min(hi, v)); }
+  function setMsg(el, text, kind) { el.textContent = text; el.className = 'msg' + (kind ? ' ' + kind : ''); }
+  function UserError(msg) { this.message = msg; this.user = true; }
+  function illus(note) { return '<span class="illus">illustrative, not measurements.' + (note ? ' ' + esc(note) : '') + '</span>'; }
+
+  var root = document.documentElement;
+  function applyTheme(p, t) {
+    root.setAttribute('data-palette', p);
+    root.setAttribute('data-theme', t);
+    $$('.swatch').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-p') === p)); });
+    var mb = $('#modeBtn'); if (mb) mb.textContent = t === 'light' ? 'Switch to dark' : 'Switch to light';
+  }
+  var hostTheme = root.getAttribute('data-theme');
+  var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  var pal = store('ragw-palette') || 'tide', mode = store('ragw-theme') || hostTheme || (prefersLight ? 'light' : 'dark');
+  if (['tide', 'ember', 'iris'].indexOf(pal) < 0) pal = 'tide';
+  if (mode !== 'light' && mode !== 'dark') mode = 'dark';
+  applyTheme(pal, mode);
+  $$('.swatch').forEach(function (b) { b.addEventListener('click', function () { pal = b.getAttribute('data-p'); store('ragw-palette', pal); applyTheme(pal, mode); }); });
+  $('#modeBtn').addEventListener('click', function () { mode = mode === 'light' ? 'dark' : 'light'; store('ragw-theme', mode); applyTheme(pal, mode); });
+
+  var S = {
+    rag:['Lewis et al. 2020, Retrieval-Augmented Generation (arXiv:2005.11401)', 'https://arxiv.org/abs/2005.11401'],
+    lost:['Liu et al. 2023, Lost in the Middle (arXiv:2307.03172)', 'https://arxiv.org/abs/2307.03172'],
+    ft:['Ovadia et al. 2023, Fine-Tuning or Retrieval? (arXiv:2312.05934)', 'https://arxiv.org/abs/2312.05934'],
+    bm25:['Robertson and Zaragoza 2009, BM25 and Beyond', 'https://www.staff.city.ac.uk/~sbrp622/papers/foundations_bm25_review.pdf'],
+    rrf:['Cormack, Clarke, and Buettcher, SIGIR 2009, Reciprocal Rank Fusion', 'https://cormack.uwaterloo.ca/cormacksigir09-rrf.pdf'],
+    react:['Yao et al. 2022, ReAct (arXiv:2210.03629)', 'https://arxiv.org/abs/2210.03629'],
+    ir:['Manning, Raghavan, and Schütze, Introduction to Information Retrieval', 'https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-unranked-retrieval-sets-1.html'],
+    kandpal:['Kandpal et al., long-tail knowledge (arXiv:2211.08411)', 'https://arxiv.org/abs/2211.08411'],
+    or:['OpenRouter model catalog', 'https://openrouter.ai/models'],
+    ling:['OpenRouter pricing page: Ling 3.0 Tiny', 'https://openrouter.ai/inclusionai/ling-3.0-tiny'],
+    nemo:['OpenRouter pricing page: Mistral Nemo', 'https://openrouter.ai/mistralai/mistral-nemo'],
+    keys:['OpenRouter keys and credit limits', 'https://openrouter.ai/keys'],
+    terms:['OpenRouter Terms', 'https://openrouter.ai/terms'],
+    aup:['Anthropic Usage Policy', 'https://www.anthropic.com/legal/aup']
+  };
+  function refLi(k) { var s = S[k]; return '<li><a href="' + s[1] + '" target="_blank" rel="noopener">' + esc(s[0]) + '</a></li>'; }
+  var RAIL = [
+    { name:'Where a chunk cuts',
+      tips:['Lewis et al. used disjoint 100-word Wikipedia chunks. That choice is not an optimum for a handbook.', 'The lab cuts on characters, not words. The count is derived from this fictional page.', 'Overlap is a control on this page. It spends characters twice when a sentence sits on a boundary.', 'A chunk that holds the whole gateway sentence is a property of the window, not a retrieval score.', 'Exact-match numbers in the module are from their 2020 Natural Questions test column only.'],
+      refs:['rag'],
+      gloss:[['Parametric memory', 'What the generator stores in its weights. In their system, BART-large.'], ['Non-parametric memory', 'An index outside the weights. In their system, a Wikipedia chunk index.'], ['RAG-Sequence', 'One retrieved chunk conditions the whole answer.'], ['RAG-Token', 'Each output token may condition on a different chunk.']] },
+    { name:'The whole handbook',
+      tips:['Characters divided by four is this page\'s token estimate. A tokenizer will differ.', 'The eight short pages fit in a 262,144-token window. That is a budget fact about this handbook.', 'Type a small window to see the overflow line. The handbook did not get longer.', 'Liu et al. 2023 measured position effects on four models of that period. This page does not repeat that test.', 'The dollar line uses the recorded Ling 3.0 Tiny rates and the output reserve, which is a ceiling you typed, not a measured reply.'],
+      refs:['lost', 'ling', 'or'],
+      gloss:[['Closed book', 'A prompt with no retrieved pages. Liu et al. report a 56.1% closed-book figure for GPT-3.5-Turbo on their multi-document task.'], ['Output reserve', 'Tokens you set aside for the reply so the prompt cannot fill the window.']] },
+    { name:'Words, vectors, fusion',
+      tips:['k1 = 1.2 sits on the edge of the range Robertson and Zaragoza wrote as 1.2 < k1 < 2. b = 0.75 sits inside 0.5 < b < 0.8.', 'No stemmer. "visitor" matches only "visitor".', 'Teaching vectors are hand-built. They are not the output of a published embedding model.', 'RRF uses k = 60, the constant Cormack et al. fixed in a pilot. Their TREC gains are not gains on this handbook.', 'Equal scores keep the earlier page. That tie break is a convention, and it changes the top hit on the card question.'],
+      refs:['bm25', 'rrf', 'rag'],
+      gloss:[['IDF', 'A weight that grows as fewer pages contain the word. This page uses ln(1 + (N − df + 0.5) / (df + 0.5)).'], ['Cosine', 'The angle between two concept vectors. 1 means the same direction.'], ['Rank fusion', 'A merge of ranked lists. RRF uses ranks, not the raw scores.']] },
+    { name:'Search with tools',
+      tips:['The stepper is a script, not a model log.', 'ReAct\'s published gains are on HotpotQA, FEVER, ALFWorld, and WebShop. They are not gains on this handbook.', 'The card trace greps "card", reads the wireless page, then greps "door". The first read does not hold the door rule.', 'The token line is characters of the trace so far, divided by four.', 'A tool loop spends a model call per step when it is real. This script does not spend one.'],
+      refs:['react'],
+      gloss:[['grep', 'A text search for a fixed string. Here it is a scripted observation, not a shell on your machine.'], ['Read', 'Opening one page after a search hit.']] },
+    { name:'Fine-tuning',
+      tips:['Ovadia et al. studied unsupervised continued training, on three models, with Wikipedia as the only source text.', 'They report RAG as more reliable for knowledge injection in that setup, and they list the limits in the same paper.', 'They call the choice of how many passages to retrieve unstable.', 'A format change with labeled examples is outside their comparison.', 'Checked rows produce notes. The notes are not a recommendation.'],
+      refs:['ft', 'rag', 'kandpal'],
+      gloss:[['Unsupervised fine-tuning', 'Continued training on raw text, without input-output labels. That is the method Ovadia et al. ran.'], ['Knowledge injection', 'Their term for teaching a pretrained model a body of facts after pretraining.']] },
+    { name:'A five-question tally',
+      tips:['Recall at k is 1 or 0 here, because each question has one correct page.', 'Five questions is a teaching count. The result says illustrative, not measurements.', 'Read the row where the word score and the teaching vector disagree. The average hides it.', 'The answer lab uses only the top word-score page. If that page is the wrong one, the reply is about the wrong page.', 'The catalog button needs no key. It re-reads openrouter.ai/api/v1/models.'],
+      refs:['ir', 'ling', 'nemo', 'keys'],
+      gloss:[['Recall at k', 'Share of the relevant pages that appear in the top k. Here, 1 or 0.'], ['Gold page', 'The page chosen when the question was written. It is the relevance label for this tally, not a human grade of an answer.']] },
+    { name:'Ship gate',
+      tips:['Tick a row only when it is true of a system you run.', 'The single limit under the list is the point of the page: a toy index does not pick a method.', 'Re-check the slug and the price before you quote them. The catalog button does that read.', 'Set a credit limit on the key before a live call.'],
+      refs:['terms', 'aup', 'keys', 'rag'],
+      gloss:[['Ship gate', 'A short list that is true of your system before you treat an approach as ready.']] }
+  ];
+  function renderRail(i) {
+    var r = RAIL[i - 1]; if (!r) return;
+    var html = '<h3 class="mod-name">' + esc(r.name) + '</h3><h3>On this module</h3><ul>' +
+      r.tips.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul><h3>References</h3><ul>' +
+      r.refs.map(refLi).join('') + '</ul><h3>Glossary</h3><dl>' +
+      r.gloss.map(function (g) { return '<dt>' + esc(g[0]) + '</dt><dd>' + esc(g[1]) + '</dd>'; }).join('') + '</dl>';
+    var body = $('#railBody');
+    if (body.getAttribute('data-i') === String(i)) return;
+    body.setAttribute('data-i', String(i));
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !body.innerHTML) { body.innerHTML = html; return; }
+    body.classList.add('fade');
+    setTimeout(function () { body.innerHTML = html; body.classList.remove('fade'); }, 180);
+  }
+  $('#allSources').innerHTML = Object.keys(S).map(refLi).join('');
+
+  var apiKey = null;
+  var spent = 0, budget = 1, stepPos = 0;
+
+  function fillQuestions(sel) {
+    sel.innerHTML = L.QS.map(function (q) { return '<option value="' + q.id + '">' + esc(q.text) + '</option>'; }).join('');
+  }
+  fillQuestions($('#rankQ'));
+  fillQuestions($('#ansQ'));
+  $('#stepWhich').innerHTML = L.TRACES.map(function (t) { return '<option value="' + t.id + '">' + esc(t.label) + '</option>'; }).join('');
+
+  function highlightPage(text, span) {
+    var at = text.indexOf(span);
+    if (at < 0) return esc(text);
+    return esc(text.slice(0, at)) + '<mark class="fact">' + esc(span) + '</mark>' + esc(text.slice(at + span.length));
+  }
+  $('#chunkSource').innerHTML = highlightPage(L.PAGE, L.SPAN);
+  function syncSliders() {
+    $('#chunkSizeVal').textContent = $('#chunkSize').value;
+    $('#chunkOverlapVal').textContent = $('#chunkOverlap').value;
+  }
+  $('#chunkSize').addEventListener('input', syncSliders);
+  $('#chunkOverlap').addEventListener('input', syncSliders);
+  syncSliders();
+
+  function renderChunk() {
+    var size = clamp($('#chunkSize').value, 80, 700, 240);
+    var overlap = clamp($('#chunkOverlap').value, 0, 120, 0);
+    var split = L.splitChunks(L.PAGE, size, overlap);
+    var rep = L.spanReport(L.PAGE, L.SPAN, split.chunks);
+    var html = illus('A character window on one fictional page.') +
+      '<div class="stat-row"><div class="stat"><span class="k">Chunks <span class="tag d">Derived</span></span><span class="big num">' + split.chunks.length + '</span></div>' +
+      '<div class="stat"><span class="k">Chunks holding the whole fact</span><span class="big num">' + rep.whole + '</span></div>' +
+      '<div class="stat"><span class="k">Chunks holding only part</span><span class="big num">' + rep.part + '</span></div></div>' +
+      '<p>The watched sentence starts at character <span class="num">' + rep.at + '</span> and is <span class="num">' + L.SPAN.length + '</span> characters long. ' + (rep.whole ? 'It sits inside ' + rep.whole + ' chunk' + (rep.whole > 1 ? 's' : '') + '.' : 'No chunk holds all of it.') +
+      (rep.part ? ' ' + rep.part + ' chunk' + (rep.part > 1 ? 's share' : ' shares') + ' only a piece of it.' : '') + ' Window ' + split.size + ', overlap ' + split.overlap + '.</p>' +
+      '<div class="chunks">' + split.chunks.map(function (c, i) {
+        var cls = c.whole ? 'whole' : c.part ? 'part' : '';
+        var label = c.whole ? 'contains the whole fact' : c.part ? 'contains only part of the fact' : 'does not contain the fact';
+        return '<div class="chunk ' + cls + '"><div class="meta">Chunk ' + (i + 1) + ' · characters ' + c.start + '–' + c.end + ' · ' + label + '</div>' + highlightPage(c.text, L.SPAN) + '</div>';
+      }).join('') + '</div>';
+    $('#chunkOut').innerHTML = html;
+  }
+  $('#chunkRun').addEventListener('click', renderChunk);
+
+  $('#winPreset').addEventListener('click', function () { $('#winIn').value = String(L.MODEL.ctx); });
+  function renderBudget() {
+    var win = clamp($('#winIn').value, 100, 2000000, L.MODEL.ctx);
+    var inst = clamp($('#instIn').value, 0, 100000, 200);
+    var reserve = clamp($('#outIn').value, 1, 100000, 300);
+    $('#winIn').value = win; $('#instIn').value = inst; $('#outIn').value = reserve;
+    var b = L.budget(win, inst, reserve);
+    var longest = L.DOCS.slice().sort(function (a, c) { return c.text.length - a.text.length; })[0];
+    var one = L.approxTokens(longest.title + '\n' + longest.text);
+    var oneCost = L.costOf(inst + one, reserve);
+    $('#budgetOut').innerHTML =
+      '<p><span class="tag d">Derived</span> Token estimates use characters / 4. The dollar lines use the recorded rates of <span class="num">$' + L.MODEL.inM + ' / $' + L.MODEL.outM + '</span> per million, and they treat the output reserve as if it were all generated. They are not a bill.</p>' +
+      '<div class="stat-row">' +
+      '<div class="stat"><span class="k">Handbook tokens</span><span class="big num">' + b.hand + '</span></div>' +
+      '<div class="stat"><span class="k">Input with the allowance</span><span class="big num">' + b.input + '</span></div>' +
+      '<div class="stat"><span class="k">' + (b.fits ? 'Tokens left' : 'Tokens over') + '</span><span class="big num">' + Math.abs(b.room) + '</span></div>' +
+      '</div>' +
+      '<p>' + (b.fits ? 'The eight pages fit in this window, with the instruction allowance and the output reserve.' : 'The eight pages do not fit in this window once the allowance and the reserve are counted.') + '</p>' +
+      '<p>Sending the whole handbook once, if the reserve were filled: <span class="num">' + usd(b.cost) + '</span>. Sending only the longest page ("' + esc(longest.title) + '", about <span class="num">' + one + '</span> tokens) under the same allowance and reserve: <span class="num">' + usd(oneCost) + '</span>.</p>' +
+      '<p class="faint">Position effects from Liu et al. are not computed here. A window that fits the text is not evidence that a model will use a sentence in the middle.</p>';
+  }
+  $('#budgetRun').addEventListener('click', renderBudget);
+
+  function listHtml(title, rows, q, kind) {
+    if (!rows.length) return '<h4>' + esc(title) + '</h4><p>No page scored above zero.</p>';
+    var body = rows.slice(0, 4).map(function (row, idx) {
+      var doc = L.docById(row.id);
+      var why = kind === 'bm25' ? L.matched(doc, q.text).join(', ') : L.sharedConcepts(row.id, q.vec).join(', ');
+      var tie = idx > 0 && rows[idx - 1].s === row.s ? ' <span class="warn">tie with the row above</span>' : '';
+      return '<tr><td class="n">' + (idx + 1) + '</td><td>' + esc(doc.title) + tie + '</td><td class="n">' + num(row.s, kind === 'rrf' ? 4 : 3) + '</td><td>' + esc(why || '—') + '</td></tr>';
+    }).join('');
+    return '<h4>' + esc(title) + '</h4><div class="tbl-wrap"><table><thead><tr><th class="n">Rank</th><th>Page</th><th class="n">Score</th><th>' + (kind === 'bm25' ? 'Shared words' : kind === 'vec' ? 'Shared concepts' : 'From the two lists') + '</th></tr></thead><tbody>' + body + '</tbody></table></div>';
+  }
+  function renderRank() {
+    var q = L.qById($('#rankQ').value);
+    var r = L.rankQuery(q);
+    var gold = L.docById(q.gold);
+    $('#rankOut').innerHTML = illus('Hand-built vectors and a fixed handbook. Not a measurement of an embedding model.') +
+      '<p>Correct page, chosen with the question: <strong>' + esc(gold.title) + '</strong>.</p>' +
+      listHtml('Word score (BM25)', r.bm25, q, 'bm25') +
+      listHtml('Teaching vectors', r.vec, q, 'vec') +
+      listHtml('Reciprocal rank fusion, k = 60', r.rrf, q, 'rrf') +
+      '<p class="faint">Top-1 contains the correct page: word score ' + (L.recallAt(r.bm25, q.gold, 1) ? 'yes' : 'no') +
+      ', teaching vectors ' + (L.recallAt(r.vec, q.gold, 1) ? 'yes' : 'no') +
+      ', fusion ' + (L.recallAt(r.rrf, q.gold, 1) ? 'yes' : 'no') + '. Equal scores keep the earlier page in the handbook.</p>';
+  }
+  $('#rankRun').addEventListener('click', renderRank);
+
+  function currentTrace() {
+    var id = $('#stepWhich').value;
+    for (var i = 0; i < L.TRACES.length; i++) if (L.TRACES[i].id === id) return L.TRACES[i];
+    return L.TRACES[0];
+  }
+  function renderStep() {
+    var tr = currentTrace();
+    var upto = Math.min(stepPos, tr.steps.length);
+    var shown = tr.steps.slice(0, upto);
+    var blob = shown.map(function (s) { return s.who + '\n' + s.text; }).join('\n\n');
+    var toks = L.approxTokens(blob);
+    var html = illus('A scripted trace, not a model log.') +
+      '<p>Step <span class="num">' + upto + '</span> of <span class="num">' + tr.steps.length + '</span>. Trace so far, characters / 4: <span class="num">' + toks + '</span> <span class="tag d">Derived</span></p>';
+    if (!shown.length) html += '<p>Press Next step. Nothing has been searched yet.</p>';
+    html += '<ol class="steps">' + shown.map(function (s, i) {
+      return '<li class="' + (i === shown.length - 1 ? 'on' : '') + '"><div class="who">' + esc(s.who) + '</div><pre><code>' + esc(s.text) + '</code></pre></li>';
+    }).join('') + '</ol>';
+    if (upto >= tr.steps.length) html += '<p>End of this script. The other trace is a different question.</p>';
+    $('#stepOut').innerHTML = html;
+  }
+  $('#stepWhich').addEventListener('change', function () { stepPos = 0; renderStep(); });
+  $('#stepReset').addEventListener('click', function () { stepPos = 0; renderStep(); });
+  $('#stepNext').addEventListener('click', function () {
+    var tr = currentTrace();
+    if (stepPos < tr.steps.length) stepPos++;
+    renderStep();
+  });
+  renderStep();
+
+  function renderPick() {
+    var checked = $$('#pickBoxes input').filter(function (el) { return el.checked; }).map(function (el) { return el.value; });
+    if (!checked.length) {
+      $('#pickOut').innerHTML = '<p>Check at least one row. An empty set has nothing to read.</p>';
+      return;
+    }
+    $('#pickOut').innerHTML = '<p>Notes for the rows you checked. They do not add up to a recommendation.</p><ul>' +
+      checked.map(function (id) { return '<li>' + esc(L.NOTES[id]) + '</li>'; }).join('') + '</ul>';
+  }
+  $('#pickRun').addEventListener('click', renderPick);
+
+  function yn(v) { return v ? '<span class="ok">in</span>' : '<span class="bad">out</span>'; }
+  function renderEval() {
+    var rows = L.tally();
+    var body = rows.map(function (row) {
+      return '<tr><td>' + esc(row.q.text) + '</td><td>' + esc(L.docById(row.q.gold).title) + '</td>' +
+        '<td>' + yn(row.bm1) + '</td><td>' + yn(row.v1) + '</td><td>' + yn(row.h1) + '</td>' +
+        '<td>' + yn(row.bm3) + '</td><td>' + yn(row.v3) + '</td><td>' + yn(row.h3) + '</td></tr>';
+    }).join('');
+    var n = rows.length;
+    function cell(key) { return L.sum(rows, key) + '/' + n; }
+    $('#evalOut').innerHTML = illus('Five fixed questions on eight fictional pages.') +
+      '<div class="tbl-wrap"><table><thead><tr><th>Question</th><th>Correct page</th><th>Words @1</th><th>Vectors @1</th><th>Fusion @1</th><th>Words @3</th><th>Vectors @3</th><th>Fusion @3</th></tr></thead><tbody>' +
+      body +
+      '<tr><th colspan="2">Count</th><td class="n">' + cell('bm1') + '</td><td class="n">' + cell('v1') + '</td><td class="n">' + cell('h1') + '</td><td class="n">' + cell('bm3') + '</td><td class="n">' + cell('v3') + '</td><td class="n">' + cell('h3') + '</td></tr>' +
+      '</tbody></table></div>' +
+      '<p>In means the correct page is inside the cutoff. The columns are not sorted, and a higher count on five questions is not a reason to ship that method. Compare a row where the word score is in and the teaching vector is out with a row where the reverse is true.</p>';
+  }
+  $('#evalRun').addEventListener('click', renderEval);
+
+  function topBm25(q) {
+    var r = L.rankQuery(q);
+    return r.bm25.length ? L.docById(r.bm25[0].id) : null;
+  }
+  function renderAnswerDemo() {
+    var q = L.qById($('#ansQ').value);
+    var top = topBm25(q);
+    var gold = L.docById(q.gold);
+    $('#answerOut').innerHTML = illus() +
+      '<p><span class="tag i">Illustrative</span> Demo reply, canned on this page. Top word-score page: <strong>' + (top ? esc(top.title) : 'none') + '</strong>. Correct page: ' + esc(gold.title) + '.</p>' +
+      '<p>' + esc(L.DEMO[q.id]) + '</p>';
+  }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function httpError(status, data) {
+    var detail = data && data.error && (data.error.message || data.error.type) ? String(data.error.message || data.error.type) : '';
+    if (status === 401) return new UserError('OpenRouter says the key is not valid anymore (401). Disconnect and connect with a fresh key.');
+    if (status === 402) return new UserError('OpenRouter says the account is out of credits (402). Add credits or raise the key limit, then retry.');
+    if (status === 429) return new UserError('Rate limited (429). Wait a minute, then retry.');
+    if (status === 400) return new UserError('The request was rejected (400)' + (detail ? ': ' + detail : '') + '. If it mentions reasoning, turn off "Ask for low reasoning effort" under Advanced.');
+    if (status === 404) return new UserError('Not found (404)' + (detail ? ': ' + detail : '') + '. The model slug may be gone, or your OpenRouter privacy settings may exclude every provider for it.');
+    return new UserError('Request failed (' + status + ')' + (detail ? ': ' + detail : '') + '.');
+  }
+  async function callModel(userText) {
+    var maxTok = clamp($('#maxTokIn').value, 50, 1500, 400);
+    var estIn = L.approxTokens(userText) + 80;
+    var proj = L.costOf(estIn, maxTok);
+    if (spent + proj > budget) throw new UserError('The next call would pass your session budget of ' + usd(budget) + ' (spent ' + usd(spent) + '). Raise the budget in the Live labs panel to continue.');
+    var body = {
+      model: L.MODEL.id,
+      messages: [
+        { role:'system', content:'Answer only from the page in the user message. If the page does not contain the answer, say so in one sentence. Name the page title. Do not add facts from anywhere else.' },
+        { role:'user', content:userText }
+      ],
+      max_tokens: maxTok
+    };
+    if ($('#reasonIn').checked) body.reasoning = { effort:'low' };
+    var headers = { 'Authorization':'Bearer ' + apiKey, 'Content-Type':'application/json', 'X-Title':'Looking things up workshop' };
+    if (location.origin && location.origin !== 'null') headers['HTTP-Referer'] = location.origin;
+    var res, data = null, attempt = 0;
+    for (;;) {
+      try { res = await fetch('https://openrouter.ai/api/v1/chat/completions', { method:'POST', headers:headers, body:JSON.stringify(body) }); }
+      catch (e) { throw new UserError('Network error reaching openrouter.ai. Check your connection and any extension that blocks requests.'); }
+      try { data = await res.json(); } catch (e2) { data = null; }
+      if ((res.status === 429 || res.status >= 500) && attempt < 2) { attempt++; await sleep(1200 * attempt); continue; }
+      break;
+    }
+    if (!res.ok) throw httpError(res.status, data);
+    if (data && data.error && !data.choices) throw new UserError('OpenRouter returned an error: ' + String(data.error.message || data.error.code || 'unknown') + '.');
+    var ch = data && data.choices && data.choices[0];
+    var content = ch && ch.message ? ch.message.content : '';
+    if (Array.isArray(content)) content = content.map(function (p) { return p && p.text ? p.text : ''; }).join('');
+    var u = (data && data.usage) || {};
+    var inTok = u.prompt_tokens || 0, outTok = u.completion_tokens || 0;
+    var cost = L.costOf(inTok, outTok);
+    spent += cost;
+    $('#spendVal').textContent = usd(spent);
+    var text = String(content || '').trim();
+    if (!text) throw new UserError('The model returned an empty reply (finish_reason: ' + ((ch && ch.finish_reason) || 'unknown') + '). If reasoning used the tokens, raise max_tokens under Advanced.');
+    return { text:text, inTok:inTok, outTok:outTok, cost:cost, reported: (u && typeof u.cost === 'number') ? u.cost : null };
+  }
+  async function renderAnswer() {
+    if (!apiKey) { renderAnswerDemo(); return; }
+    var q = L.qById($('#ansQ').value);
+    var top = topBm25(q);
+    var box = $('#answerOut');
+    if (!top) {
+      box.innerHTML = '<p>No page scored above zero, so there is no page to send. The live call was not made.</p>';
+      return;
+    }
+    var prompt = 'Question: ' + q.text + '\n\nPage title: ' + top.title + '\n\n' + top.text;
+    box.innerHTML = '<p>Calling ' + esc(L.MODEL.id) + ' with the top word-score page only…</p>';
+    try {
+      var res = await callModel(prompt);
+      var extra = '<p><span class="tag t">Your run</span> <span class="tag d">Derived</span> cost from the recorded rates and the token counts on this response: <span class="num">' + usd(res.cost) + '</span> · input <span class="num">' + res.inTok + '</span> · output <span class="num">' + res.outTok + '</span>.</p>';
+      if (res.reported != null) extra += '<p>The response also included a cost field of <span class="num">' + usd(res.reported) + '</span>. That field is the provider\'s figure for this call, when OpenRouter sends one.</p>';
+      box.innerHTML = '<p>Top word-score page sent: <strong>' + esc(top.title) + '</strong>. Correct page for the tally: ' + esc(L.docById(q.gold).title) + '.</p><p>' + esc(res.text) + '</p>' + extra;
+    } catch (e) {
+      box.innerHTML = '<p class="bad">' + esc(e && e.user ? e.message : 'Something went wrong: ' + (e && e.message ? e.message : e)) + '</p>';
+    }
+  }
+  $('#answerRun').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true;
+    var label = btn.textContent;
+    btn.textContent = 'Running...';
+    Promise.resolve(renderAnswer()).then(function () { btn.disabled = false; btn.textContent = label; }, function () { btn.disabled = false; btn.textContent = label; });
+  });
+
+  $('#catalogBtn').addEventListener('click', async function () {
+    var box = $('#catalogOut');
+    var btn = this;
+    btn.disabled = true;
+    box.innerHTML = '<p>Reading the public catalog. No key is sent.</p>';
+    try {
+      var res = await fetch('https://openrouter.ai/api/v1/models');
+      if (!res.ok) throw new UserError('The catalog answered ' + res.status + '.');
+      var data = await res.json();
+      var list = data && data.data ? data.data : [];
+      var found = null;
+      for (var i = 0; i < list.length; i++) if (list[i].id === L.MODEL.id) { found = list[i]; break; }
+      if (!found) {
+        box.innerHTML = '<p class="warn">The catalog response did not include <span class="num">' + esc(L.MODEL.id) + '</span>. The slug may have been renamed. This page will not guess a replacement.</p>';
+      } else {
+        var pin = parseFloat(found.pricing && found.pricing.prompt);
+        var pout = parseFloat(found.pricing && found.pricing.completion);
+        var inM = pin * 1e6, outM = pout * 1e6;
+        var same = Math.abs(inM - L.MODEL.inM) < 1e-6 && Math.abs(outM - L.MODEL.outM) < 1e-6;
+        var canon = found.canonical_slug || '';
+        box.innerHTML = '<p><span class="tag q">Quoted</span> Catalog row for <span class="num">' + esc(found.id) + '</span>: input <span class="num">$' + num(inM, 4) + '</span> / output <span class="num">$' + num(outM, 4) + '</span> per million, context <span class="num">' + esc(String(found.context_length)) + '</span>' + (canon ? ', canonical <span class="num">' + esc(canon) + '</span>' : '') + '.</p>' +
+          '<p>' + (same ? 'Those per-token rates match the rates recorded on this page for 20 November 2026.' : 'Those rates differ from the <span class="num">$' + L.MODEL.inM + ' / $' + L.MODEL.outM + '</span> recorded on this page. The dollar lines in the calculator still use the recorded rates until this page is edited.') + '</p>' +
+          (canon && canon !== L.MODEL.canonical ? '<p class="warn">The canonical slug changed from <span class="num">' + esc(L.MODEL.canonical) + '</span> to <span class="num">' + esc(canon) + '</span>. The live lab still sends the public slug.</p>' : '');
+      }
+    } catch (e) {
+      box.innerHTML = '<p class="bad">' + esc(e && e.user ? e.message : 'Could not read the catalog. Check the connection and try again.') + '</p>';
+    }
+    btn.disabled = false;
+  });
+
+  function updateSpend() { $('#spendVal').textContent = usd(spent); }
+  function setLive(on) {
+    $('#connect').classList.toggle('live', on);
+    $('#lampText').textContent = on ? 'Live' : 'Demo';
+    $('#connectBtn').hidden = on;
+    $('#disconnectBtn').hidden = !on;
+    $('#keyIn').disabled = on;
+  }
+  async function connect() {
+    var input = $('#keyIn'), msg = $('#connectMsg');
+    wsTrack('connect_click');
+    var candidate = input.value.trim();
+    var problem = L.validateKey(candidate);
+    if (problem) { setMsg(msg, problem, 'err'); return; }
+    input.value = '';
+    setMsg(msg, 'Checking the key with OpenRouter...', '');
+    try {
+      var res = await fetch('https://openrouter.ai/api/v1/key', { headers:{ Authorization:'Bearer ' + candidate } });
+      if (res.status === 401 || res.status === 403) { setMsg(msg, 'OpenRouter rejected this key (' + res.status + '). It may be revoked or mistyped. Create a new one at openrouter.ai/keys.', 'err'); return; }
+      if (!res.ok) { setMsg(msg, 'OpenRouter answered ' + res.status + ' when checking the key. Try again in a minute, or check status.openrouter.ai.', 'err'); return; }
+      var data = null; try { data = await res.json(); } catch (e) { data = null; }
+      apiKey = candidate;
+      candidate = null;
+      setLive(true);
+      wsTrack('connected');
+      var info = data && data.data;
+      if (info && (info.limit === null || info.limit === undefined)) setMsg(msg, 'Connected. This key has no credit limit. Set one at openrouter.ai/keys before a live call.', 'warnm');
+      else if (info && typeof info.limit === 'number') setMsg(msg, 'Connected. Key credit limit: $' + info.limit.toFixed(2) + (typeof info.usage === 'number' ? ', used so far: $' + info.usage.toFixed(2) : '') + '.', 'okm');
+      else setMsg(msg, 'Connected. The answer lab will call the model.', 'okm');
+    } catch (e) {
+      setMsg(msg, 'Could not reach openrouter.ai. Check your connection, or an extension that blocks requests, then try again.', 'err');
+    }
+  }
+  function disconnect() {
+    apiKey = null;
+    setLive(false);
+    setMsg($('#connectMsg'), 'Disconnected. The key was cleared from memory. Demo mode is back on.', '');
+  }
+  $('#connectBtn').addEventListener('click', connect);
+  $('#disconnectBtn').addEventListener('click', disconnect);
+  $('#keyIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); connect(); } });
+  $('#budgetIn').addEventListener('change', function () {
+    var v = parseFloat(this.value);
+    budget = isFinite(v) && v > 0 ? v : 1;
+    this.value = budget;
+    updateSpend();
+  });
+
+  var GATE = [
+    'I wrote the questions, and the correct page for each one, before I looked at any ranking.',
+    'I can say what a wrong page costs, in the words of the people who will read the answer.',
+    'The pages a reply can use are pages a person can edit, and I know how long an edit takes to show up.',
+    'I tried at least two ways of finding a page, on questions I did not use to tune either way.',
+    'I set a credit limit on any key before a live call, and I know the price of the model that call uses.',
+    'When an answer depends on a page, I can show that page, or I have written down that I cannot.'
+  ];
+  var gateState = {}; try { gateState = JSON.parse(store('ragw-gate') || '{}') || {}; } catch (e) { gateState = {}; }
+  var CHECK_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3" fill="none" stroke="var(--bg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  $('#gate').innerHTML = GATE.map(function (g, i) {
+    return '<li><button type="button" data-g="' + i + '" aria-pressed="' + (!!gateState[i]) + '"><span class="box">' + CHECK_SVG + '</span><span>' + esc(g) + '</span></button></li>';
+  }).join('');
+  function gateCount() {
+    var n = GATE.filter(function (g, i) { return gateState[i]; }).length;
+    $('#gateCount').textContent = n + ' of ' + GATE.length + ' ticked.';
+  }
+  $$('#gate button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = b.getAttribute('data-g');
+      gateState[i] = !gateState[i];
+      b.setAttribute('aria-pressed', String(!!gateState[i]));
+      store('ragw-gate', JSON.stringify(gateState));
+      gateCount();
+    });
+  });
+  gateCount();
+  wsTrack.gate('#gate button', function (b) { return b.getAttribute('aria-pressed') === 'true'; });
+  wsTrack.labs({
+    '#chunkRun':'m1-chunk',
+    '#budgetRun':'m2-budget',
+    '#rankRun':'m3-rank',
+    '#stepNext':'m4-step',
+    '#pickRun':'m5-pick',
+    '#evalRun':'m6-tally',
+    '#answerRun':'m6-answer',
+    '#catalogBtn':'m6-catalog'
+  });
+
+  var mods = $$('.mod'), links = $$('#navList a'), seen = {};
+  function setActive(i) {
+    links.forEach(function (a, j) {
+      var on = (j + 1) === i;
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+    wsTrack.module(i);
+    seen[i] = true;
+    links.forEach(function (a, j) { a.classList.toggle('seen', !!seen[j + 1]); });
+    var n = Object.keys(seen).length;
+    $('#meterFill').style.transform = 'scaleX(' + (n / mods.length) + ')';
+    $('#meter').setAttribute('aria-valuenow', String(n));
+    $('#progressLabel').textContent = n + ' of ' + mods.length + ' modules visited';
+    renderRail(i);
+  }
+  if ('IntersectionObserver' in window) {
+    var reveal = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); reveal.unobserve(e.target); } });
+    }, { rootMargin:'0px 0px -8% 0px' });
+    mods.forEach(function (m) { reveal.observe(m); });
+    var spy = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) setActive(+e.target.getAttribute('data-mod')); });
+    }, { rootMargin:'-35% 0px -60% 0px' });
+    mods.forEach(function (m) { spy.observe(m); });
+  } else {
+    mods.forEach(function (m) { m.classList.add('in'); });
+  }
+  setActive(1);
+})();
+</script>
+</body>
+</html>
