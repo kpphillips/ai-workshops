@@ -2,11 +2,11 @@
 <html lang="en" data-palette="tide" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-z7F84rS9ym84aiTRz+LzoPNQjrmv8d98jstKciPo49I=' 'sha256-RH++ozbIP0+2YncgXlTDfDpsJWCOpV4OIL5JWWsECTU=' https://cloud.umami.is; style-src 'sha256-gyMNJ3cbuo5vMaA3HPjTPAl6DMB/pfQ0dy+XlkfPK/k=' https://fonts.googleapis.com; style-src-attr 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src https://openrouter.ai https://gateway.umami.is; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-z7F84rS9ym84aiTRz+LzoPNQjrmv8d98jstKciPo49I=' 'sha256-tpGlRBDIomcXBzE8yy6S11pr1hAPCpeSvEa3U7DWBsM=' https://cloud.umami.is; style-src 'sha256-gyMNJ3cbuo5vMaA3HPjTPAl6DMB/pfQ0dy+XlkfPK/k=' https://fonts.googleapis.com; style-src-attr 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src https://openrouter.ai https://gateway.umami.is; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Agent harnesses vs. software factories: build a tiny software factory in Python</title>
-<meta name="description" content="A seven-part, hands-on guide to the agent stack: harness loop, state and compaction, shims, tool and data planes, factory loops and gates, evals with repeats and judge calibration, and a hardened deploy. Labs with a demo mode, plus a public Python starter repo. Independent project by Kevin Phillips.">
+<meta name="description" content="A seven-part, hands-on guide to the agent stack: harness loop, state and compaction, shims, tool and data planes, factory loops and gates, evals with repeats and judge calibration, and a hardened deploy. Labs with a demo mode, plus a private Python starter repo (request access or an invite). Independent project by Kevin Phillips.">
 <meta name="author" content="Kevin Phillips">
 <link rel="canonical" href="https://www.kpphillips.com/ai-workshops/factory-workshop/">
 <!-- Open Graph -->
@@ -18,7 +18,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Agent harnesses vs. software factories">
-<meta name="twitter:description" content="Build a tiny software factory in Python. Seventeen modules, in-page labs with a demo mode, and a public starter repo.">
+<meta name="twitter:description" content="Build a tiny software factory in Python. Seventeen modules, in-page labs with a demo mode, and a private starter repo (request access or an invite).">
 <meta name="twitter:image" content="https://www.kpphillips.com/ai-workshops/social-card.svg">
 <!-- JSON-LD -->
 <script type="application/ld+json">
@@ -354,11 +354,12 @@ window.wsTrack=(function(){
   <a class="back" href="https://www.kpphillips.com/ai-workshops/"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M12 7H2.5M6.5 3L2.5 7l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All workshops</a>
   <div class="tick" aria-hidden="true"></div>
   <div class="progress">
-    <div class="meter" role="progressbar" aria-label="Sections visited" aria-valuemin="0" aria-valuemax="19" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
-    <small id="progressLabel">0 of 19 sections visited</small>
+    <div class="meter" role="progressbar" aria-label="Sections visited" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" id="meter"><span id="meterFill"></span></div>
+    <small id="progressLabel">0 of 20 sections visited</small>
   </div>
   <ol class="nav-list" id="navList">
     <li><a href="#m0"><span class="n">0</span>Start here</a></li>
+    <li><a href="#mticket"><span class="n">+</span>Run a ticket</a></li>
     <li class="grp" aria-hidden="true">Part 1: The stack</li>
     <li><a href="#m1"><span class="n">1</span>A bare model</a></li>
     <li><a href="#m2"><span class="n">2</span>Six layers</a></li>
@@ -416,7 +417,7 @@ window.wsTrack=(function(){
   <h2>Before you start</h2>
   <div class="lab">
     <div class="lab-head"><h3>The starter repo</h3><span class="lab-kind">Read</span></div>
-    <p class="muted" style="font-size:.92rem;margin-top:0">The hands-on code is a separate public Python repo: FastAPI with a server-rendered UI in the same Field Guide style. Each module below ends with a <b>Build it in the repo</b> step that links to its lab folder, and each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</p>
+    <p class="muted" style="font-size:.92rem;margin-top:0">The hands-on code is a separate private Python repo (you need an invite, or you request access): FastAPI with a server-rendered UI in the same Field Guide style. <a href="#mticket">Run one ticket first</a>, then each module below ends with a <b>Build it in the repo</b> step that links to its lab folder, and each lab has a <code>starter/</code> to complete and a <code>solution/</code> to compare against.</p>
     <div class="row"><a class="btn sm" href="https://github.com/kpphillips/agent-factory-workshop" target="_blank" rel="noopener noreferrer">Open kpphillips/agent-factory-workshop</a><a class="btn ghost sm" href="https://github.com/kpphillips/agent-factory-workshop/tree/main/labs" target="_blank" rel="noopener noreferrer">Open the labs/ folder</a></div>
   </div>
 
@@ -432,8 +433,26 @@ window.wsTrack=(function(){
   </div>
 </section>
 
+<!-- ============ ticket ============ -->
+<section class="mod" id="mticket" data-mod="1">
+  <div class="tick" aria-hidden="true"></div>
+  <h2>Run a ticket first</h2>
+  <p class="lead">Run one ticket through the starter repo before the concept modules. The repo is private: you need an invite, or you request access, before the clone works.</p>
+  <div class="lab">
+    <div class="lab-head"><h3>One ticket, end to end</h3><span class="lab-kind">In the repo</span></div>
+    <ol>
+      <li>Clone <a href="https://github.com/kpphillips/agent-factory-workshop" target="_blank" rel="noopener noreferrer">kpphillips/agent-factory-workshop</a> once you have access.</li>
+      <li>Copy <code>.env.example</code> to <code>.env</code> and fill in the values the example names.</li>
+      <li>Start the stack with <code>docker compose up</code>.</li>
+      <li>Submit one ticket and wait until that ticket finishes.</li>
+    </ol>
+    <pre><code>cp .env.example .env
+docker compose up</code></pre>
+  </div>
+</section>
+
 <!-- ============ 1 ============ -->
-<section class="mod" id="m1" data-mod="1">
+<section class="mod" id="m1" data-mod="2">
   <div class="tick" aria-hidden="true"></div>
   <h2>1. A bare model is a chef in an empty kitchen</h2>
   <p class="partline">Part 1: The stack</p>
@@ -463,7 +482,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 2 ============ -->
-<section class="mod" id="m2" data-mod="2">
+<section class="mod" id="m2" data-mod="3">
   <div class="tick" aria-hidden="true"></div>
   <h2>2. Six layers, one vocabulary</h2>
   <p class="partline">Part 1: The stack</p>
@@ -487,7 +506,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 3 ============ -->
-<section class="mod" id="m3" data-mod="3">
+<section class="mod" id="m3" data-mod="4">
   <div class="tick" aria-hidden="true"></div>
   <h2>3. The harness loop</h2>
   <p class="partline">Part 2: Inside the harness</p>
@@ -507,7 +526,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 4 ============ -->
-<section class="mod" id="m4" data-mod="4">
+<section class="mod" id="m4" data-mod="5">
   <div class="tick" aria-hidden="true"></div>
   <h2>4. State, resume and compaction</h2>
   <p class="partline">Part 2: Inside the harness</p>
@@ -539,7 +558,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 5 ============ -->
-<section class="mod" id="m5" data-mod="5">
+<section class="mod" id="m5" data-mod="6">
   <div class="tick" aria-hidden="true"></div>
   <h2>5. Shims and the flywheel</h2>
   <p class="partline">Part 2: Inside the harness</p>
@@ -562,7 +581,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 6 ============ -->
-<section class="mod" id="m6" data-mod="6">
+<section class="mod" id="m6" data-mod="7">
   <div class="tick" aria-hidden="true"></div>
   <h2>6. Tool plane vs. data plane</h2>
   <p class="partline">Part 2: Inside the harness</p>
@@ -591,7 +610,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 7 ============ -->
-<section class="mod" id="m7" data-mod="7">
+<section class="mod" id="m7" data-mod="8">
   <div class="tick" aria-hidden="true"></div>
   <h2>7. Inner, outer and meta loops</h2>
   <p class="partline">Part 3: The factory</p>
@@ -611,7 +630,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 8 ============ -->
-<section class="mod" id="m8" data-mod="8">
+<section class="mod" id="m8" data-mod="9">
   <div class="tick" aria-hidden="true"></div>
   <h2>8. Plan, review, build, review</h2>
   <p class="partline">Part 3: The factory</p>
@@ -643,7 +662,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 9 ============ -->
-<section class="mod" id="m9" data-mod="9">
+<section class="mod" id="m9" data-mod="10">
   <div class="tick" aria-hidden="true"></div>
   <h2>9. Factory metrics</h2>
   <p class="partline">Part 3: The factory</p>
@@ -693,7 +712,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 10 ============ -->
-<section class="mod" id="m10" data-mod="10">
+<section class="mod" id="m10" data-mod="11">
   <div class="tick" aria-hidden="true"></div>
   <h2>10. Swappable harnesses</h2>
   <p class="partline">Part 4: Harnesses side by side</p>
@@ -721,7 +740,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 11 ============ -->
-<section class="mod" id="m11" data-mod="11">
+<section class="mod" id="m11" data-mod="12">
   <div class="tick" aria-hidden="true"></div>
   <h2>11. Reading the Codex source</h2>
   <p class="partline">Part 4: Harnesses side by side</p>
@@ -743,7 +762,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 12 ============ -->
-<section class="mod" id="m12" data-mod="12">
+<section class="mod" id="m12" data-mod="13">
   <div class="tick" aria-hidden="true"></div>
   <h2>12. An eval suite with repeats</h2>
   <p class="partline">Part 5: Evals and benchmarks</p>
@@ -776,7 +795,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 13 ============ -->
-<section class="mod" id="m13" data-mod="13">
+<section class="mod" id="m13" data-mod="14">
   <div class="tick" aria-hidden="true"></div>
   <h2>13. Ablation ladder and cross-harness chart</h2>
   <p class="partline">Part 5: Evals and benchmarks</p>
@@ -807,7 +826,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 14 ============ -->
-<section class="mod" id="m14" data-mod="14">
+<section class="mod" id="m14" data-mod="15">
   <div class="tick" aria-hidden="true"></div>
   <h2>14. Judge calibration</h2>
   <p class="partline">Part 5: Evals and benchmarks</p>
@@ -849,7 +868,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 15 ============ -->
-<section class="mod" id="m15" data-mod="15">
+<section class="mod" id="m15" data-mod="16">
   <div class="tick" aria-hidden="true"></div>
   <h2>15. AGENTS.md, skills and hooks</h2>
   <p class="partline">Part 6: Agent config and the learnings loop</p>
@@ -895,7 +914,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 16 ============ -->
-<section class="mod" id="m16" data-mod="16">
+<section class="mod" id="m16" data-mod="17">
   <div class="tick" aria-hidden="true"></div>
   <h2>16. LEARNINGS.md, rewritten each cycle</h2>
   <p class="partline">Part 6: Agent config and the learnings loop</p>
@@ -915,7 +934,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 17 ============ -->
-<section class="mod" id="m17" data-mod="17">
+<section class="mod" id="m17" data-mod="18">
   <div class="tick" aria-hidden="true"></div>
   <h2>17. Docker, compose and a VPS</h2>
   <p class="partline">Part 7: Ship it</p>
@@ -940,7 +959,7 @@ window.wsTrack=(function(){
 </section>
 
 <!-- ============ 18 ============ -->
-<section class="mod" id="m18" data-mod="18">
+<section class="mod" id="m18" data-mod="19">
   <div class="tick" aria-hidden="true"></div>
   <h2>18. Ship gate</h2>
   <p class="partline">Close</p>
@@ -1107,9 +1126,13 @@ window.wsTrack=(function(){
   function refLi(k) { var s = S[k]; return s ? '<li><a href="' + esc(s[1]) + '" target="_blank" rel="noopener noreferrer">' + esc(s[0]) + '</a></li>' : ''; }
   var RAIL = [
     { name: 'Start here',
-      tips: ['Every lab works in demo mode. Live calls need an OpenRouter key and cost money.', 'Quoted means a linked source published the number. Derived means this page computed it from inputs you can see.', 'Illustrative means simulated. Those outputs say so in the output itself.', 'Jediah Katz appears here with the affiliation shown on his video title: SpaceXAI.', 'Each module links to its lab folder in the starter repo, with a starter/ to complete and a solution/ to compare against.'],
+      tips: ['Every lab works in demo mode. Live calls need an OpenRouter key and cost money.', 'Quoted means a linked source published the number. Derived means this page computed it from inputs you can see.', 'Illustrative means simulated. Those outputs say so in the output itself.', 'Jediah Katz appears here with the affiliation shown on his video title: SpaceXAI.', 'The starter repo is private. You need an invite, or you request access, before you can clone it.', 'Each module links to its lab folder in the starter repo, with a starter/ to complete and a solution/ to compare against.'],
       refs: ['repo', 'orModels', 'orKeys'],
       gloss: [['Harness', 'The deterministic runtime that runs the model in a loop, executes its tool calls and manages context.'], ['Software factory', 'A system where specs or tickets go in and fleets of harnessed agents ship PRs through verification gates.']] },
+    { name: 'Run a ticket first',
+      tips: ['Do this before the concept modules: one ticket, from start to finish.', 'The starter repo is private. You need an invite, or you request access.', 'Copy .env.example to .env, then run docker compose up.', 'Submit one ticket and wait until that ticket finishes.'],
+      refs: ['repo'],
+      gloss: [['Ticket', 'One unit of work the factory takes from the request to a finished result.'], ['Starter repo', 'kpphillips/agent-factory-workshop. It is private. Access is an invite or a request.']] },
     { name: 'A bare model',
       tips: ['A model is a stateless predictor: tokens in, tokens out. It cannot execute anything.', 'The kitchen analogy is Theo\'s: harness plus model is an agent.', 'Each toggle in the lab adds one thing a real harness provides.', 'The live call sends the same task with no tools. The reply is only text, and no file anywhere changed.', 'Browser calls to OpenAI and Anthropic fail on CORS, so the live call goes through OpenRouter.'],
       refs: ['theo', 'anthSdk', 'orKeys'],
@@ -2128,6 +2151,7 @@ window.wsTrack=(function(){
 
   // ================= 18: ship gate =================
   var GATE = [
+    'I ran one ticket end to end in the starter repo before the concept modules.',
     'A bare model returns text only: tools, state and a loop are what make it act.',
     'I can place any tool on the six-layer stack and say who maintains each layer.',
     'My loop stops on no tool call or max_turns, and logs every event append-only.',
